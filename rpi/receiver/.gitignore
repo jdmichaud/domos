@@ -1,0 +1,17 @@
+# CMake
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Makefile
+cmake_install.cmake
+install_manifest.txt
+
+# CPM related
+cpm-bin
+cpm-packages
+
+# prepare_libraries
+dependencies
+
+# executable
+receiver433
