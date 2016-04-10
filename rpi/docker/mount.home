@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Print all commands to output
+set -x
+# Stop at first difficulties
+set -e
+
+# Check IP provided
+if [ $# -ne 1 ]
+then
+  echo "usage: $0 IP"
+fi
+
+echo "make sure you started your container with the --privileged option"
+
+mkdir -p ~/host
+sshfs jedi@$1:/home/jedi ~/host -p 2995
+
+echo "mount in ~/host"
