@@ -1,6 +1,7 @@
+#include "gtest/gtest.h"
 #include "protocol.h"
 
-test_hammingw() {
+TEST(RFProtocolTest, HammingWeight) {
   EXPECT_EQ(0, hammingw(0));
   EXPECT_EQ(1, hammingw(1));
   EXPECT_EQ(1, hammingw(2));
@@ -10,10 +11,10 @@ test_hammingw() {
   EXPECT_EQ(33, hammingw(5555555555555555555));
 }
 
-test_create_packet() {
+TEST(RFProtocolTest, CreatePacket) {
   uint8_t message[1] = { 170 };
   packet_t packet;
-  uint8_t *rest = &message;
+  uint8_t *rest = message;
   create_packet(12, 248, 1, message, &packet, rest);
   EXPECT_EQ(12, packet.spacket.stype);
   EXPECT_EQ(248, packet.spacket.sid);
@@ -22,16 +23,16 @@ test_create_packet() {
   EXPECT_EQ(NULL, rest);
 }
 
-test_create_packet_long_message() {
+TEST(RFProtocolTest, CreatePacketLongMessage) {
   uint8_t message[3] = { 170, 42, 254 };
   packet_t packet;
-  uint8_t *rest = &message;
+  uint8_t *rest = message;
   create_packet(12, 248, 3, message, &packet, rest);
   EXPECT_EQ(170, packet.spacket.message);
   EXPECT_EQ(&message[1], rest);
 }
 
-test_read_packet() {
+TEST(RFProtocolTest, ReadPacket) {
   packet_t ipacket;
   ipacket.spacket.magic = MAGIC_NUMBER;
   ipacket.spacket.stype = 52; // 3 bits
@@ -40,7 +41,7 @@ test_read_packet() {
   ipacket.spacket.message = 28; // 3 bits
   ipacket.spacket.parity = 1; // 3 + 3 + 1 + 3 = 10 -> even number of 1
   packet_t opacket;
-  int ret = read_packet(ipacket->raw, &opacket);
+  int ret = read_packet(ipacket.raw, &opacket);
   EXPECT_EQ(0, ret);
   EXPECT_EQ(ipacket.spacket.magic, opacket.spacket.magic);
   EXPECT_EQ(ipacket.spacket.parity, opacket.spacket.parity);
@@ -50,7 +51,7 @@ test_read_packet() {
   EXPECT_EQ(ipacket.spacket.message, opacket.spacket.message);
 }
 
-test_read_packet_wrong_magic_number() {
+TEST(RFProtocolTest, ReadPacketWrongMagicNumber) {
   packet_t ipacket;
   ipacket.spacket.magic = 42;
   ipacket.spacket.stype = 52; // 3 bits
@@ -59,11 +60,11 @@ test_read_packet_wrong_magic_number() {
   ipacket.spacket.message = 28; // 3 bits
   ipacket.spacket.parity = 1; // 3 + 3 + 1 + 3 = 10 -> even number of 1
   packet_t opacket;
-  int ret = read_packet(ipacket->raw, &opacket);
+  int ret = read_packet(ipacket.raw, &opacket);
   EXPECT_EQ(WRONG_MAGIC_ERROR, ret);
 }
 
-test_read_packet_parity_error() {
+TEST(RFProtocolTest, ReadPacketParityError) {
   packet_t ipacket;
   ipacket.spacket.magic = MAGIC_NUMBER;
   ipacket.spacket.stype = 51; // 3 bits
@@ -72,13 +73,13 @@ test_read_packet_parity_error() {
   ipacket.spacket.message = 28; // 3 bits
   ipacket.spacket.parity = 1; // 4 + 3 + 1 + 3 = 11 -> odd number of 1
   packet_t opacket;
-  int ret = read_packet(ipacket->raw, &opacket);
+  int ret = read_packet(ipacket.raw, &opacket);
   EXPECT_EQ(PARITY_ERROR, ret);
 }
 
-test_read_message() {
+TEST(RFProtocolTest, ReadMessage) {
   // Prepare input
-  uint8_t *buffer = new uint8_t[sizeof(uint8_t * 5)];
+  uint8_t *buffer = new uint8_t[sizeof(uint8_t) * 5];
   packet_t ipacket;
   ipacket.spacket.magic = MAGIC_NUMBER;
   ipacket.spacket.stype = 52; // 3 bits
@@ -87,7 +88,7 @@ test_read_message() {
   ipacket.spacket.message = 28; // 3 bits
   ipacket.spacket.parity = 1; // 3 + 3 + 1 + 3 = 10 -> even number of 1
   // Copy the header into the buffer and append an additional ictet
-  memcpy(buffer, ipacket, sizeof(uint8_t));
+  memcpy(buffer, &ipacket, sizeof(uint8_t));
   buffer[5] = 69;
   // Observed outcome
   packet_t opacket;
@@ -100,6 +101,6 @@ test_read_message() {
   EXPECT_EQ(ipacket.spacket.sid, opacket.spacket.sid);
   EXPECT_EQ(ipacket.spacket.mlength, opacket.spacket.mlength);
   EXPECT_EQ(ipacket.spacket.message, opacket.spacket.message);
-  EXPECT_EQ(buffer[5], messagerest[0])
+  EXPECT_EQ(buffer[5], messagerest[0]);
   delete[] buffer;
 }

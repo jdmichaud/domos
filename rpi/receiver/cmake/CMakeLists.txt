@@ -18,12 +18,11 @@ add_library(wiringPi STATIC IMPORTED)
 set_property(TARGET wiringPi PROPERTY
              IMPORTED_LOCATION ${DEPENDENCIES_PATH}/WiringPi/wiringPi/libwiringPi.a)
 
-set(Sources ${DEPENDENCIES_PATH}/rc-switch/RCSwitch.cpp)
-set(Sources ../src/main.cpp)
+set(SOURCES ../src/main.cpp ${DEPENDENCIES_PATH}/rc-switch/RCSwitch.cpp)
 #-----------------------------------------------------------------------
 # Setup executable
 #-----------------------------------------------------------------------
 
 set(EXE_NAME receiver433)
-add_executable(${EXE_NAME} ${Sources})
+add_executable(${EXE_NAME} ${SOURCES})
 target_link_libraries(${EXE_NAME} wiringPi)
