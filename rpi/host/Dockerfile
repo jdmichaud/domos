@@ -26,7 +26,7 @@ RUN apt-get install -y clang
 RUN apt-get install -y cmake
 # To use the RPi cross-compilation toolchain,
 # which are composed of 32bits executables
-RUN apt-get install -y lib32z1 lib32ncurses5 lib32bz2-1.0
+RUN apt-get install -y lib32z1 lib32ncurses5 lib32bz2-1.0 libc6-i386 lib32stdc++6
 
 USER jedi
 # Vim configuration
@@ -35,6 +35,14 @@ RUN ln -s /home/jedi/dotfiles/.vimrc /home/jedi/.vimrc
 RUN ln -s /home/jedi/dotfiles/.vimrc.local /home/jedi/.vimrc.local
 RUN ln -s /home/jedi/dotfiles/.vimrc.local.bundles /home/jedi/.vimrc.local.bundles
 
+USER jedi
+# RPi tool chain
+RUN cd ~/
+RUN git clone https://github.com/raspberrypi/tools.git
+RUN mv tools rpi-toolchain
+RUN cd rpi-toolchain
+RUN git checkout b65595ffb74e5853ba61916f49bdbccfc54f1300
+RUN echo "export PI_TOOLS_HOME=$HOME/rpi-toolchain" >> ~/.bashrc
 
 ## # For nfs
 ## RUN apt-get install -y nfs-kernel-server

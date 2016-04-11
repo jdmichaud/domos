@@ -23,14 +23,6 @@ pushd .
 #RCSwitch
 git clone https://github.com/sui77/rc-switch.git
 cd rc-switch
-# git checkout v2.52
-
-popd
-pushd .
-
-# RPi tool chain
-git clone https://github.com/raspberrypi/tools.git
-cd tools
-git checkout b65595ffb74e5853ba61916f49bdbccfc54f1300
+git checkout 884bbd7e9fc2340d29c47f5e42b3bf809af6539b
 
 popd
