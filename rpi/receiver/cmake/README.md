@@ -1,4 +1,4 @@
 To use cmake for cross compilation, do:
 ```
-cmake -DCMAKE_TOOLCHAIN_FILE=../../cmaketc/Toolchain-raspberrypi-arm.cmake
+cmake -DCMAKE_TOOLCHAIN_FILE=$HOME/embedded/domos/rpi/cmaketc/Toolchain-raspberrypi-arm.cmake
 ```
