@@ -1,6 +1,6 @@
-[submodule "rpi/lib/WiringPi"]
-	path = rpi/lib/WiringPi
+[submodule "rpi/deps/WiringPi"]
+	path = rpi/deps/WiringPi
 	url = https://github.com/WiringPi/WiringPi.git
-[submodule "rpi/lib/rc-switch"]
-	path = rpi/lib/rc-switch
+[submodule "deps/rc-switch"]
+	path = deps/rc-switch
 	url = https://github.com/sui77/rc-switch.git

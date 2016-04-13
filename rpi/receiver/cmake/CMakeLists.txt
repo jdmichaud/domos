@@ -1,28 +1,31 @@
 cmake_minimum_required(VERSION 2.8.12.2 FATAL_ERROR)
 project(domos)
 
-set(DEPENDENCIES_PATH ../dependencies)
+set(EXTERNAL_LIB_PATH ../../../deps/)
+set(RPI_EXTERNAL_LIB_PATH ../../deps/)
 
-# Defining some macros for RPi cross compilation
-# WARNING ! Works only in the command line. See README.md.
-#set(CMAKE_TOOLCHAIN_FILE ../../cmaketc/Toolchain-raspberrypi-arm.cmake)
+add_subdirectory(${RPI_EXTERNAL_LIB_PATH}/WiringPi/wiringPi
+                 ${CMAKE_CURRENT_BINARY_DIR}/wiringPi)
+
+# For WiringPi
+find_package (Threads)
 
 # For RCSwitch
 add_definitions(-DRPI)
 
 #Includes
-include_directories(${DEPENDENCIES_PATH}/WiringPi/wiringPi ${DEPENDENCIES_PATH}/rc-switch)
+include_directories(${RPI_EXTERNAL_LIB_PATH}/WiringPi/wiringPi ${EXTERNAL_LIB_PATH}/rc-switch)
 
 # Libraries
-add_library(wiringPi STATIC IMPORTED)
+#add_library(wiringPi STATIC IMPORTED)
 set_property(TARGET wiringPi PROPERTY
-             IMPORTED_LOCATION ${DEPENDENCIES_PATH}/WiringPi/wiringPi/libwiringPi.a)
+             IMPORTED_LOCATION ${RPI_EXTERNAL_LIB_PATH}/WiringPi/wiringPi/libwiringPi.a)
 
-set(SOURCES ../src/main.cpp ${DEPENDENCIES_PATH}/rc-switch/RCSwitch.cpp)
+set(SOURCES ../src/main.cpp ${EXTERNAL_LIB_PATH}/rc-switch/RCSwitch.cpp)
 #-----------------------------------------------------------------------
 # Setup executable
 #-----------------------------------------------------------------------
 
 set(EXE_NAME receiver433)
 add_executable(${EXE_NAME} ${SOURCES})
-target_link_libraries(${EXE_NAME} wiringPi)
+target_link_libraries(${EXE_NAME} wiringPi ${CMAKE_THREAD_LIBS_INIT})
