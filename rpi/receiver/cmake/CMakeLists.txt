@@ -1,11 +1,15 @@
 cmake_minimum_required(VERSION 2.8.12.2 FATAL_ERROR)
 project(domos)
 
+set(LIB_PATH ../../../lib/)
 set(EXTERNAL_LIB_PATH ../../../deps/)
 set(RPI_EXTERNAL_LIB_PATH ../../deps/)
 
 add_subdirectory(${RPI_EXTERNAL_LIB_PATH}/WiringPi/wiringPi
                  ${CMAKE_CURRENT_BINARY_DIR}/wiringPi)
+
+add_subdirectory(${LIB_PATH}/rfprotocol
+                 ${CMAKE_CURRENT_BINARY_DIR}/rfprotocol)
 
 # For WiringPi
 find_package (Threads)

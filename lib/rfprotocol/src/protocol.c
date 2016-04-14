@@ -1,6 +1,12 @@
+#include <stddef.h>
+#include <strings.h>
 #include "protocol.h"
 
-bool hammingw(uint64_t x) {
+const uint64_t m1  = 0x5555555555555555; //binary: 0101...
+const uint64_t m2  = 0x3333333333333333; //binary: 00110011..
+const uint64_t m4  = 0x0f0f0f0f0f0f0f0f; //binary:  4 zeros,  4 ones ...
+
+uint8_t hammingw(uint64_t x) {
   x -= (x >> 1) & m1;             //put count of each 2 bits into those 2 bits
   x = (x & m2) + ((x >> 2) & m2); //put count of each 4 bits into those 4 bits
   x = (x + (x >> 4)) & m4;        //put count of each 8 bits into those 8 bits
@@ -20,7 +26,7 @@ void create_packet(uint8_t sensor_type, uint8_t sensor_id,
   packet->spacket.mlength = message_length;
   packet->spacket.message = message[0];
   // Compute parity
-  packet->parity = hammingw(packet.raw & 0x7FFFFF) & 1;
+  packet->spacket.parity = hammingw(packet->raw & 0x7FFFFF) & 1;
   // Set the rest of the message
   messagerest = NULL;
   if (message_length > 1)
@@ -32,7 +38,7 @@ int read_packet(uint64_t raw, packet_t *packet) {
   packet->raw = raw;
   // Check maginc number
   if (packet->spacket.magic != MAGIC_NUMBER)
-    return WRONG_MAGIC_ERROR
+    return WRONG_MAGIC_ERROR;
   // Check parity
   bool parity = hammingw(packet->raw & 0x7FFFFF) & 1;
   if (parity != packet->spacket.parity)
@@ -41,12 +47,16 @@ int read_packet(uint64_t raw, packet_t *packet) {
 }
 
 int read_message(uint8_t *buffer, packet_t *packet, uint8_t *messagerest) {
-  uint64_t header = buffer[0] << 48 | buffer[1] << 32 | buffer[2] << 16 | buffer[3];
+  uint64_t header =
+    (uint64_t) buffer[0] << 48 |
+    (uint64_t) buffer[1] << 32 |
+    (uint64_t) buffer[2] << 16 |
+    buffer[3];
   // Decode the header
-  int ret = read_message(header, packet);
+  int ret = read_packet(header, packet);
   if (ret) return ret;
   // If the message is longer than 1 octet, make it point to messagerest
-  messagerest = NULL
+  messagerest = NULL;
   if (packet->spacket.mlength > 1)
     messagerest = &buffer[4];
   return 0;

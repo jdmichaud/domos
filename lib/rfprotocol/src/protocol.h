@@ -50,7 +50,7 @@ typedef union {
  *
  *  Compute the number of 1s in the provided 64 bits parameter.
  */
-uint8_t hammingw(uint64_t val);
+uint8_t hammingw(uint64_t x);
 
 /*! \brief From various information, create a header packet.
  *
