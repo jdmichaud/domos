@@ -7,3 +7,10 @@ Contain the NFS serveur configuration for the raspberry to use as a filesystem.
 
 See [this page](https://thefullsnack.com/creating-virtual-dev-environment-with-xhyve-fe501005fc6c#.vkbwxqazc) to use docker on mac.
 
+## Run the docker
+
+Suppose domos has been checked out in the current directory.
+
+```
+docker run -it -v <path_to>/domos:/home/jedi/domos  domos-env bash
+```

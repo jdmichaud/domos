@@ -1,5 +1,9 @@
+#ifndef __RFPROTOCOL_H__
+#define __RFPROTOCOL_H__
+
 #include <stdint.h>
 #include <stdbool.h>
+#include "bitop.h"
 
 #define MAGIC_NUMBER      178
 
@@ -33,18 +37,43 @@
  *              message            header packet
  *  8           first octet of     The first octet of the message.
  *              the message
+ * 0           9          17         25                                         56
+ * .... ....  .... ....  .... ....  .... ....  .... ....  .... ....  .... ....  .... ....
+ * \^^^ ^^^/  ^\^^ ^^^^  /\^^ ^^^^  /\^^ ^^^^  ^^^^ ^^^^  ^^^^ ^^^^  ^^^^ ^^^/  \^^^ ^^^/
+ *     |      |    |          |                         |                         \_ message
+ *     |      |    |          |                         \____________________ message length
+ *     |      |    |          \___________________________________________________ sensor id
+ *     |      |    \____________________________________________________________ sensor type
+ *     |      \__________________________________________________________________ parity bit
+ *     \_______________________________________________________________________ magic number
  */
-typedef union {
-  uint64_t raw;
-  struct {
-    uint8_t magic     : 8;  // magic number (shoule be MAGIC_NUMBER)
-    uint8_t parity    : 1;  // 1 if number of 1 in following fields is odd
-    uint8_t stype     : 8;  // type of sensor (0..255)
-    uint8_t sid       : 8;  // sensor id (0..255). 0 in simple sensors
-    uint32_t mlength  : 31; // length in octets of the message
-    uint16_t message  : 8;  // message (or head of the meessage if length > 1)
-  } spacket;
-} packet_t;
+#define MAGIC_NUMBER_SIZE   8
+#define PARITY_SIZE         1
+#define SENSOR_TYPE_SIZE    8
+#define SENSOR_ID_SIZE      8
+#define MESSAGE_LENGTH_SIZE 31
+#define MESSAGE_SIZE        8
+
+#define MAGIC_NUMBER_OFFSET   0
+#define PARITY_OFFSET         MAGIC_NUMBER_SIZE
+#define SENSOR_TYPE_OFFSET    PARITY_OFFSET + PARITY_SIZE
+#define SENSOR_ID_OFFSET      SENSOR_TYPE_OFFSET + SENSOR_TYPE_SIZE
+#define MESSAGE_LENGTH_OFFSET SENSOR_ID_OFFSET + SENSOR_ID_SIZE
+#define MESSAGE_OFFSET        MESSAGE_LENGTH_OFFSET + MESSAGE_LENGTH_SIZE
+
+typedef uint64_t packet_t;
+
+typedef struct {
+  uint8_t stype;
+  uint8_t sid;
+  uint32_t mlength;
+  uint8_t message;
+} packet_s;
+
+#ifdef __cplusplus
+extern "C"{
+#endif
+
 
 /*! \brief Hamming weigh computation on 64 bits.
  *
@@ -59,7 +88,7 @@ uint8_t hammingw(uint64_t x);
  */
 void create_packet(uint8_t sensor_type, uint8_t sensor_id,
                    uint32_t message_length, uint8_t *message,
-                   packet_t *packet, uint8_t *messagerest);
+                   packet_t *packet, uint8_t **messagerest);
 
 /*! \brief Convert 64 bit to packet structure.
  *
@@ -69,7 +98,7 @@ void create_packet(uint8_t sensor_type, uint8_t sensor_id,
  *  If the magic number is wrong, returns WRONG_MAGIC_ERROR
  *  If the parity is incorrect, returns PARITY_ERROR
  */
-int read_packet(uint64_t raw, packet_t *packet);
+int read_packet(packet_t packet, packet_s *spacket);
 
 /*! \brief Convert a buffer to a header packet and a buffer.
  *
@@ -79,4 +108,11 @@ int read_packet(uint64_t raw, packet_t *packet);
  *  If the magic number is wrong, returns WRONG_MAGIC_ERROR
  *  If the parity is incorrect, returns PARITY_ERROR
  */
-int read_message(uint8_t *buffer, packet_t *packet, uint8_t *messagerest);
+int read_message(uint8_t *buffer, packet_s *packet, uint8_t **messagerest);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // __RFPROTOCOL_H__
+

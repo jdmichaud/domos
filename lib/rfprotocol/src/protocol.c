@@ -1,5 +1,8 @@
+#include <stdio.h>
 #include <stddef.h>
 #include <strings.h>
+#include <sys/param.h>
+#include "bitop.h"
 #include "protocol.h"
 
 const uint64_t m1  = 0x5555555555555555; //binary: 0101...
@@ -18,46 +21,60 @@ uint8_t hammingw(uint64_t x) {
 
 void create_packet(uint8_t sensor_type, uint8_t sensor_id,
                    uint32_t message_length, uint8_t *message,
-                   packet_t *packet, uint8_t *messagerest) {
+                   packet_t *packet, uint8_t **messagerest) {
   bzero(packet, sizeof(packet_t));
-  packet->spacket.magic = MAGIC_NUMBER;
-  packet->spacket.stype = sensor_type;
-  packet->spacket.sid = sensor_id;
-  packet->spacket.mlength = message_length;
-  packet->spacket.message = message[0];
+  pack(MAGIC_NUMBER,  MAGIC_NUMBER_SIZE,  (uint8_t *) packet, MAGIC_NUMBER_OFFSET);
+  pack(sensor_type,   SENSOR_TYPE_SIZE,   (uint8_t *) packet, SENSOR_TYPE_OFFSET);
+  pack(sensor_id,     SENSOR_ID_SIZE,     (uint8_t *) packet, SENSOR_ID_OFFSET);
+  pack(message_length,MESSAGE_LENGTH_SIZE,(uint8_t *) packet, MESSAGE_LENGTH_OFFSET);
+  pack(message[0],    MESSAGE_SIZE,       (uint8_t *) packet, MESSAGE_OFFSET);
   // Compute parity
-  packet->spacket.parity = hammingw(packet->raw & 0x7FFFFF) & 1;
+#ifdef LITTLE_ENDIAN
+  pack(hammingw(*packet & 0xFFFFFFFFFFFFFE00) & 1, PARITY_SIZE,
+                (uint8_t *) packet, PARITY_OFFSET);
+#else
+  pack(hammingw(*packet & 0x7FFFFFFFFFFFFF) & 1, PARITY_SIZE,
+                (uint8_t *) packet, PARITY_OFFSET);
+#endif
   // Set the rest of the message
-  messagerest = NULL;
-  if (message_length > 1)
-    messagerest = &message[1];
+  *messagerest = NULL;
+  if (message_length > 1) {
+    *messagerest = &message[1];
+  }
 }
 
-int read_packet(uint64_t raw, packet_t *packet) {
-  bzero(packet, sizeof(packet_t));
-  packet->raw = raw;
+int read_packet(packet_t packet, packet_s *spacket) {
+  uint8_t magic_number = 0;
+  uint8_t parity;
+  bzero(spacket, sizeof(packet_s));
+  unpackc(&magic_number,       MAGIC_NUMBER_SIZE,  (uint8_t *) &packet, MAGIC_NUMBER_OFFSET);
+  unpackc(&parity,             PARITY_SIZE,        (uint8_t *) &packet, PARITY_OFFSET);
+  unpackc(&(spacket->stype),   SENSOR_TYPE_SIZE,   (uint8_t *) &packet, SENSOR_TYPE_OFFSET);
+  unpackc(&(spacket->sid),     SENSOR_ID_SIZE,     (uint8_t *) &packet, SENSOR_ID_OFFSET);
+  unpacki(&(spacket->mlength), MESSAGE_LENGTH_SIZE,(uint8_t *) &packet, MESSAGE_LENGTH_OFFSET);
+  unpackc(&(spacket->message), MESSAGE_SIZE,       (uint8_t *) &packet, MESSAGE_OFFSET);
   // Check maginc number
-  if (packet->spacket.magic != MAGIC_NUMBER)
+  if (magic_number != MAGIC_NUMBER)
     return WRONG_MAGIC_ERROR;
   // Check parity
-  bool parity = hammingw(packet->raw & 0x7FFFFF) & 1;
-  if (parity != packet->spacket.parity)
+#ifdef LITTLE_ENDIAN
+  bool computed_parity = hammingw(packet & 0xFFFFFFFFFFFF7F00) & 1;
+#else
+  bool computed_parity = hammingw(packet & 0x7FFFFFFFFFFFFF) & 1;
+#endif
+  if (computed_parity != parity)
     return PARITY_ERROR;
   return 0;
 }
 
-int read_message(uint8_t *buffer, packet_t *packet, uint8_t *messagerest) {
-  uint64_t header =
-    (uint64_t) buffer[0] << 48 |
-    (uint64_t) buffer[1] << 32 |
-    (uint64_t) buffer[2] << 16 |
-    buffer[3];
+int read_message(uint8_t *buffer, packet_s *packet, uint8_t **messagerest) {
+  packet_t *header = (packet_t *) buffer;
   // Decode the header
-  int ret = read_packet(header, packet);
+  int ret = read_packet(*header, packet);
   if (ret) return ret;
   // If the message is longer than 1 octet, make it point to messagerest
-  messagerest = NULL;
-  if (packet->spacket.mlength > 1)
-    messagerest = &buffer[4];
+  *messagerest = NULL;
+  if (packet->mlength > 1)
+    *messagerest = &buffer[sizeof(packet_t)];
   return 0;
 }

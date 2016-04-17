@@ -29,6 +29,11 @@ RUN pip install pyopenssl ndg-httpsclient pyasn1
 RUN apt-get install -y clang
 # CMake
 RUN apt-get install -y cmake
+# Google Mock/Test
+RUN apt-get install -y google-mock
+# Compile and install gtest and gmock libraries
+RUN cd /usr/src/gmock && cmake . && make && mv mv libgmock.a /usr/lib/ && \
+		mv gtest/libgtest.a /usr/lib/
 # To use the RPi cross-compilation toolchain,
 # which are composed of 32bits executables
 RUN apt-get install -y lib32z1 lib32ncurses5 lib32bz2-1.0 libc6-i386 lib32stdc++6
@@ -74,3 +79,5 @@ RUN cd /tmp && \
 ## # Initialize the NFS server
 ## ENTRYPOINT ["/home/jedi/nfs-start.sh"]
 
+# login as root
+USER root
