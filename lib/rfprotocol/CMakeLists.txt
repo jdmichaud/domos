@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 2.8.12.2 FATAL_ERROR)
 project(rfprotocol)
 
-add_subdirectory(test)
 add_subdirectory(src)

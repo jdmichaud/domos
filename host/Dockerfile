@@ -14,7 +14,7 @@ RUN useradd jedi --create-home --password jedi
 
 RUN apt-get update
 # Some utilities
-RUN apt-get install -y build-essential vim unzip curl wget git lsb-release minicom
+RUN apt-get install -y build-essential vim unzip curl wget git lsb-release minicom silversearcher-ag
 
 # Python
 RUN apt-get install -y python python-dev python-setuptools
@@ -31,9 +31,7 @@ RUN apt-get install -y clang
 RUN apt-get install -y cmake
 # Google Mock/Test
 RUN apt-get install -y google-mock
-# Compile and install gtest and gmock libraries
-RUN cd /usr/src/gmock && cmake . && make && mv mv libgmock.a /usr/lib/ && \
-		mv gtest/libgtest.a /usr/lib/
+
 # To use the RPi cross-compilation toolchain,
 # which are composed of 32bits executables
 RUN apt-get install -y lib32z1 lib32ncurses5 lib32bz2-1.0 libc6-i386 lib32stdc++6
@@ -56,7 +54,16 @@ RUN cd /home/jedi && \
 	cd rpi-toolchain && \
 	git checkout b65595ffb74e5853ba61916f49bdbccfc54f1300 && \
 	echo "export PI_TOOLS_HOME=$HOME/rpi-toolchain" >> ~/.bashrc
+# Retrieve the CMake toolchain configuration file
+ADD https://raw.githubusercontent.com/jdmichaud/domos/master/rpi/cmaketc/Toolchain-raspberrypi-arm.cmake /home/jedi/Toolchain-raspberrypi-arm.cmake
 
+USER root
+# Compile and install gtest and gmock libraries
+# We need to wait for the toolchain to be installed to compile gtest...
+RUN cd /usr/src/gmock && cmake -DCMAKE_TOOLCHAIN_FILE=/home/jedi/Toolchain-raspberrypi-arm.cmake . && make && mv libgmock.a /usr/lib/ && \
+		mv gtest/libgtest.a /usr/lib/
+
+USER jedi
 # Arduino IDE
 RUN cd /tmp && \
 	wget https://downloads.arduino.cc/arduino-1.6.8-linux64.tar.xz && \
