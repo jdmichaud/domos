@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stddef.h>
-#include <strings.h>
-#include <sys/param.h>
+#include <string.h>
 #include "bitop.h"
 #include "protocol.h"
 
@@ -22,7 +21,7 @@ uint8_t hammingw(uint64_t x) {
 void create_packet(uint8_t sensor_type, uint8_t sensor_id,
                    uint32_t message_length, uint8_t *message,
                    packet_t *packet, uint8_t **messagerest) {
-  bzero(packet, sizeof(packet_t));
+  memset(packet, 0, sizeof(packet_t));
   pack(MAGIC_NUMBER,  MAGIC_NUMBER_SIZE,  (uint8_t *) packet, MAGIC_NUMBER_OFFSET);
   pack(sensor_type,   SENSOR_TYPE_SIZE,   (uint8_t *) packet, SENSOR_TYPE_OFFSET);
   pack(sensor_id,     SENSOR_ID_SIZE,     (uint8_t *) packet, SENSOR_ID_OFFSET);
@@ -46,7 +45,7 @@ void create_packet(uint8_t sensor_type, uint8_t sensor_id,
 int read_packet(packet_t packet, packet_s *spacket) {
   uint8_t magic_number = 0;
   uint8_t parity;
-  bzero(spacket, sizeof(packet_s));
+  memset(spacket, 0, sizeof(packet_s));
   unpackc(&magic_number,       MAGIC_NUMBER_SIZE,  (uint8_t *) &packet, MAGIC_NUMBER_OFFSET);
   unpackc(&parity,             PARITY_SIZE,        (uint8_t *) &packet, PARITY_OFFSET);
   unpackc(&(spacket->stype),   SENSOR_TYPE_SIZE,   (uint8_t *) &packet, SENSOR_TYPE_OFFSET);
