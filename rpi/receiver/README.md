@@ -5,6 +5,6 @@ To plug the 433Mhx receiver to the raspberry, look into this [schematic](https:/
 # Compilation
 
 ```
-cmake -DCMAKE_TOOLCHAIN_FILE=$HOME/embedded/domos/rpi/cmaketc/Toolchain-raspberrypi-arm.cmake
+cmake -DCMAKE_TOOLCHAIN_FILE=/path/to/domos/rpi/cmaketc/Toolchain-raspberrypi-arm.cmake
 make
 ```
