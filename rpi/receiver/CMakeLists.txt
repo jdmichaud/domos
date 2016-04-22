@@ -7,7 +7,6 @@ set(RPI_EXTERNAL_LIB_PATH ../deps/)
 
 add_subdirectory(${RPI_EXTERNAL_LIB_PATH}/WiringPi
                  ${CMAKE_CURRENT_BINARY_DIR}/wiringPi)
-
 add_subdirectory(${LIB_PATH}/rfprotocol
                  ${CMAKE_CURRENT_BINARY_DIR}/rfprotocol)
 
@@ -18,7 +17,9 @@ find_package (Threads)
 add_definitions(-DRPI)
 
 #Includes
-include_directories(${RPI_EXTERNAL_LIB_PATH}/WiringPi/WiringPi/wiringPi ${EXTERNAL_LIB_PATH}/rc-switch)
+include_directories(${RPI_EXTERNAL_LIB_PATH}/WiringPi/WiringPi/wiringPi
+                    ${EXTERNAL_LIB_PATH}/rc-switch
+                    ${LIB_PATH}/rfprotocol/src)
 
 # Libraries
 #add_library(wiringPi STATIC IMPORTED)
@@ -29,6 +30,8 @@ set(SOURCES ../src/main.cpp ${EXTERNAL_LIB_PATH}/rc-switch/RCSwitch.cpp)
 #-----------------------------------------------------------------------
 # Setup executable
 #-----------------------------------------------------------------------
+
+add_definitions(-std=c++11)
 
 set(EXE_NAME receiver433)
 add_executable(${EXE_NAME} ${SOURCES})
