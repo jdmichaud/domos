@@ -2,4 +2,4 @@ all:
 	platformio run
 
 load:
-	platform run -t upload
+	platformio run -t upload

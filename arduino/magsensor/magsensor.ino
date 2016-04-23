@@ -36,7 +36,8 @@ void setupRFDevice() {
 }
 
 void sendStatus(boolean open) {
-  char codeWord[65];
+  char codeWord1[33];
+  char codeWord2[33];
   packet_t packet;
   // Power up RF device
   digitalWrite(RF_DEVICE_POWER_PIN, HIGH);
@@ -44,15 +45,19 @@ void sendStatus(boolean open) {
   // Create the communication packet
   uint8_t message = open ? 1 : 0;
   create_packet(DOOR_SENSOR, g_device_number, 1, &message, &packet, NULL);
-  codeWord[64] = '\0';
-  for (int packetSize = sizeof (packet_t) * CHAR_BIT; packetSize; --packetSize) {
-    codeWord[packetSize] = packet & 1 ? '1' : '0';
+  codeWord1[32] = '\0';
+  codeWord2[32] = '\0';
+  for (int packetSize = sizeof (packet_t) * CHAR_BIT - 1; packetSize; --packetSize) {
+    if (packetSize > 31)
+      codeWord1[packetSize] = packet & 1 ? '1' : '0';
+    else
+      codeWord2[packetSize] = packet & 1 ? '1' : '0';
     packet >>= 1;
   }
-  Serial.print("sending ");
-  Serial.println(codeWord);
+  Serial.print("sending");
   // Send packet
-  rfDevice.send(codeWord);
+  rfDevice.send(codeWord1);
+  rfDevice.send(codeWord2);
   // Power down RF device
   digitalWrite(RF_DEVICE_POWER_PIN, LOW);
 }
