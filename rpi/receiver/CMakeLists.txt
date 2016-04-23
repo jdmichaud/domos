@@ -26,7 +26,10 @@ include_directories(${RPI_EXTERNAL_LIB_PATH}/WiringPi/WiringPi/wiringPi
 set_property(TARGET wiringPi PROPERTY
              IMPORTED_LOCATION ${RPI_EXTERNAL_LIB_PATH}/WiringPi/WiringPi/wiringPi/libwiringPi.a)
 
-set(SOURCES ../src/main.cpp ${EXTERNAL_LIB_PATH}/rc-switch/RCSwitch.cpp)
+set(SOURCES ../src/main.cpp
+            ${EXTERNAL_LIB_PATH}/rc-switch/RCSwitch.cpp
+            ${LIB_PATH}/rfprotocol/src/bitop.c
+            ${LIB_PATH}/rfprotocol/src/protocol.c)
 #-----------------------------------------------------------------------
 # Setup executable
 #-----------------------------------------------------------------------
