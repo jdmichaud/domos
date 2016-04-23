@@ -36,9 +36,11 @@ void create_packet(uint8_t sensor_type, uint8_t sensor_id,
                 (uint8_t *) packet, PARITY_OFFSET);
 #endif
   // Set the rest of the message
-  *messagerest = NULL;
-  if (message_length > 1) {
-    *messagerest = &message[1];
+  if (messagerest) {
+    *messagerest = NULL;
+    if (message_length > 1) {
+      *messagerest = &message[1];
+    }
   }
 }
 

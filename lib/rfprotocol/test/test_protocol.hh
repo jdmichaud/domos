@@ -71,18 +71,18 @@ TEST(RFProtocolTest, ReadPacket) {
   // magic = MAGIC_NUMBER;
   // stype = 52; // 3 bits
   // sid = 196; // 3 bits
-  // mlength = 1; // 1 bit
-  // message = 28; // 3 bits
+  // mlength = 5; // 2 bit
+  // message = 29; // 4 bits
   // parity = 0; // 3 + 3 + 1 + 3 = 10 -> even number of 1
-  ipacket = 0x1C01000000621AB2;
+  ipacket = 0x1D05000000621AB2;
   packet_s opacket;
   bzero(&opacket, sizeof(packet_s));
   int ret = read_packet(ipacket, &opacket);
   EXPECT_EQ(0, ret);
   EXPECT_EQ(52,           opacket.stype);
   EXPECT_EQ(196,          opacket.sid);
-  EXPECT_EQ(1,            opacket.mlength);
-  EXPECT_EQ(28,           opacket.message);
+  EXPECT_EQ(5,            opacket.mlength);
+  EXPECT_EQ(29,           opacket.message);
 }
 
 TEST(RFProtocolTest, ReadPacketWrongMagicNumber) {
@@ -123,10 +123,10 @@ TEST(RFProtocolTest, ReadMessage) {
   // magic = MAGIC_NUMBER;
   // stype = 52; // 3 bits
   // sid = 196; // 3 bits
-  // mlength = 2; // 1 bit
+  // mlength = 5; // 1 bit
   // message = 28; // 3 bits
   // parity = 0; // 3 + 3 + 1 + 3 = 11 -> even number of 1
-  ipacket = 0x1C02000000621AB2;
+  ipacket = 0x1C05000000621AB2;
   // Copy the header into the buffer and append an additional ictet
   memcpy(buffer, &ipacket, sizeof(packet_t));
   buffer[8] = 69;
@@ -136,11 +136,23 @@ TEST(RFProtocolTest, ReadMessage) {
   bzero(&opacket, sizeof(packet_s));
   uint8_t *messagerest;
   int ret = read_message(buffer, &opacket, &messagerest);
-  EXPECT_EQ(0, ret);
+  EXPECT_EQ(0,    ret);
   EXPECT_EQ(52,   opacket.stype);
   EXPECT_EQ(196,  opacket.sid);
-  EXPECT_EQ(2,    opacket.mlength);
+  EXPECT_EQ(5,    opacket.mlength);
   EXPECT_EQ(28,   opacket.message);
   EXPECT_EQ(&buffer[8], messagerest);
   delete[] buffer;
+}
+
+TEST(RFProtocolTest, MagSensor) {
+  packet_t ipacket;
+  uint8_t message = 0;
+  create_packet(5, 1, 1, &message, &ipacket, NULL);
+  packet_s opacket;
+  read_packet(ipacket, &opacket);
+  EXPECT_EQ(5, opacket.stype);
+  EXPECT_EQ(1, opacket.sid);
+  EXPECT_EQ(1, opacket.mlength);
+  EXPECT_EQ(0, opacket.message);
 }
