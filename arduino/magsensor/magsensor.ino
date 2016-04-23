@@ -47,14 +47,24 @@ void sendStatus(boolean open) {
   create_packet(DOOR_SENSOR, g_device_number, 1, &message, &packet, NULL);
   codeWord1[32] = '\0';
   codeWord2[32] = '\0';
-  for (int packetSize = sizeof (packet_t) * CHAR_BIT - 1; packetSize; --packetSize) {
-    if (packetSize > 31)
-      codeWord1[packetSize] = packet & 1 ? '1' : '0';
-    else
-      codeWord2[packetSize] = packet & 1 ? '1' : '0';
+  for (int packetSize = sizeof (packet_t) * CHAR_BIT; packetSize; --packetSize) {
+    if (packetSize <= 32) {
+      codeWord1[packetSize - 1] = packet & 1 ? '1' : '0';
+      // Serial.print("CodeWord1 ");
+      // Serial.print(packetSize);
+      // Serial.print(" ");
+      // Serial.println(codeWord1[packetSize]);
+    }
+    else {
+      codeWord2[packetSize - 33] = packet & 1 ? '1' : '0';
+      // Serial.print("CodeWord2 ");
+      // Serial.print(packetSize - 32);
+      // Serial.print(" ");
+      // Serial.println(codeWord2[packetSize - 32]);
+    }
     packet >>= 1;
   }
-  Serial.print("sending");
+  Serial.print(g_device_number);
   // Send packet
   rfDevice.send(codeWord1);
   rfDevice.send(codeWord2);
@@ -79,10 +89,12 @@ void setup() {
   Serial.begin(SERIAL_COMMUNICATION_SPEED);
   /*****************************  Configuration *******************************/
   g_device_number = EEPROM.read(EE_DEVICE_NUMBER);
-  if (!g_device_number) { // If not setup already, configure it to default value 1
+  if (g_device_number = 255) { // If not setup already, configure it to default value 1
     g_device_number = 1;
     EEPROM.write(EE_DEVICE_NUMBER, g_device_number);
   }
+  Serial.print("sensor id: ");
+  Serial.println(g_device_number);
   /***************************  Pin initialisation ****************************/
   pinMode(MAGNETIC_SWITCH_PIN, INPUT);
   pinMode(RF_DEVICE_COMM_PIN, OUTPUT);
