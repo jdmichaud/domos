@@ -12,7 +12,7 @@ int SERIAL_COMMUNICATION_SPEED = 9600;
 // resolution of our switch will suffer.
 // Usual values: SLEEP_8S or SLEEP_FOREVER
 period_t SLEEP_PERIOD = SLEEP_FOREVER;
-// Pin on which the magnetic swith is plugged.
+// Pin on which the magnetic switch is plugged.
 int MAGNETIC_SWITCH_PIN = 2;
 // Pin on which the RF device is plugged;
 int RF_DEVICE_COMM_PIN = 13;
