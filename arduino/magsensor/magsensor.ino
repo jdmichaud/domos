@@ -19,7 +19,7 @@ int MAGNETIC_SWITCH_PIN = 2;
 int DIAG_SWITCH_PIN = 3;
 // Pin on which the signaling LED is plugged
 // The LED will be lit when the door is open or when in DIAG mode
-int LED_PIN = 4
+int LED_PIN = 4;
 // Pin on which the RF device is plugged;
 int RF_DEVICE_COMM_PIN = 13;
 int RF_DEVICE_POWER_PIN = 10;
@@ -131,7 +131,7 @@ void setup() {
   Serial.begin(SERIAL_COMMUNICATION_SPEED);
   /*****************************  Configuration *******************************/
   g_device_number = EEPROM.read(EE_DEVICE_NUMBER);
-  if (g_device_number = 255) { // If not setup already, configure it to default value 1
+  if (g_device_number == 255) { // If not setup already, configure it to default value 1
     g_device_number = 1;
     EEPROM.write(EE_DEVICE_NUMBER, g_device_number);
   }
