@@ -4,6 +4,7 @@
 #include "limits.h"
 #include "protocol.h"
 #include "sensor_types.h"
+#include "voltmeter.h"
 
 RCSwitch rfDevice = RCSwitch();
 
@@ -14,6 +15,11 @@ int SERIAL_COMMUNICATION_SPEED = 9600;
 period_t SLEEP_PERIOD = SLEEP_FOREVER;
 // Pin on which the magnetic switch is plugged.
 int MAGNETIC_SWITCH_PIN = 2;
+// Pin on which the diagnostic switch is plugged.
+int DIAG_SWITCH_PIN = 3;
+// Pin on which the signaling LED is plugged
+// The LED will be lit when the door is open or when in DIAG mode
+int LED_PIN = 4
 // Pin on which the RF device is plugged;
 int RF_DEVICE_COMM_PIN = 13;
 int RF_DEVICE_POWER_PIN = 10;
@@ -23,6 +29,10 @@ boolean g_contact = true;
 int EE_DEVICE_NUMBER = 0;
 // device number
 int g_device_number;
+// Will store last time LED was updated
+unsigned long g_previous_millis = 0;
+// ledState used to set the LED
+int ledState = LOW;
 
 void setupRFDevice() {
   // Transmitter is connected to Arduino Pin #10
@@ -76,6 +86,8 @@ void sendStatus(boolean open) {
 void doorStateChange() {
   // Check contact state. We assume a normally closed switch.
   boolean newContact = (digitalRead(MAGNETIC_SWITCH_PIN) == HIGH);
+  // Set the signaling LED
+  digitalWrite(LED_PIN, newContact ? LOW : HIGH);
   // Does the contact status changed since we last check
   if (newContact != g_contact) {
     // Send the status of the contact on one bit
@@ -83,6 +95,36 @@ void doorStateChange() {
     // Update the status of the contact
     g_contact = newContact;
   }
+}
+
+// Print a diagnostic report on the serial line and ask for a new device number
+void diagnotic() {
+  // Entering DIAG mode
+  digitalWrite(LED_PIN, HIGH);
+  Serial.println(" *** DIAG report ***");
+  Serial.print("type of device: ");
+  Serial.println(DOOR_SENSOR);
+  Serial.print("device id: ");
+  Serial.println(g_device_number);
+  Serial.print("battery level: ");
+  Serial.print(readVcc());
+  Serial.println(" mV");
+  Serial.print("switch status: ");
+  Serial.println(digitalRead(MAGNETIC_SWITCH_PIN) == HIGH);
+  Serial.println(" *******************");
+  Serial.println("");
+  Serial.println(" Enter a new devide id (press enter for no change):");
+  while (Serial.available() == 0)
+    /* just wait */ ;
+  int new_device_number = Serial.read();
+  if (new_device_number != -1) {
+    g_device_number = new_device_number;
+    EEPROM.write(EE_DEVICE_NUMBER, g_device_number);
+    Serial.println("New sensor id: ");
+    Serial.println(g_device_number);
+  }
+  // Exiting DIAG mode
+  digitalWrite(LED_PIN, LOW);
 }
 
 void setup() {
@@ -97,11 +139,15 @@ void setup() {
   Serial.println(g_device_number);
   /***************************  Pin initialisation ****************************/
   pinMode(MAGNETIC_SWITCH_PIN, INPUT);
+  pinMode(DIAG_SWITCH_PIN, INPUT);
   pinMode(RF_DEVICE_COMM_PIN, OUTPUT);
   pinMode(RF_DEVICE_POWER_PIN, OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, (digitalRead(MAGNETIC_SWITCH_PIN) == HIGH) ? LOW : HIGH);
   /*********************** Interruption initialisation ************************/
   // Allow wake up pin to trigger interrupt on state change.
   attachInterrupt(digitalPinToInterrupt(MAGNETIC_SWITCH_PIN), doorStateChange, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(DIAG_SWITCH_PIN), diagnotic, RISING);
 }
 
 void loop() {
