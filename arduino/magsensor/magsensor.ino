@@ -5,6 +5,7 @@
 #include "protocol.h"
 #include "sensor_types.h"
 #include "voltmeter.h"
+#include "diagnostic.h"
 
 RCSwitch rfDevice = RCSwitch();
 
@@ -101,28 +102,11 @@ void doorStateChange() {
 void diagnotic() {
   // Entering DIAG mode
   digitalWrite(LED_PIN, HIGH);
-  Serial.println(" *** DIAG report ***");
-  Serial.print("type of device: ");
-  Serial.println(DOOR_SENSOR);
-  Serial.print("device id: ");
-  Serial.println(g_device_number);
-  Serial.print("battery level: ");
-  Serial.print(readVcc());
-  Serial.println(" mV");
+  print_diagnostic(DOOR_SENSOR, g_device_number);
   Serial.print("switch status: ");
   Serial.println(digitalRead(MAGNETIC_SWITCH_PIN) == HIGH);
-  Serial.println(" *******************");
   Serial.println("");
-  Serial.println(" Enter a new devide id (press enter for no change):");
-  while (Serial.available() == 0)
-    /* just wait */ ;
-  int new_device_number = Serial.read();
-  if (new_device_number != -1) {
-    g_device_number = new_device_number;
-    EEPROM.write(EE_DEVICE_NUMBER, g_device_number);
-    Serial.println("New sensor id: ");
-    Serial.println(g_device_number);
-  }
+  ask_for_device_number();
   // Exiting DIAG mode
   digitalWrite(LED_PIN, LOW);
 }

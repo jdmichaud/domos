@@ -1,3 +1,6 @@
+#ifndef __VOLTMETER_H__
+#define __VOLTMETER_H__
+
 // http://provideyourown.com/2012/secret-arduino-voltmeter-measure-battery-voltage/
 long readVcc() {
   // Read 1.1V reference against AVcc
@@ -24,3 +27,5 @@ long readVcc() {
   result = 1125300L / result; // Calculate Vcc (in mV); 1125300 = 1.1*1023*1000
   return result; // Vcc in millivolts
 }
+
+#endif //  __VOLTMETER_H__
