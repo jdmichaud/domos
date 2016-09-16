@@ -27,7 +27,7 @@ extern "C"{
 #endif
 
 /*
- * Packs the size least significatn bit of value into the buffer
+ * Packs the size least significant bits of value into the buffer
  * Returns the new offset
  * Before:
  *  buffer: yyy. ....  .... ....  .... etc.
@@ -36,7 +36,7 @@ extern "C"{
  *  size:   10
  * After:
  *  buffer: yyyx xxxx  xxxx x...  .... etc.
- *                          ^-- offset
+ *                           ^-- offset
  */
 uint32_t pack(uint32_t value, uint8_t size, uint8_t *buffer, uint32_t offset);
 
@@ -45,8 +45,10 @@ uint32_t pack(uint32_t value, uint8_t size, uint8_t *buffer, uint32_t offset);
  */
 uint32_t unpack(uint64_t *value, uint8_t size,
                 uint8_t *buffer, uint32_t offset);
+// Proxy for unpack for char type
 uint32_t unpackc(uint8_t *value, uint8_t size,
                  uint8_t *buffer, uint32_t offset);
+// Proxy for unpack for int type
 uint32_t unpacki(uint32_t *value, uint8_t size,
                  uint8_t *buffer, uint32_t offset);
 
