@@ -19,7 +19,7 @@ int MAGNETIC_SWITCH_PIN = 2;
 int DIAG_SWITCH_PIN = 3;
 // Pin on which the signaling LED is plugged
 // The LED will be lit when the door is open or when in DIAG mode
-int LED_PIN = 4;
+int LED_PIN = 9;
 // Pin on which the RF device is plugged;
 int RF_DEVICE_COMM_PIN = 13;
 int RF_DEVICE_POWER_PIN = 10;
@@ -143,7 +143,8 @@ void setup() {
   pinMode(RF_DEVICE_COMM_PIN, OUTPUT);
   pinMode(RF_DEVICE_POWER_PIN, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
-  digitalWrite(LED_PIN, (digitalRead(MAGNETIC_SWITCH_PIN) == HIGH) ? LOW : HIGH);
+  //digitalWrite(LED_PIN, (digitalRead(MAGNETIC_SWITCH_PIN) == HIGH) ? LOW : HIGH);
+  digitalWrite(LED_PIN, LOW);
   /*********************** Interruption initialisation ************************/
   // Allow wake up pin to trigger interrupt on state change.
   attachInterrupt(digitalPinToInterrupt(MAGNETIC_SWITCH_PIN), doorStateChange, CHANGE);
@@ -153,4 +154,5 @@ void setup() {
 void loop() {
   // Go to sleep mode
   LowPower.powerDown(SLEEP_PERIOD, ADC_OFF, BOD_OFF);
+  Serial.println("loop end");
 }
