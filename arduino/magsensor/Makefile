@@ -3,10 +3,11 @@ $(warning PLATFORMIO_UPLOAD_PORT is unset. Set it to the Pololu device, the lowe
 endif
 
 all:
-	platformio run
+	platformio run -v
 
 load:
 	platformio run -t upload
 
 pololu:
-	platformio run -e pololu -t upload
+	platformio run -v -e pololu -t upload
+
