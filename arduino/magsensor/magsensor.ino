@@ -33,6 +33,22 @@ int g_device_number;
 unsigned long g_previous_millis = 0;
 // ledState used to set the LED
 int ledState = LOW;
+// Interrupt type
+int NO_INTERRUPT = 0;
+int DIAG_INTERRUPT = NO_INTERRUPT + 1;
+int DOOR_INTERRUPT = DIAG_INTERRUPT + 1;
+// Interrupt variable (used to know which interrupt was striggered in the loop)
+volatile int g_interrupt_id = NO_INTERRUPT;
+
+// Interrupt called when presing the diag switch
+void diagnoticInterrupt() {
+  g_interrupt_id = DIAG_INTERRUPT;
+}
+
+// Interrupt called when magentic switch change its state
+void doorInterrupt() {
+  g_interrupt_id = DOOR_INTERRUPT;
+}
 
 void setupRFDevice() {
   // Transmitter is connected to Arduino Pin #10
@@ -74,7 +90,6 @@ void sendStatus(boolean open) {
     }
     packet >>= 1;
   }
-  Serial.print(g_device_number);
   // Send packet
   rfDevice.send(codeWord1);
   rfDevice.send(codeWord2);
@@ -84,6 +99,7 @@ void sendStatus(boolean open) {
 
 // Function called on door state change
 void doorStateChange() {
+  Serial.println("Door state changed...");
   // Check contact state. We assume a normally closed switch.
   boolean newContact = (digitalRead(MAGNETIC_SWITCH_PIN) == HIGH);
   // Set the signaling LED
@@ -98,10 +114,12 @@ void doorStateChange() {
 }
 
 // Print a diagnostic report on the serial line and ask for a new device number
-void diagnotic() {
+void diagnostic() {
   // Entering DIAG mode
   digitalWrite(LED_PIN, HIGH);
-  Serial.println(" *** DIAG report ***");
+
+  Serial.println("");
+  Serial.println("*** DIAG report ***");
   Serial.print("type of device: ");
   Serial.println(DOOR_SENSOR);
   Serial.print("device id: ");
@@ -111,18 +129,25 @@ void diagnotic() {
   Serial.println(" mV");
   Serial.print("switch status: ");
   Serial.println(digitalRead(MAGNETIC_SWITCH_PIN) == HIGH);
-  Serial.println(" *******************");
+  Serial.println("*******************");
   Serial.println("");
   Serial.println(" Enter a new devide id (press enter for no change):");
+  delay(500);
   while (Serial.available() == 0)
     /* just wait */ ;
-  int new_device_number = Serial.read();
-  if (new_device_number != -1) {
-    g_device_number = new_device_number;
-    EEPROM.write(EE_DEVICE_NUMBER, g_device_number);
-    Serial.println("New sensor id: ");
-    Serial.println(g_device_number);
+  String new_device_number = Serial.readStringUntil(13);
+  if (new_device_number) {
+    new_device_number.trim();
+    if (new_device_number.length() != 0) {
+      g_device_number = new_device_number.toInt();
+      EEPROM.write(EE_DEVICE_NUMBER, g_device_number);
+      Serial.println("New sensor id: ");
+      Serial.println(g_device_number);
+    }
   }
+  // Reset the interrupt switch
+  g_interrupt_id = NO_INTERRUPT;
+
   // Exiting DIAG mode
   digitalWrite(LED_PIN, LOW);
 }
@@ -145,14 +170,28 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
   //digitalWrite(LED_PIN, (digitalRead(MAGNETIC_SWITCH_PIN) == HIGH) ? LOW : HIGH);
   digitalWrite(LED_PIN, LOW);
-  /*********************** Interruption initialisation ************************/
-  // Allow wake up pin to trigger interrupt on state change.
-  attachInterrupt(digitalPinToInterrupt(MAGNETIC_SWITCH_PIN), doorStateChange, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(DIAG_SWITCH_PIN), diagnotic, RISING);
 }
 
 void loop() {
+  // Allow wake up pins to trigger interrupt on state change.
+  attachInterrupt(digitalPinToInterrupt(MAGNETIC_SWITCH_PIN), doorInterrupt, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(DIAG_SWITCH_PIN), diagnoticInterrupt, RISING);
+
+  // Delaying to launch screen
+  Serial.println("Going to sleep...");
+  delay(500); // Let the serial communication terminates
   // Go to sleep mode
   LowPower.powerDown(SLEEP_PERIOD, ADC_OFF, BOD_OFF);
-  Serial.println("loop end");
+  Serial.println("Waking up!");
+
+  // Disable external pin interrupt on wake up pins
+  detachInterrupt(digitalPinToInterrupt(MAGNETIC_SWITCH_PIN));
+  detachInterrupt(digitalPinToInterrupt(DIAG_SWITCH_PIN));
+
+  // Manage interrupt
+  if (g_interrupt_id == DIAG_INTERRUPT) {
+    diagnostic();
+  } else if (g_interrupt_id == DOOR_INTERRUPT) {
+    doorStateChange();
+  }
 }
