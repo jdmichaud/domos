@@ -31,7 +31,7 @@ int EE_DEVICE_NUMBER = 0;
 // device number
 int g_device_number;
 // Minimal battery level. We raise a flag below 2.5V
-int minimal_battery_level = 2500
+int minimal_battery_level = 2500;
 // Will store last time LED was updated
 unsigned long g_previous_millis = 0;
 // ledState used to set the LED
@@ -106,13 +106,16 @@ void sendStatus(boolean open) {
 
 // Function called on door state change
 void doorStateChange() {
-  Serial.println("Door state changed...");
+  // Reset interrupt ASAP, so we can catch new state change quickly
+  g_interrupt_id = NO_INTERRUPT;
   // Check contact state. We assume a normally closed switch.
   boolean newContact = (digitalRead(MAGNETIC_SWITCH_PIN) == HIGH);
-  // Set the signaling LED
-  digitalWrite(LED_PIN, newContact ? LOW : HIGH);
   // Does the contact status changed since we last check
   if (newContact != g_contact) {
+    Serial.print("Door state changed... ");
+    Serial.print(newContact ? "just opened\n" : "just closed\n");
+    // Set the signaling LED
+    digitalWrite(LED_PIN, newContact);
     // Send the status of the contact on one bit
     sendStatus(newContact);
     // Update the status of the contact
@@ -129,12 +132,12 @@ void diagnostic() {
   Serial.print("switch status: ");
   Serial.println(digitalRead(MAGNETIC_SWITCH_PIN) == HIGH);
   Serial.println("");
-  ask_for_device_number();
+  ask_for_device_number(EE_DEVICE_NUMBER, &g_device_number);
   // Reset the interrupt switch
   g_interrupt_id = NO_INTERRUPT;
 
   // Exiting DIAG mode
-  digitalWrite(LED_PIN, LOW);
+  digitalWrite(LED_PIN, g_contact);
 }
 
 void setup() {
@@ -153,30 +156,33 @@ void setup() {
   pinMode(RF_DEVICE_COMM_PIN, OUTPUT);
   pinMode(RF_DEVICE_POWER_PIN, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
-  //digitalWrite(LED_PIN, (digitalRead(MAGNETIC_SWITCH_PIN) == HIGH) ? LOW : HIGH);
-  digitalWrite(LED_PIN, LOW);
-}
-
-void loop() {
+  // Initialize magnetic switch status
+  g_contact = (digitalRead(MAGNETIC_SWITCH_PIN) == HIGH);
+  digitalWrite(LED_PIN, g_contact);
   // Allow wake up pins to trigger interrupt on state change.
   attachInterrupt(digitalPinToInterrupt(MAGNETIC_SWITCH_PIN), doorInterrupt, CHANGE);
   attachInterrupt(digitalPinToInterrupt(DIAG_SWITCH_PIN), diagnoticInterrupt, RISING);
+}
 
+void loop() {
   // Delaying to launch screen
   Serial.println("Going to sleep...");
-  delay(500); // Let the serial communication terminates
+  Serial.flush();
   // Go to sleep mode
   LowPower.powerDown(SLEEP_PERIOD, ADC_OFF, BOD_OFF);
   Serial.println("Waking up!");
 
   // Disable external pin interrupt on wake up pins
-  detachInterrupt(digitalPinToInterrupt(MAGNETIC_SWITCH_PIN));
-  detachInterrupt(digitalPinToInterrupt(DIAG_SWITCH_PIN));
+  // detachInterrupt(digitalPinToInterrupt(MAGNETIC_SWITCH_PIN));
+  // detachInterrupt(digitalPinToInterrupt(DIAG_SWITCH_PIN));
 
   // Manage interrupt
   if (g_interrupt_id == DIAG_INTERRUPT) {
     diagnostic();
   } else if (g_interrupt_id == DOOR_INTERRUPT) {
-    doorStateChange();
+    // Sending the door status takes time. If the door state changed again while
+    // we were sending the radio packet, we would be out of sync. So recheck the
+    // interrupt status as long as it is not reset.
+    while (g_interrupt_id == DOOR_INTERRUPT) doorStateChange();
   }
 }
