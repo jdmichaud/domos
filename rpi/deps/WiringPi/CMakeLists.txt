@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.12.2 FATAL_ERROR)
 project(wiringPi)
 
-set(WIRINGPI_FOLDER WiringPi/wiringPi)
+set(WIRINGPI_FOLDER wiringPi/wiringPi)
 
 #Includes
 include_directories(${WIRINGPI_FOLDER})

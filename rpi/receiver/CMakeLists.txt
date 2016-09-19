@@ -17,7 +17,7 @@ find_package (Threads)
 add_definitions(-DRPI)
 
 #Includes
-include_directories(${RPI_EXTERNAL_LIB_PATH}/WiringPi/WiringPi/wiringPi
+include_directories(${RPI_EXTERNAL_LIB_PATH}/WiringPi/wiringPi/wiringPi
                     ${EXTERNAL_LIB_PATH}/rc-switch
                     ${LIB_PATH}/rfprotocol/src)
 
@@ -26,7 +26,7 @@ include_directories(${RPI_EXTERNAL_LIB_PATH}/WiringPi/WiringPi/wiringPi
 set_property(TARGET wiringPi PROPERTY
              IMPORTED_LOCATION ${RPI_EXTERNAL_LIB_PATH}/WiringPi/WiringPi/wiringPi/libwiringPi.a)
 
-set(SOURCES ../src/main.cpp
+set(SOURCES src/main.cpp
             ${EXTERNAL_LIB_PATH}/rc-switch/RCSwitch.cpp
             ${LIB_PATH}/rfprotocol/src/bitop.c
             ${LIB_PATH}/rfprotocol/src/protocol.c)

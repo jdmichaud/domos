@@ -33,15 +33,19 @@
  *                                 sensor. See sensor_type.h
  *  8           sensor id          8 bits integer representing the identifier of
  *                                 the sensor.
- *  31          length of the      The total length of the message following the
+ *  1           battery            0: Battery level is OK
+ *              replacement        1: Battery needs to be replaced
+ *              indicator
+ *  30          length of the      The total length of the message following the
  *              message            header packet
  *  8           first octet of     The first octet of the message.
  *              the message
  * 0           9          17         25                                         56
  * .... ....  .... ....  .... ....  .... ....  .... ....  .... ....  .... ....  .... ....
- * \^^^ ^^^/  ^\^^ ^^^^  /\^^ ^^^^  /\^^ ^^^^  ^^^^ ^^^^  ^^^^ ^^^^  ^^^^ ^^^/  \^^^ ^^^/
- *     |      |    |          |                         |                         \_ message
- *     |      |    |          |                         \____________________ message length
+ * \^^^ ^^^/  ^\^^ ^^^^  /\^^ ^^^^  /|\^ ^^^^  ^^^^ ^^^^  ^^^^ ^^^^  ^^^^ ^^^/  \^^^ ^^^/
+ *     |      |    |          |      |                  |                         \_ message
+ *     |      |    |          |      |                  \____________________ message length
+ *     |      |    |          |      \________________________ battery replacement indicator
  *     |      |    |          \___________________________________________________ sensor id
  *     |      |    \____________________________________________________________ sensor type
  *     |      \__________________________________________________________________ parity bit
@@ -51,23 +55,26 @@
 #define PARITY_SIZE         1
 #define SENSOR_TYPE_SIZE    8
 #define SENSOR_ID_SIZE      8
-#define MESSAGE_LENGTH_SIZE 31
+#define BATT_REPL_SIZE      1
+#define MESSAGE_LENGTH_SIZE 30
 #define MESSAGE_SIZE        8
 
 #define MAGIC_NUMBER_OFFSET   0
 #define PARITY_OFFSET         MAGIC_NUMBER_SIZE
 #define SENSOR_TYPE_OFFSET    PARITY_OFFSET + PARITY_SIZE
 #define SENSOR_ID_OFFSET      SENSOR_TYPE_OFFSET + SENSOR_TYPE_SIZE
-#define MESSAGE_LENGTH_OFFSET SENSOR_ID_OFFSET + SENSOR_ID_SIZE
+#define BATT_REPL_OFFSET      SENSOR_ID_OFFSET + SENSOR_ID_SIZE
+#define MESSAGE_LENGTH_OFFSET BATT_REPL_OFFSET + BATT_REPL_SIZE
 #define MESSAGE_OFFSET        MESSAGE_LENGTH_OFFSET + MESSAGE_LENGTH_SIZE
 
 typedef uint64_t packet_t;
 
 typedef struct {
-  uint8_t stype;
-  uint8_t sid;
-  uint32_t mlength;
-  uint8_t message;
+  uint8_t stype; // Type of the device. See sensor_types.h
+  uint8_t sid; // ID of the device
+  bool battery_indicator; // 0: battery OK, 1: Battery to be replaced
+  uint32_t mlength; // Length of the message
+  uint8_t message; // Message
 } packet_s;
 
 #ifdef __cplusplus
@@ -87,8 +94,8 @@ uint8_t hammingw(uint64_t x);
  *  a pointer of the rest of the message.
  */
 void create_packet(uint8_t sensor_type, uint8_t sensor_id,
-                   uint32_t message_length, uint8_t *message,
-                   packet_t *packet, uint8_t **messagerest);
+                   bool battery_indicator, uint32_t message_length,
+                   uint8_t *message, packet_t *packet, uint8_t **messagerest);
 
 /*! \brief Convert 64 bit to packet structure.
  *

@@ -30,6 +30,8 @@ boolean g_contact = true;
 int EE_DEVICE_NUMBER = 0;
 // device number
 int g_device_number;
+// Minimal battery level. We raise a flag below 2.5V
+int minimal_battery_level = 2500
 // Will store last time LED was updated
 unsigned long g_previous_millis = 0;
 // ledState used to set the LED
@@ -71,7 +73,11 @@ void sendStatus(boolean open) {
   setupRFDevice();
   // Create the communication packet
   uint8_t message = open ? 1 : 0;
-  create_packet(DOOR_SENSOR, g_device_number, 1, &message, &packet, NULL);
+  // Battery level indicator
+  bool battery_indicator = readVcc() < minimal_battery_level ? true : false;
+  // Create the RF packet
+  create_packet(DOOR_SENSOR, g_device_number, battery_indicator,
+                1, &message, &packet, NULL);
   codeWord1[32] = '\0';
   codeWord2[32] = '\0';
   for (int packetSize = sizeof (packet_t) * CHAR_BIT; packetSize; --packetSize) {
