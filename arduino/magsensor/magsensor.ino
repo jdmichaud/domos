@@ -20,7 +20,7 @@ int MAGNETIC_SWITCH_PIN = 2;
 int DIAG_SWITCH_PIN = 3;
 // Pin on which the signaling LED is plugged
 // The LED will be lit when the door is open or when in DIAG mode
-int LED_PIN = 4
+int LED_PIN = 9;
 // Pin on which the RF device is plugged;
 int RF_DEVICE_COMM_PIN = 13;
 int RF_DEVICE_POWER_PIN = 10;
@@ -34,6 +34,22 @@ int g_device_number;
 unsigned long g_previous_millis = 0;
 // ledState used to set the LED
 int ledState = LOW;
+// Interrupt type
+int NO_INTERRUPT = 0;
+int DIAG_INTERRUPT = NO_INTERRUPT + 1;
+int DOOR_INTERRUPT = DIAG_INTERRUPT + 1;
+// Interrupt variable (used to know which interrupt was striggered in the loop)
+volatile int g_interrupt_id = NO_INTERRUPT;
+
+// Interrupt called when presing the diag switch
+void diagnoticInterrupt() {
+  g_interrupt_id = DIAG_INTERRUPT;
+}
+
+// Interrupt called when magentic switch change its state
+void doorInterrupt() {
+  g_interrupt_id = DOOR_INTERRUPT;
+}
 
 void setupRFDevice() {
   // Transmitter is connected to Arduino Pin #10
@@ -75,7 +91,6 @@ void sendStatus(boolean open) {
     }
     packet >>= 1;
   }
-  Serial.print(g_device_number);
   // Send packet
   rfDevice.send(codeWord1);
   rfDevice.send(codeWord2);
@@ -85,6 +100,7 @@ void sendStatus(boolean open) {
 
 // Function called on door state change
 void doorStateChange() {
+  Serial.println("Door state changed...");
   // Check contact state. We assume a normally closed switch.
   boolean newContact = (digitalRead(MAGNETIC_SWITCH_PIN) == HIGH);
   // Set the signaling LED
@@ -99,14 +115,18 @@ void doorStateChange() {
 }
 
 // Print a diagnostic report on the serial line and ask for a new device number
-void diagnotic() {
+void diagnostic() {
   // Entering DIAG mode
   digitalWrite(LED_PIN, HIGH);
+
   print_diagnostic(DOOR_SENSOR, g_device_number);
   Serial.print("switch status: ");
   Serial.println(digitalRead(MAGNETIC_SWITCH_PIN) == HIGH);
   Serial.println("");
   ask_for_device_number();
+  // Reset the interrupt switch
+  g_interrupt_id = NO_INTERRUPT;
+
   // Exiting DIAG mode
   digitalWrite(LED_PIN, LOW);
 }
@@ -115,7 +135,7 @@ void setup() {
   Serial.begin(SERIAL_COMMUNICATION_SPEED);
   /*****************************  Configuration *******************************/
   g_device_number = EEPROM.read(EE_DEVICE_NUMBER);
-  if (g_device_number = 255) { // If not setup already, configure it to default value 1
+  if (g_device_number == 255) { // If not setup already, configure it to default value 1
     g_device_number = 1;
     EEPROM.write(EE_DEVICE_NUMBER, g_device_number);
   }
@@ -127,14 +147,30 @@ void setup() {
   pinMode(RF_DEVICE_COMM_PIN, OUTPUT);
   pinMode(RF_DEVICE_POWER_PIN, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
-  digitalWrite(LED_PIN, (digitalRead(MAGNETIC_SWITCH_PIN) == HIGH) ? LOW : HIGH);
-  /*********************** Interruption initialisation ************************/
-  // Allow wake up pin to trigger interrupt on state change.
-  attachInterrupt(digitalPinToInterrupt(MAGNETIC_SWITCH_PIN), doorStateChange, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(DIAG_SWITCH_PIN), diagnotic, RISING);
+  //digitalWrite(LED_PIN, (digitalRead(MAGNETIC_SWITCH_PIN) == HIGH) ? LOW : HIGH);
+  digitalWrite(LED_PIN, LOW);
 }
 
 void loop() {
+  // Allow wake up pins to trigger interrupt on state change.
+  attachInterrupt(digitalPinToInterrupt(MAGNETIC_SWITCH_PIN), doorInterrupt, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(DIAG_SWITCH_PIN), diagnoticInterrupt, RISING);
+
+  // Delaying to launch screen
+  Serial.println("Going to sleep...");
+  delay(500); // Let the serial communication terminates
   // Go to sleep mode
   LowPower.powerDown(SLEEP_PERIOD, ADC_OFF, BOD_OFF);
+  Serial.println("Waking up!");
+
+  // Disable external pin interrupt on wake up pins
+  detachInterrupt(digitalPinToInterrupt(MAGNETIC_SWITCH_PIN));
+  detachInterrupt(digitalPinToInterrupt(DIAG_SWITCH_PIN));
+
+  // Manage interrupt
+  if (g_interrupt_id == DIAG_INTERRUPT) {
+    diagnostic();
+  } else if (g_interrupt_id == DOOR_INTERRUPT) {
+    doorStateChange();
+  }
 }
