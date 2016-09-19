@@ -1,11 +1,11 @@
 # Build with
-# docker build -t buildroot .
+# docker build -t domos-env .
 
 ## # Run with
 ## # user$ docker run -it --rm --privileged --cap-add=ALL -v /lib/modules:/lib/modules buildroot
 ## # `--rm --privileged --cap-add=ALL` is to modprobe nfs and nfsd
 
-FROM ubuntu
+FROM ubuntu:xenial
 
 # For the proxy
 
@@ -34,7 +34,9 @@ RUN apt-get install -y google-mock
 
 # To use the RPi cross-compilation toolchain,
 # which are composed of 32bits executables
-RUN apt-get install -y lib32z1 lib32ncurses5 lib32bz2-1.0 libc6-i386 lib32stdc++6
+RUN dpkg --add-architecture i386
+RUN apt-get update
+RUN apt-get install -y libz1:i386 libncurses5:i386 libbz2-1.0:i386 libc6:i386 libstdc++6:i386
 
 # Install platformio
 RUN pip install platformio
