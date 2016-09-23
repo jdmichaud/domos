@@ -17,7 +17,8 @@ find_package (Threads)
 add_definitions(-DRPI)
 
 #Includes
-include_directories(${RPI_EXTERNAL_LIB_PATH}/WiringPi/wiringPi/wiringPi
+include_directories(${CURL_INCLUDE_DIRS}
+                    ${RPI_EXTERNAL_LIB_PATH}/WiringPi/wiringPi/wiringPi
                     ${EXTERNAL_LIB_PATH}/rc-switch
                     ${LIB_PATH}/rfprotocol/src)
 
