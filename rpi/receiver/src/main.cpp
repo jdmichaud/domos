@@ -16,7 +16,7 @@ void transmissionHandler() {
   cv.notify_all();
 }
 
-int init(int pulseLength) {
+int init(RCSwitch& rfSwitch, int pulseLength) {
   // Init wiring PI
   if(wiringPiSetup() == -1) {
     std::cerr << "wiringPiSetup failed, exiting..." << std::endl;
@@ -81,7 +81,7 @@ int main(int argc, char **argv) {
 
   if (argv[1] != NULL) {
     int retcode = 0;
-    if ((retcode = init(atoi(argv[1]))) != 0);
+    if ((retcode = init(rfSwitch, atoi(argv[1]))) != 0);
       return retcode;
   }
 
