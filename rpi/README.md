@@ -216,3 +216,13 @@ To start it for the session:
 ```
 sudo systemctl start docker.service
 ```
+
+# Docker business
+
+There is a Docker image (`host/Dockerfile`) to cross-compile program on your
+desktop for your raspberry-pi.
+
+There is a Docker image (`rpi/docker/Dockerfile`) to mount the domos folder
+from your desktop to your raspberry-pi in order to test it. Use the script
+`mount.home` of the raspberry Docker container.
+

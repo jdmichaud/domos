@@ -14,7 +14,7 @@ RUN useradd jedi --create-home --password jedi
 
 RUN apt-get update
 # Some utilities
-RUN apt-get install -y build-essential vim unzip curl wget git lsb-release minicom silversearcher-ag
+RUN apt-get install -y build-essential nano vim unzip curl wget git lsb-release minicom silversearcher-ag
 
 # Python
 RUN apt-get install -y python python-dev python-setuptools
@@ -29,8 +29,9 @@ RUN pip install pyopenssl ndg-httpsclient pyasn1
 RUN apt-get install -y clang
 # CMake
 RUN apt-get install -y cmake
-# Google Mock/Test
+# Google Test/Mock to compile with x86 as target
 RUN apt-get install -y google-mock
+RUN cd /usr/src/gmock && cmake CMakeLists.txt && make
 
 # To use the RPi cross-compilation toolchain,
 # which are composed of 32bits executables
@@ -49,24 +50,44 @@ RUN cd /home/jedi && \
 	ln -s /home/jedi/dotfiles/.vimrc.local /home/jedi/.vimrc.local && \
 	ln -s /home/jedi/dotfiles/.vimrc.local.bundles /home/jedi/.vimrc.local.bundles
 
+#
 # RPi tool chain
+#
 RUN cd /home/jedi && \
 	git clone https://github.com/raspberrypi/tools.git && \
 	mv tools rpi-toolchain && \
 	cd rpi-toolchain && \
 	git checkout b65595ffb74e5853ba61916f49bdbccfc54f1300 && \
 	echo "export PI_TOOLS_HOME=$HOME/rpi-toolchain" >> ~/.bashrc
+ENV PI_TOOLS_HOME /home/jedi/rpi-toolchain/
 # Retrieve the CMake toolchain configuration file
 ADD https://raw.githubusercontent.com/jdmichaud/domos/master/rpi/cmaketc/Toolchain-raspberrypi-arm.cmake /home/jedi/Toolchain-raspberrypi-arm.cmake
 
+#
+# Google Test/Mock
+#
+# Download google test/mock and compile it
+RUN cd /home/jedi && wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz
 USER root
-# Compile and install gtest and gmock libraries
-# We need to wait for the toolchain to be installed to compile gtest...
-RUN cd /usr/src/gmock && cmake -DCMAKE_TOOLCHAIN_FILE=/home/jedi/Toolchain-raspberrypi-arm.cmake . && make && mv libgmock.a /usr/lib/ && \
-		mv gtest/libgtest.a /usr/lib/
-
+# Give ownership of ADDED files to the user. ADD always create the user as owned by root...
+RUN chown jedi /home/jedi/Toolchain-raspberrypi-arm.cmake
+RUN chown jedi /home/jedi/release-1.8.0.tar.gz
 USER jedi
+RUN cd /home/jedi && tar zxvf release-1.8.0.tar.gz
+RUN cd /home/jedi/googletest-release-1.8.0 && \
+	cmake -DCMAKE_TOOLCHAIN_FILE=/home/jedi/Toolchain-raspberrypi-arm.cmake && \
+# To install the library in the toolchain sysroot.
+# Look at the toolchain comfiguration file (), arm-bcm2708hardfp-linux-gnueabi-gcc
+# is the configured compiler.
+	make DESTDIR=`/home/jedi/rpi-toolchain/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-gcc --print-sysroot` install
+# So CMake can find gtest when using the toolchain
+RUN echo '' | cat >> /home/jedi/Toolchain-raspberrypi-arm.cmake
+RUN echo 'SET (ENV{GTEST_ROOT} $ENV{PI_TOOLS_HOME}/${PiToolsDir}/arm-bcm2708hardfp-linux-gnueabi/sysroot/usr/local/)' | cat >> /home/jedi/Toolchain-raspberrypi-arm.cmake
+
+#
 # Arduino IDE
+#
+USER jedi
 RUN cd /tmp && \
 	wget https://downloads.arduino.cc/arduino-1.6.8-linux64.tar.xz && \
 	tar xf arduino-1.6.8-linux64.tar.xz && \

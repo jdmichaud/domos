@@ -29,6 +29,8 @@ RUN apt-get install -y inetutils-ping
 RUN apt-get install -y tmux
 RUN apt-get install -y vim
 RUN apt-get install -y curl
+RUN apt-get install -y file
+
 # Git
 RUN apt-get install -y git
 
@@ -43,3 +45,7 @@ RUN chown root:fuse /dev/fuse
 ADD mount.home /home/jedi/
 RUN chown jedi:jedi /home/jedi/mount.home
 RUN chmod +x /home/jedi/mount.home
+
+# When compiled with the toolchain, a binray will look gor /lib/ld-linux.so.3
+# which is named /lib/ld-linux-armhf.so.3 on the pi.
+RUN ln -s /lib/ld-linux-armhf.so.3 /lib/ld-linux.so.3
