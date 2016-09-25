@@ -22,3 +22,11 @@ cmake CMakeLists.txt
 make
 ```
 
+For example, to compile a Debug version and put the CMake files in a specific folder, do:
+```
+mkdir -p build/debug
+cd build/debug
+cmake -DCMAKE_BUILD_TYPE=Debug ../
+make
+```
+
