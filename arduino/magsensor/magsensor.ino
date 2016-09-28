@@ -30,8 +30,9 @@ boolean g_contact = true;
 int EE_DEVICE_NUMBER = 0;
 // device number
 int g_device_number;
-// Minimal battery level. We raise a flag below 2.5V
-int minimal_battery_level = 2500;
+// According to Atmega328P datasheet, operating voltage starts at 2.7V
+// Minimal battery level. We raise a flag below 2.8V
+int minimal_battery_level = 2800;
 // Will store last time LED was updated
 unsigned long g_previous_millis = 0;
 // ledState used to set the LED

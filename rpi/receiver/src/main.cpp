@@ -16,21 +16,27 @@ void transmissionHandler() {
   cv.notify_all();
 }
 
-int main(int argc, char **argv) {
-  RCSwitch rfSwitch;
-
+int init(RCSwitch& rfSwitch, int pulseLength) {
+  // Init wiring PI
   if(wiringPiSetup() == -1) {
-    std::cout << "wiringPiSetup failed, exiting..." << std::endl;
-    return 0;
+    std::cerr << "wiringPiSetup failed, exiting..." << std::endl;
+    return 1;
   }
-
-  int pulseLength = 0;
-  if (argv[1] != NULL) pulseLength = atoi(argv[1]);
+  // Init RF Switch
   if (pulseLength != 0) rfSwitch.setPulseLength(pulseLength);
   rfSwitch.enableReceive(RF_DEVICE_COMM_PIN);  // Receiver on interrupt 0 => that is pin #2
   std::cout << "listening..." << std::endl;
   rfSwitch.registerCustomInterruptHandler(transmissionHandler);
+}
 
+void processPacket(packet_s packet) {
+  std::cout << "sensor type: " << (int) packet.stype <<
+             ", sensor id: " << (int) packet.sid <<
+             ", message: " << (int) packet.message << std::endl;
+
+}
+
+void receiveMessage(RCSwitch& rfSwitch) {
   bool receiving_first = true;
   uint64_t previous_value = 0;
   uint64_t value = 0;
@@ -56,19 +62,30 @@ int main(int argc, char **argv) {
         packet_s packet;
         int ret = read_packet(raw_packet, &packet);
         if (ret == WRONG_MAGIC_ERROR) {
-          std::cout << "Wrong magic number, dismiss message" << std::endl;
+          std::cout << "DEBUG: Wrong magic number, dismiss message" << std::endl;
+          continue;
         } else if (ret == PARITY_ERROR) {
-          std::cerr << "Parity error in message, tread lightly" << std::endl;
+          std::cerr << "ERROR: Parity error in message, tread lightly" << std::endl;
         }
-        std::cout << "sensor type: " << (int) packet.stype <<
-                     ", sensor id: " << (int) packet.sid <<
-                     ", message: " << (int) packet.message << std::endl;
+        processPacket(packet);
         receiving_first = true;
         raw_packet = 0;
         value = 0;
       }
     }
   }
+}
+
+int main(int argc, char **argv) {
+  RCSwitch rfSwitch;
+
+  if (argv[1] != NULL) {
+    int retcode = 0;
+    if ((retcode = init(rfSwitch, atoi(argv[1]))) != 0);
+      return retcode;
+  }
+
+  receiveMessage(rfSwitch);
 
   return 0;
 }
