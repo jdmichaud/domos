@@ -6,7 +6,7 @@
 #include "RCSwitch.h"
 
 // The RF device data pin
-#define RF_DEVICE_COMM_PIN 2
+#define RF_DEVICE_COMM_PIN 27
 
 std::mutex m;
 std::condition_variable cv;
@@ -18,15 +18,15 @@ void transmissionHandler() {
 
 int init(RCSwitch& rfSwitch, int pulseLength) {
   // Init wiring PI
-  if(wiringPiSetup() == -1) {
+  if(wiringPiSetupSys() == -1) {
     std::cerr << "wiringPiSetup failed, exiting..." << std::endl;
     return 1;
   }
   // Init RF Switch
   if (pulseLength != 0) rfSwitch.setPulseLength(pulseLength);
   rfSwitch.enableReceive(RF_DEVICE_COMM_PIN);  // Receiver on interrupt 0 => that is pin #2
-  std::cout << "listening..." << std::endl;
   rfSwitch.registerCustomInterruptHandler(transmissionHandler);
+  return 0;
 }
 
 void processPacket(packet_s packet) {
@@ -41,12 +41,14 @@ void receiveMessage(RCSwitch& rfSwitch) {
   uint64_t previous_value = 0;
   uint64_t value = 0;
   packet_t raw_packet = 0;
+  std::cout << "listening..." << std::endl;
   while(1) {
     std::unique_lock<std::mutex> lk(m);
     cv.wait(lk);
 
     if (rfSwitch.available()) {
       value = rfSwitch.getReceivedValue();
+      // std::cout << value << std::endl;
       rfSwitch.resetAvailable();
       if (value == previous_value)
         continue; // If we receive the same value, this is just a repeat
@@ -79,10 +81,10 @@ void receiveMessage(RCSwitch& rfSwitch) {
 int main(int argc, char **argv) {
   RCSwitch rfSwitch;
 
-  if (argv[1] != NULL) {
-    int retcode = 0;
-    if ((retcode = init(rfSwitch, atoi(argv[1]))) != 0);
-      return retcode;
+  int retcode;
+  if ((retcode = init(rfSwitch, 0)) != 0) {
+    std::cout << "Initialization failed with " << retcode << std::endl;
+    return retcode;
   }
 
   receiveMessage(rfSwitch);
