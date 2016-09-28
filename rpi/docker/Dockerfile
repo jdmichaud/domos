@@ -22,38 +22,48 @@ USER root
 RUN apt-get update
 
 # A few utilisy for debugging purposes
-RUN apt-get install -y nano
-RUN apt-get install -y lsof
-RUN apt-get install -y net-tools
-RUN apt-get install -y inetutils-ping
-RUN apt-get install -y tmux
-RUN apt-get install -y vim
-RUN apt-get install -y curl
-RUN apt-get install -y file
-
-# Git
-RUN apt-get install -y git
+RUN apt-get install -y \
+  nano \
+  lsof \
+  net-tools \
+  inetutils-ping \
+  tmux \
+  vim \
+  curl \
+  file \
+  git \
+  build-essential \
+  gcc \
+  python \
+  python-dev \
+  python-pip \
+  --no-install-recommends
 
 # To compile wiringPi
-RUN apt-get install -y sudo
-RUN apt-get install -y make
-RUN apt-get install -y gcc
+RUN apt-get install -y \
+  sudo \
+  make \
+  gcc \
+  --no-install-recommends
 
 # Fix premission /sys/class/gpio
 # http://stackoverflow.com/questions/30938991/access-gpio-sys-class-gpio-as-non-root/30940526#30940526
-RUN echo 'SUBSYSTEM=="gpio*", PROGRAM="/bin/sh -c \'chown -R root:gpio /sys/class/gpio && chmod -R 770 /sys/class/gpio; chown -R root:gpio /sys/devices/virtual/gpio && chmod -R 770 /sys/devices/virtual/gpio\'' | cat > /etc/udev/rules.d/99-com.rules
+RUN groupadd gpio
+RUN usermod -a -G gpio root && usermod -a -G gpio jedi
+RUN echo -n 'SUBSYSTEM=="gpio*", PROGRAM="/bin/sh -c ' | cat >> /etc/udev/rules.d/99-com.rules
+RUN echo -n "'chown -R root:gpio /sys/class/gpio && chmod -R 770 /sys/class/gpio; chown -R root:gpio /sys/devices/virtual/gpio && chmod -R 770 /sys/devices/virtual/gpio'" | cat >> /etc/udev/rules.d/99-com.rules
+RUN echo '"' | cat >> /etc/udev/rules.d/99-com.rules
 
 # Configure sshfs
-RUN apt-get install -y sshfs
-RUN chmod 666 /dev/fuse
-RUN groupadd fuse
-RUN adduser jedi fuse
-RUN chown root:fuse /dev/fuse
+RUN apt-get install -y sshfs && \
+  chmod 666 /dev/fuse && \
+  groupadd fuse && \
+  adduser jedi fuse && \
+  chown root:fuse /dev/fuse
 
 # Copy the script used to mount home from host
 ADD mount.home /home/jedi/
-RUN chown jedi:jedi /home/jedi/mount.home
-RUN chmod +x /home/jedi/mount.home
+RUN chown jedi:jedi /home/jedi/mount.home && chmod +x /home/jedi/mount.home
 
 # When compiled with the toolchain, a binray will look gor /lib/ld-linux.so.3
 # which is named /lib/ld-linux-armhf.so.3 on the pi.
@@ -66,8 +76,9 @@ RUN cd ~/ && git clone git://git.drogon.net/wiringPi && \
   git checkout b0a60c3302973ca1878d149d61f2f612c8f27fac && \
   ./build
 
-USER jedi
-# Configure pin 2
-RUN gpio export 2 in
+# Clean up
+RUN rm -rf /var/lib/apt/lists/*
 
-USER root
+ADD startup.sh /root/
+RUN chmod +x /root/startup.sh
+CMD bash -c /root/startup.sh; bash
