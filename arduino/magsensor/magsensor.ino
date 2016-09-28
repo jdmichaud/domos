@@ -162,6 +162,8 @@ void setup() {
   // Allow wake up pins to trigger interrupt on state change.
   attachInterrupt(digitalPinToInterrupt(MAGNETIC_SWITCH_PIN), doorInterrupt, CHANGE);
   attachInterrupt(digitalPinToInterrupt(DIAG_SWITCH_PIN), diagnoticInterrupt, RISING);
+  // Send the status on startup
+  sendStatus(g_contact);
 }
 
 void loop() {
