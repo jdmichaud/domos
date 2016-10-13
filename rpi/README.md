@@ -228,3 +228,13 @@ There is a Docker image (`rpi/docker/Dockerfile`) to mount the domos folder
 from your desktop to your raspberry-pi in order to test it. Use the script
 `mount.home` of the raspberry Docker container.
 
+# Controller operations
+
+The controller is the raspberry pi centralizing your home automation system.
+
+Here are the main components:
+* A receiver program, listening to the radio waves and posting REST request when
+receiving data from sensors.
+* A database with a REST API (Eve+MongiDB) to store the data
+* A Node.js web server to serve the web client
+
