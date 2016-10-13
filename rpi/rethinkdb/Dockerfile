@@ -1,7 +1,7 @@
 # vim:set ft=dockerfile:
 FROM ubuntu:xenial
 
-MAINTAINER novidee
+MAINTAINER jdmichaud
 
 # Set the application name
 ENV APPLICATION rethinkdb-compilation-env
@@ -36,8 +36,6 @@ RUN apt-get install -y \
   sudo \
   bc
 
- RUN libboost-dev libssl-dev python libncurses5-dev libcurl4-openssl-dev protobuf-compiler libprotobuf-dev
-
 # RethinkDB dependencies
 RUN apt-get install -y \
   make \
@@ -47,14 +45,24 @@ RUN apt-get install -y \
   g++ \
   --no-install-recommends
 
+# V8 dependencies
+RUN dpkg --add-architecture i386
+RUN apt-get update
+RUN apt-get install -y \
+# https://bugs.chromium.org/p/chromium/issues/detail?id=289
+# The instructions above do not work on ubuntu 16.04 anymore. This below is an adaptation.
+  g++-multilib zlib1g-dev zlib1g-dev:i386
+
+# Download Node Version Manager
 RUN curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.32.0/install.sh | bash
 
 #
 # RPi tool chain
 #
 USER jedi
-# rethinkgb can't compile node-0.12.2 on ARM apparently so installing it with nvm
+# rethinkdb can't compile node-0.12.2 on ARM apparently so installing it with nvm
 RUN nvm install 0.12.2
+# Preparing the cross-compilation environment
 RUN cd /home/jedi && \
   git clone https://github.com/raspberrypi/tools.git && \
   mv tools rpi-toolchain && \
@@ -62,7 +70,7 @@ RUN cd /home/jedi && \
   git checkout b65595ffb74e5853ba61916f49bdbccfc54f1300 && \
   echo "export PI_TOOLS_HOME=$HOME/rpi-toolchain" >> ~/.bashrc
 ENV PI_TOOLS_HOME /home/jedi/rpi-toolchain/
-# Retrieve the CMake toolchain configuration file
+# Retrieve the CMake toolchain configuration file. Do we need that???
 ADD https://raw.githubusercontent.com/jdmichaud/domos/master/rpi/cmaketc/Toolchain-raspberrypi-arm.cmake /home/jedi/Toolchain-raspberrypi-arm.cmake
 # Setup the environment for cross-compiling
 ENV CROSS=/home/jedi/rpi-toolchain/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/arm-linux-gnueabihf
@@ -73,23 +81,35 @@ ENV AR=$CROSS-ar
 ENV RANLIB=$CROSS-ranlib
 
 #
-# Download and package rethinkdb
+# Download, compile and package rethinkdb
 #
 RUN cd /home/jedi && \
   curl -L https://github.com/rethinkdb/rethinkdb/archive/v2.3.5.tar.gz -o rethinkdb-2.3.5.tar.gz && \
-  tar zxvf rethinkdb-2.3.5.tar.gz && \
+  tar zxf rethinkdb-2.3.5.tar.gz && \
   cd rethinkdb-2.3.5 && \
+  # From rethinkdb build instructions
   rm -rf external/v8* && \
-  sed -i 's/rfakeroot $(DEBUILD_SIGN_OPTIONS)/rfakeroot $(DEBUILD_SIGN_OPTIONS) -d/g' mk/packaging.mk && \
-#  sed -i 's@./configure@./configure --allow-fetch --ccache@g' packaging/debian/rules && \
-  sed -i 's@./configure@./configure --allow-fetch@g' packaging/debian/rules && \
+  # deb_buildpackage complains that dependencies are missing. There is no dependency...
+  sed -i 's/rfakeroot $(DEBUILD_SIGN_OPTIONS)/rfakeroot $(DEBUILD_SIGN_OPTIONS) -d -j'`nproc`'/g' mk/packaging.mk && \
+  # Here, adding allow-catch to ./configure but also forcing building ssl as described
+  # in this issue: https://github.com/rethinkdb/rethinkdb/issues/5776#issuecomment-220168597
+  sed -i 's@./configure@./configure --allow-fetch --ccache\n\tmake build-openssl@g' packaging/debian/rules && \
   # https://github.com/rethinkdb/rethinkdb/issues/3312
   sed -i 's@$build_dir/third_party/icu" ./configure@$build_dir/third_party/icu/source" ./configure@g' mk/support/pkg/v8.sh && \
+  # v8 won't compile if we don't disable the layout...
   sed -i 's/--enable-static "$@"/--enable-static --disable-layout "$@"/g' mk/support/pkg/v8.sh && \
-#  ./configure --allow-fetch --ccache && \
-  ./configure --allow-fetch && \
-  # https://github.com/rethinkdb/rethinkdb/issues/5776#issuecomment-220168597
+  # Add a space to separate options
+  sed -i 's@configure_flags+="--host=$($CXX -dumpmachine)"@ configure_flags+=" --host=$($CXX -dumpmachine)"@g' mk/support/pkg/jemalloc.sh && \
+  # Fix some script bug
+  sed -i 's@"${configure_flags:-}"@${configure_flags:-}@g' mk/support/pkg/jemalloc.sh && \
+  # Force Architecture in debian package control file
+  sed -i 's/Architecture: i386 amd64/Architecture: armhf/g' packaging/debian/control.in && \
+  # Point dh_shlibdeps to the raspberry compilation tool-chain shared libraries
+  sed -i 's@dh_shlibdeps -a@dh_shlibdeps -a -l/home/jedi/rpi-toolchain/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/arm-linux-gnueabihf/libc/lib/arm-linux-gnueabihf/:/home/jedi/rpi-toolchain/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/arm-linux-gnueabihf/lib/ --dpkg-shlibdeps-params=--ignore-missing-info@g' packaging/debian/rules && \
+  ./configure --allow-fetch --ccache && \
+  # Got to build openssl manually to have the header (sys/ssl.h) in the proper place
   make build-openssl -j `echo $(nproc) - 1 | bc` && \
-  UBUNTU_RELEASE=trusty SIGN_PACKAGE=0 make build-deb -j `echo $(nproc) - 1 | bc` SHELL="/bin/bash -x"
+  UBUNTU_RELEASE=trusty SIGN_PACKAGE=0 make build-deb -j `echo $(nproc) - 1 | bc`
+#  UBUNTU_RELEASE=trusty SIGN_PACKAGE=0 make build-deb -d `echo $(nproc) - 1 | bc` SHELL="/bin/bash -x" > ../make.log 2>&1
 
 USER root
