@@ -106,10 +106,15 @@ RUN cd /home/jedi && \
   sed -i 's/Architecture: i386 amd64/Architecture: armhf/g' packaging/debian/control.in && \
   # Point dh_shlibdeps to the raspberry compilation tool-chain shared libraries
   sed -i 's@dh_shlibdeps -a@dh_shlibdeps -a -l/home/jedi/rpi-toolchain/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/arm-linux-gnueabihf/libc/lib/arm-linux-gnueabihf/:/home/jedi/rpi-toolchain/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/arm-linux-gnueabihf/lib/ --dpkg-shlibdeps-params=--ignore-missing-info@g' packaging/debian/rules && \
+  # Add path to cross-compiling executable for dh_strip which has some trouble finding them...
+  # Then, reset PATH just in case
+  sed -ri 's@\tdh_strip(.*)@\texport PATHBKP=$PATH\n\texport PATH=/home/jedi/rpi-toolchain/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/:$PATH\n\tdh_strip\1\n\texport PATH=$PATHBKP@g' packaging/debian/rules && \
+  # Accelerate package compilation, especially v8's
+  #sed -i 's/make "$@"/make -j`echo $(nproc) - 1 | bc` "$@"/g' mk/support/pkg/pkg.sh && \
   ./configure --allow-fetch --ccache && \
   # Got to build openssl manually to have the header (sys/ssl.h) in the proper place
-  make build-openssl -j `echo $(nproc) - 1 | bc` && \
-  UBUNTU_RELEASE=trusty SIGN_PACKAGE=0 make build-deb -j `echo $(nproc) - 1 | bc`
-#  UBUNTU_RELEASE=trusty SIGN_PACKAGE=0 make build-deb -d `echo $(nproc) - 1 | bc` SHELL="/bin/bash -x" > ../make.log 2>&1
+  make build-openssl -j`echo $(nproc) - 1 | bc` && \
+  UBUNTU_RELEASE=xenial SIGN_PACKAGE=0 make build-deb -j`echo $(nproc) - 1 | bc`
+  #UBUNTU_RELEASE=trusty SIGN_PACKAGE=0 make build-deb -d -j`echo $(nproc) - 1 | bc` SHELL="/bin/bash -x" > ../make.log 2>&1
 
 USER root
