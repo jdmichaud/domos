@@ -53,15 +53,20 @@ RUN apt-get install -y \
 # The instructions above do not work on ubuntu 16.04 anymore. This below is an adaptation.
   g++-multilib zlib1g-dev zlib1g-dev:i386
 
-# Download Node Version Manager
-RUN curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.32.0/install.sh | bash
+
+# Replace shell with bash so we can source files
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+
+USER jedi
+
+# rethinkdb can't compile node-0.12.2 on ARM apparently so installing it with nvm
+ENV NODE_VERSION 0.12.2
+RUN curl -L https://git.io/n-install | bash -s - -y $NODE_VERSION
+ENV PATH=$PATH:/home/jedi/n/bin
 
 #
 # RPi tool chain
 #
-USER jedi
-# rethinkdb can't compile node-0.12.2 on ARM apparently so installing it with nvm
-RUN nvm install 0.12.2
 # Preparing the cross-compilation environment
 RUN cd /home/jedi && \
   git clone https://github.com/raspberrypi/tools.git && \
@@ -84,6 +89,9 @@ ENV RANLIB=$CROSS-ranlib
 # Download, compile and package rethinkdb
 #
 RUN cd /home/jedi && \
+  # To have node in the PATH
+  /bin/bash -c "source ~/.bashrc" && \
+  # Download rethinkdb and conpile it
   curl -L https://github.com/rethinkdb/rethinkdb/archive/v2.3.5.tar.gz -o rethinkdb-2.3.5.tar.gz && \
   tar zxf rethinkdb-2.3.5.tar.gz && \
   cd rethinkdb-2.3.5 && \
@@ -108,12 +116,12 @@ RUN cd /home/jedi && \
   sed -i 's@dh_shlibdeps -a@dh_shlibdeps -a -l/home/jedi/rpi-toolchain/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/arm-linux-gnueabihf/libc/lib/arm-linux-gnueabihf/:/home/jedi/rpi-toolchain/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/arm-linux-gnueabihf/lib/ --dpkg-shlibdeps-params=--ignore-missing-info@g' packaging/debian/rules && \
   # Add path to cross-compiling executable for dh_strip which has some trouble finding them...
   # Then, reset PATH just in case
-  sed -ri 's@\tdh_strip(.*)@\texport PATHBKP=$PATH\n\texport PATH=/home/jedi/rpi-toolchain/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/:$PATH\n\tdh_strip\1\n\texport PATH=$PATHBKP@g' packaging/debian/rules && \
+  sed -ri 's@binary-arch: install@binary-arch: export PATH:=/home/jedi/rpi-toolchain/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/:$(PATH)\nbinary-arch: install@g' packaging/debian/rules && \
   # Accelerate package compilation, especially v8's
   #sed -i 's/make "$@"/make -j`echo $(nproc) - 1 | bc` "$@"/g' mk/support/pkg/pkg.sh && \
   ./configure --allow-fetch --ccache && \
-  # Got to build openssl manually to have the header (sys/ssl.h) in the proper place
   make build-openssl -j`echo $(nproc) - 1 | bc` && \
+  # Got to build openssl manually to have the header (sys/ssl.h) in the proper place
   UBUNTU_RELEASE=xenial SIGN_PACKAGE=0 make build-deb -j`echo $(nproc) - 1 | bc`
   #UBUNTU_RELEASE=trusty SIGN_PACKAGE=0 make build-deb -d -j`echo $(nproc) - 1 | bc` SHELL="/bin/bash -x" > ../make.log 2>&1
 
