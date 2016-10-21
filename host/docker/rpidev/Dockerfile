@@ -10,27 +10,38 @@ FROM ubuntu:xenial
 # For the proxy
 
 # Create user
-RUN useradd jedi --create-home --password jedi
+RUN useradd jedi --create-home --password jedi && echo "jedi:jedi" | chpasswd && adduser jedi sudo
 
 RUN apt-get update
 # Some utilities
-RUN apt-get install -y build-essential nano vim unzip curl wget git lsb-release minicom silversearcher-ag
-
+RUN apt-get install -y build-essential \
+	sudo \
+	nano \
+	vim \
+	unzip \
+	curl \
+	wget \
+	git \
+	lsb-release \
+	minicom \
+	silversearcher-ag \
 # Python
-RUN apt-get install -y python python-dev python-setuptools
+	python \
+	python-dev \
+	python-setuptools \
+# to avoid urllib warning, we need pyopenssl which needs libssl-dev + libffi-dev
+	libffi-dev \
+	libssl-dev \
+# C++
+	clang \
+	cmake \
+	google-mock
 
 # pip
 RUN easy_install pip
-# to avoid urllib warning, we need pyopenssl which needs libssl-dev + libffi-dev
-RUN apt-get install -y libffi-dev libssl-dev
 RUN pip install pyopenssl ndg-httpsclient pyasn1
 
-# C++
-RUN apt-get install -y clang
-# CMake
-RUN apt-get install -y cmake
 # Google Test/Mock to compile with x86 as target
-RUN apt-get install -y google-mock
 RUN cd /usr/src/gmock && cmake CMakeLists.txt && make
 
 # To use the RPi cross-compilation toolchain,
@@ -43,13 +54,6 @@ RUN apt-get install -y libz1:i386 libncurses5:i386 libbz2-1.0:i386 libc6:i386 li
 RUN pip install platformio
 
 USER jedi
-# Vim configuration
-RUN cd /home/jedi && \
-	git clone https://github.com/jdmichaud/dotfiles && \
-	ln -s /home/jedi/dotfiles/.vimrc /home/jedi/.vimrc && \
-	ln -s /home/jedi/dotfiles/.vimrc.local /home/jedi/.vimrc.local && \
-	ln -s /home/jedi/dotfiles/.vimrc.local.bundles /home/jedi/.vimrc.local.bundles
-
 #
 # RPi tool chain
 #
@@ -109,5 +113,27 @@ RUN cd /tmp && \
 ## # Initialize the NFS server
 ## ENTRYPOINT ["/home/jedi/nfs-start.sh"]
 
-# login as root
-USER root
+USER jedi
+
+# Force color prompt
+RUN sed -i 's/#force_color_prompt=yes/force_color_prompt=yes/g' /home/jedi/.bashrc
+
+# Git configuration
+RUN git config --global user.email "jean.daniel.michaud@gmail.com" && \
+  git config --global user.name "JD"
+
+# Vim configuration
+# dotfile configuration
+RUN cd /home/jedi && \
+  git clone https://github.com/jdmichaud/dotfiles && \
+  rm -fr /home/jedi/.mybashrc && \
+  ln -s /home/jedi/dotfiles/.mybashrc /home/jedi/.mybashrc && \
+  ln -s /home/jedi/dotfiles/.vimrc /home/jedi/.vimrc && \
+  ln -s /home/jedi/dotfiles/.vimrc.local /home/jedi/.vimrc.local && \
+  ln -s /home/jedi/dotfiles/.vimrc.local.bundles /home/jedi/.vimrc.local.bundles && \
+  ln -s /home/jedi/dotfiles/.tmux.conf /home/jedi/.tmux.conf && \
+  ln -s /home/jedi/dotfiles/.git /home/jedi/.git && \
+  ln -s /home/jedi/dotfiles/sh /home/jedi/sh
+
+# Set prompt with image name
+RUN echo 'export PS1="`echo $PS1 | sed s/@.h/@rpi-build/g` "' >> /home/jedi/.profile
