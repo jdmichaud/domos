@@ -2,7 +2,7 @@
 
 # Instructions
 # Run that image with --privileged option for mount.home to work
-# e.g.: docker -it --provoleged domos bash
+# e.g.: docker -it --privileged domos bash
 
 FROM sdhibit/rpi-raspbian
 
@@ -12,8 +12,7 @@ MAINTAINER novidee
 ENV APPLICATION domos
 
 # explicitly set user/group IDs
-RUN useradd -ms /bin/bash jedi
-RUN chown -R jedi:jedi /home/jedi/
+RUN useradd jedi --create-home --password jedi && echo "jedi:jedi" | chpasswd && adduser jedi sudo
 
 #
 # Install some packages
@@ -24,6 +23,7 @@ RUN apt-get update
 # A few utilisy for debugging purposes
 RUN apt-get install -y \
   nano \
+  less \
   lsof \
   net-tools \
   inetutils-ping \
@@ -37,6 +37,7 @@ RUN apt-get install -y \
   python \
   python-dev \
   python-pip \
+  strace \
   --no-install-recommends
 
 # To compile wiringPi
@@ -78,6 +79,12 @@ RUN cd ~/ && git clone git://git.drogon.net/wiringPi && \
 
 # Clean up
 RUN rm -rf /var/lib/apt/lists/*
+
+# Force color prompt
+RUN sed -i 's/#force_color_prompt=yes/force_color_prompt=yes/g' /home/jedi/.bashrc
+
+# Set prompt with image name
+RUN echo 'export PS1="`echo $PS1 | sed s/@.h/@domos/g` "' >> /home/jedi/.profile
 
 ADD startup.sh /root/
 RUN chmod +x /root/startup.sh
