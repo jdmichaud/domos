@@ -10,6 +10,18 @@
 #define WRONG_MAGIC_ERROR 1
 #define PARITY_ERROR      2
 
+/*
+ * Reminder
+ *
+ *                  DE AD BE EF    DE AD BE EF
+ * address 0 DE <---^  |  |  |      |  |  |  ^---> EF address 0
+ * address 1 AD <------   |  |      |  |   ------> BE address 1
+ * address 2 BE <---------   |      |   ---------> AD address 2
+ * address 3 EF <------------        ------------> EF address 3
+ *
+ *            Big-Endian                    Little-Endian
+ */
+
 /*! \brief Packet structure use as the first element sent in a message
  *
  *  The protocol consist of a header packet, represented by the packet_t
@@ -24,7 +36,8 @@
  *  1           parity bit         Used to detect integrity errors in the
  *                                 packet structure.
  *                                 1: the number of 1 in the fields stype, sid,
- *                                    mlength and message is odd,
+ *                                    battery replacement, mlength and message
+ *                                    is odd,
  *                                 0: otherwise.
  *                                 The parity bit does not include the byte of
  *                                 message after the first one (after the one
