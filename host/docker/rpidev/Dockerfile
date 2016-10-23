@@ -25,6 +25,7 @@ RUN apt-get install -y build-essential \
 	lsb-release \
 	minicom \
 	silversearcher-ag \
+  gdb \
 # Python
 	python \
 	python-dev \
