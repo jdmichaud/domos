@@ -12,5 +12,5 @@ See [this page](https://thefullsnack.com/creating-virtual-dev-environment-with-x
 Suppose domos has been checked out in the current directory.
 
 ```
-docker run -it -v <path_to>/domos:/home/jedi/domos  domos-env bash
+docker run -it -v <path_to>/domos:/home/jedi/domos  domos-env bash --login
 ```
