@@ -1,6 +1,0 @@
-[submodule "deps/rc-switch"]
-	path = deps/rc-switch
-	url = https://github.com/sui77/rc-switch.git
-[submodule "rpi/deps/WiringPi/WiringPi"]
-	path = rpi/deps/WiringPi/WiringPi
-	url = https://github.com/WiringPi/WiringPi.git
