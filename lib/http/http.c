@@ -40,7 +40,7 @@ int post(char *url, char *fields) {
   curl_easy_setopt(g_curl, CURLOPT_URL, url);
   // Set the POST fields
   curl_easy_setopt(g_curl, CURLOPT_POSTFIELDS, fields);
-  // Perform a PUT
+  // Perform a POST
   int res = curl_easy_perform(g_curl);
   if (res != CURLE_OK)
     g_last_error = res;
