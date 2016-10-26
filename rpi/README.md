@@ -26,9 +26,10 @@ At the end of the file, you should see the new USB device message. Look for some
 ```
 [243234.903292] sd 16:0:0:0: [sdd] Attached SCSI removable disk
 ```
-The card is mounted on /dev/sdd here.
+The card is mounted on /dev/sdd here. Identify all the partitions (they should
+be detail in the dmesg logs after the aforementioned log).
 
-Unmount the card (we assume sdd as the device and partition number 1):
+Unmount al lthos partitions (we assume sdd as the device and partition number 1 & 2):
 ```
 sudo umount /dev/sdd1
 sudo umount /dev/sdd2
@@ -99,10 +100,16 @@ Remove the SD card for the reader and plug it in the raspberry.
 ## Connect with the USB/TTL cable (Need a USB/TTL cable)
 
 Plug the 4 PIN this way:
+
 RED -> 5V
-GREEN -> RX
-WHITE -> TX
+
+GREEN (TX) -> RX
+
+WHITE (RX) -> TX
+
 BLACK -> GND
+
+Check the Raspberry pin out [here](http://pinout.xyz/).
 
 Plug the USB cable to your computer.
 The 5V pin is to input AND output 5V.
@@ -124,7 +131,28 @@ sudo screen /dev/ttyUSB0 115200
 
 Once connected on the raspberry, change the root password:
 ```
-sudo chpasswd
+sudo passwd
+```
+
+then change the pi password:
+```
+passwd
+```
+
+### Remove uncheck access to root
+
+To remove the possibility to sudo without a password from the `pi` account:
+```
+sudo visudo
+```
+
+change:
+```
+pi ALL=(ALL) NOPASSWD: ALL
+```
+to
+```
+pi ALL=(ALL) ALL
 ```
 
 ## Configure the wifi (need a Wifi dongle)
@@ -139,13 +167,23 @@ iface wlan0 inet dhcp
 
 ```
 
-and `reboot`.
+From the same file, remove manual configuration of wlan0.
+
+Then `reboot`.
 
 ## Update your packages
 
 ```
 sudo apt-get update
 ```
+
+## Configure the SSH server
+
+Enter:
+```
+sudo raspi-config
+```
+Then go to `Advanced Options` and then `SSH`.
 
 ## Install the linux headers (for sshfs)
 
@@ -161,9 +199,9 @@ git clone https://github.com/raspberrypi/linux
 
 To install docker on raspbian:
 ```
-curl -sSL http://downloads.hypriot.com/docker-hypriot_1.8.1-1_armhf.deb >/tmp/docker-hypriot_1.8.1-1_armhf.deb
-sudo dpkg -i /tmp/docker-hypriot_1.8.1-1_armhf.deb
-rm -f /tmp/docker-hypriot_1.8.1-1_armhf.deb
+curl -sSL http://downloads.hypriot.com/docker-hypriot_1.10.3-1_armhf.deb >/tmp/docker-hypriot_1.10.3-1_armhf.deb
+sudo dpkg -i /tmp/docker-hypriot_1.10.3-1_armhf.deb
+rm -f /tmp/docker-hypriot_1.10.3-1_armhf.deb
 ```
 
 Make sure your user had access to docker
@@ -180,3 +218,23 @@ To start it for the session:
 ```
 sudo systemctl start docker.service
 ```
+
+# Docker business
+
+There is a Docker image (`host/Dockerfile`) to cross-compile program on your
+desktop for your raspberry-pi.
+
+There is a Docker image (`rpi/docker/Dockerfile`) to mount the domos folder
+from your desktop to your raspberry-pi in order to test it. Use the script
+`mount.home` of the raspberry Docker container.
+
+# Controller operations
+
+The controller is the raspberry pi centralizing your home automation system.
+
+Here are the main components:
+* A receiver program, listening to the radio waves and posting REST request when
+receiving data from sensors.
+* A database with a REST API (Eve+MongiDB) to store the data
+* A Node.js web server to serve the web client
+

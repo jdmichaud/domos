@@ -14,8 +14,9 @@ extern "C"{
  * Determine endianess
  */
 #ifndef LITTLE_ENDIAN
-# if defined(__BYTE_ORDER) || defined(BYTE_ORDER)
-#  if (__BYTE_ORDER == __LITTLE_ENDIAN) || (BYTE_ORDER == LITTLE_ENDIAN)
+# if defined(__BYTE_ORDER) || defined(BYTE_ORDER) || defined(__BYTE_ORDER__)
+#  if (__BYTE_ORDER == __LITTLE_ENDIAN) || (BYTE_ORDER == LITTLE_ENDIAN) || \
+      (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
 #   define LITTLE_ENDIAN
 #  else
 #   if defined (i386) || defined (__i386__) || defined (_M_IX86) || \

@@ -52,8 +52,8 @@ void create_packet(uint8_t sensor_type, uint8_t sensor_id,
 
 int read_packet(packet_t packet, packet_s *spacket) {
   uint8_t magic_number = 0;
-  uint8_t parity;
-  uint8_t battery_indicator;
+  uint8_t parity = 0;
+  uint8_t battery_indicator = 0;
   memset(spacket, 0, sizeof(packet_s));
   unpackc(&magic_number,       MAGIC_NUMBER_SIZE,  (uint8_t *) &packet, MAGIC_NUMBER_OFFSET);
   unpackc(&parity,             PARITY_SIZE,        (uint8_t *) &packet, PARITY_OFFSET);
@@ -63,7 +63,7 @@ int read_packet(packet_t packet, packet_s *spacket) {
   spacket->battery_indicator = battery_indicator == 1 ? true : false;
   unpacki(&(spacket->mlength), MESSAGE_LENGTH_SIZE,(uint8_t *) &packet, MESSAGE_LENGTH_OFFSET);
   unpackc(&(spacket->message), MESSAGE_SIZE,       (uint8_t *) &packet, MESSAGE_OFFSET);
-  // Check maginc number
+  // Check magic number
   if (magic_number != MAGIC_NUMBER)
     return WRONG_MAGIC_ERROR;
   // Check parity

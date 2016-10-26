@@ -17,7 +17,8 @@ find_package (Threads)
 add_definitions(-DRPI)
 
 #Includes
-include_directories(${RPI_EXTERNAL_LIB_PATH}/WiringPi/wiringPi/wiringPi
+include_directories(${CURL_INCLUDE_DIRS}
+                    ${RPI_EXTERNAL_LIB_PATH}/WiringPi/wiringPi/wiringPi
                     ${EXTERNAL_LIB_PATH}/rc-switch
                     ${LIB_PATH}/rfprotocol/src)
 
@@ -26,7 +27,7 @@ include_directories(${RPI_EXTERNAL_LIB_PATH}/WiringPi/wiringPi/wiringPi
 set_property(TARGET wiringPi PROPERTY
              IMPORTED_LOCATION ${RPI_EXTERNAL_LIB_PATH}/WiringPi/WiringPi/wiringPi/libwiringPi.a)
 
-set(SOURCES src/main.cpp
+set(SOURCES src/main.cpp src/RF33_adapter.cpp
             ${EXTERNAL_LIB_PATH}/rc-switch/RCSwitch.cpp
             ${LIB_PATH}/rfprotocol/src/bitop.c
             ${LIB_PATH}/rfprotocol/src/protocol.c)
@@ -38,4 +39,5 @@ add_definitions(-std=c++11)
 
 set(EXE_NAME receiver433)
 add_executable(${EXE_NAME} ${SOURCES})
+add_definitions(-std=c++11 -Wfatal-errors)
 target_link_libraries(${EXE_NAME} wiringPi ${CMAKE_THREAD_LIBS_INIT})

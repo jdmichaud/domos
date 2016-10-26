@@ -7,20 +7,18 @@ void print_diagnostic(int sensor_type, int sendor_id) {
   Serial.println("");
   Serial.println("*** DIAG report ***");
   Serial.print("type of device: ");
-  Serial.println(DOOR_SENSOR);
+  Serial.println(sensor_type);
   Serial.print("device id: ");
-  Serial.println(g_device_number);
+  Serial.println(sendor_id);
   Serial.print("battery level: ");
   Serial.print(readVcc());
   Serial.println(" mV");
-  Serial.print("switch status: ");
-  Serial.println(digitalRead(MAGNETIC_SWITCH_PIN) == HIGH);
   Serial.println("*******************");
   delay(100);
 }
 
-void ask_for_device_number() {
-  Serial.println(" Enter a new devide id (press enter for no change):");
+void ask_for_device_number(int device_number_addr, int *device_number) {
+  Serial.print(" Enter a new devide id (press enter for no change): ");
   delay(100);
   while (Serial.available() == 0)
     /* just wait */ ;
@@ -28,10 +26,11 @@ void ask_for_device_number() {
   if (new_device_number) {
     new_device_number.trim();
     if (new_device_number.length() != 0) {
-      g_device_number = new_device_number.toInt();
-      EEPROM.write(EE_DEVICE_NUMBER, g_device_number);
-      Serial.println("New sensor id: ");
-      Serial.println(g_device_number);
+      *device_number = new_device_number.toInt();
+      EEPROM.write(device_number_addr, *device_number);
+      Serial.print("New sensor id: ");
+      Serial.println(*device_number);
+      delay(100);
     }
   }
 }

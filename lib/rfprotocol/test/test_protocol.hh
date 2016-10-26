@@ -129,7 +129,7 @@ TEST(RFProtocolTest, ReadPacketParityError) {
 
 TEST(RFProtocolTest, ReadMessage) {
   uint8_t *buffer = new uint8_t[sizeof(uint8_t) * 9];
-  bzero(buffer, sizeof(uint8_t) * 17);
+  bzero(buffer, sizeof(uint8_t) * 9);
   packet_t ipacket;
   // magic = MAGIC_NUMBER;
   // stype = 52; // 3 bits
