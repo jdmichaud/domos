@@ -15,3 +15,6 @@ dependencies
 
 # executable
 receiver433
+
+# IntelliJ
+.idea
