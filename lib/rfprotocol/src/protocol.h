@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include "bitop.h"
 
+#define RFP_VERSION 1
+
 #define MAGIC_NUMBER      178
 
 #define WRONG_MAGIC_ERROR 1

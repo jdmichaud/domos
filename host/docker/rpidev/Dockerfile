@@ -36,7 +36,15 @@ RUN apt-get install -y build-essential \
 # C++
 	clang \
 	cmake \
-	google-mock
+	google-mock \
+# For X11 application (i.e. Clion)
+  libxrender1 \
+  libxtst6 \
+  libxi6 \
+  libfreetype6 \
+  libfontconfig1 \
+# libraries
+  libcurl4-openssl-dev
 
 # pip
 RUN easy_install pip

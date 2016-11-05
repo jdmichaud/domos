@@ -35,7 +35,7 @@ set(SOURCES src/main.cpp src/RF33_adapter.cpp
 # Setup executable
 #-----------------------------------------------------------------------
 
-add_definitions(-std=c++11)
+add_definitions(-std=c++1y)
 
 set(EXE_NAME receiver433)
 add_executable(${EXE_NAME} ${SOURCES})
