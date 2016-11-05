@@ -1,7 +1,6 @@
 #include "http.h"
 #include <string.h>
 #include <curl/curl.h>
-#include <slcurses.h>
 
 #define OK 0
 #define INIT_ALREADY_DONE 1
@@ -31,7 +30,7 @@ int initHTTP(int https_required) {
   return OK;
 }
 
-int post(char *url, char *fields) {
+int post(const char *url, const char *fields) {
   // Do not verify certificate
   curl_easy_setopt(g_curl, CURLOPT_SSL_VERIFYPEER, 0L);
   // Perform a POST

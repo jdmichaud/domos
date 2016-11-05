@@ -22,6 +22,7 @@ RUN apt-get install -y build-essential \
 	curl \
 	wget \
 	git \
+  tig \
 	lsb-release \
 	minicom \
 	silversearcher-ag \
