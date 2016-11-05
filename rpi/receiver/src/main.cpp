@@ -71,7 +71,6 @@ void processPacket(const packet_s &packet) {
   std::cout << "sensor type: " << (int) packet.stype <<
              ", sensor id: " << (int) packet.sid <<
              ", message: " << (int) packet.message << std::endl;
-
 }
 
 int main(int argc, char * const argv[]) {

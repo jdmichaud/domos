@@ -1,6 +1,7 @@
 #include "http.h"
 #include <string.h>
 #include <curl/curl.h>
+#include <slcurses.h>
 
 #define OK 0
 #define INIT_ALREADY_DONE 1
@@ -38,22 +39,22 @@ int post(char *url, char *fields) {
   // Provide the URL
   curl_easy_setopt(g_curl, CURLOPT_URL, url);
   // Set the POST fields
-  curl_easy_setopt(curl, CURLOPT_POSTFIELDS, fields);
-  // Perform a PUT
-  res = curl_easy_perform(g_curl);
-  if(res != CURLE_OK)
+  curl_easy_setopt(g_curl, CURLOPT_POSTFIELDS, fields);
+  // Perform a POST
+  int res = curl_easy_perform(g_curl);
+  if (res != CURLE_OK)
     g_last_error = res;
-    return FAIL;
-  return OK;
+    return HTTP_FAIL;
+  return HTTP_OK;
 }
 
-void releaseHTTP() {
+int releaseHTTP() {
   curl_easy_cleanup(g_curl);
   // Power down libcurl
   curl_global_cleanup();
-  return OK;
+  return HTTP_OK;
 }
 
-char *getLastError() {
+const char * getLastError() {
   return curl_easy_strerror(g_last_error);
 }
