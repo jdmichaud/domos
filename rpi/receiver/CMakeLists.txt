@@ -14,16 +14,18 @@ add_subdirectory(${LIB_PATH}/rfprotocol
 add_subdirectory(${LIB_PATH}/http
                  ${CMAKE_CURRENT_BINARY_DIR}/http)
 
-# For WiringPi
-find_package (Threads)
+# Packages
+find_package(Threads)
+find_package(CURL)
+find_path(LIBRETHINKDBCXX_INCLUDE_DIR rethinkdb.h)
+find_library(LIBRETHINKDBCXX_LIBRARY NAMES rethinkdb++ librethinkdb++)
 
 # For RCSwitch
 add_definitions(-DRPI)
 
-find_package(CURL)
-
 #Includes
-include_directories(${CURL_INCLUDE_DIRS}
+include_directories(${LIBRETHINKDBCXX_INCLUDE_DIR}
+                    ${CURL_INCLUDE_DIRS}
                     ${RPI_EXTERNAL_LIB_PATH}/WiringPi/wiringPi/wiringPi
                     ${EXTERNAL_LIB_PATH}/rc-switch
                     ${LIB_PATH}/rfprotocol/src
@@ -39,7 +41,7 @@ set(SOURCES src/main.cpp src/RF33_adapter.cpp
             ${LIB_PATH}/rfprotocol/src/bitop.c
             ${LIB_PATH}/rfprotocol/src/protocol.c
             ${LIB_PATH}/http/http.c
-            src/HTTPBackend.cpp src/HTTPBackend.h src/Backend.h)
+            src/HTTPBackend.cpp src/HTTPBackend.h src/Backend.h src/RBackend.cpp src/RBackend.h)
 #-----------------------------------------------------------------------
 # Setup executable
 #-----------------------------------------------------------------------
@@ -49,4 +51,4 @@ add_definitions(-std=c++11)
 set(EXE_NAME receiver433)
 add_executable(${EXE_NAME} ${SOURCES})
 add_definitions(-std=c++11 -Wfatal-errors)
-target_link_libraries(${EXE_NAME} wiringPi ${CMAKE_THREAD_LIBS_INIT} ${CURL_LIBRARIES})
+target_link_libraries(${EXE_NAME} wiringPi ${CMAKE_THREAD_LIBS_INIT} ${CURL_LIBRARIES} ${LIBRETHINKDBCXX_LIBRARY})

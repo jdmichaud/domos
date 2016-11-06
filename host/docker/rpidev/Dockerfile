@@ -43,9 +43,7 @@ RUN apt-get install -y build-essential \
   libxtst6 \
   libxi6 \
   libfreetype6 \
-  libfontconfig1 \
-# libraries
-  libcurl4-openssl-dev
+  libfontconfig1
 
 # pip
 RUN easy_install pip
@@ -74,10 +72,15 @@ RUN cd /home/jedi && \
 	git checkout b65595ffb74e5853ba61916f49bdbccfc54f1300 && \
 	echo "export PI_TOOLS_HOME=$HOME/rpi-toolchain" >> ~/.bashrc
 ENV PI_TOOLS_HOME /home/jedi/rpi-toolchain/
+ENV PI_TOOL arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64
 # Retrieve the CMake toolchain configuration file
 ADD https://raw.githubusercontent.com/jdmichaud/domos/master/rpi/cmaketc/Toolchain-raspberrypi-arm.cmake /home/jedi/Toolchain-raspberrypi-arm.cmake
+# Give ownership of ADDED files to the user. ADD always create the user as owned by root...
+USER root
+RUN chown jedi /home/jedi/Toolchain-raspberrypi-arm.cmake
+USER jedi
 # Set cross compiler environment
-ENV CROSS=/home/jedi/rpi-toolchain/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/arm-linux-gnueabihf
+ENV CROSS=/home/jedi/rpi-toolchain/${PI_TOOL}/bin/arm-linux-gnueabihf
 ENV CC=$CROSS-gcc
 ENV CXX=$CROSS-g++
 ENV LD=$CROSS-ld
@@ -90,28 +93,33 @@ ENV RANLIB=$CROSS-ranlib
 # Download google test/mock and compile it
 RUN cd /home/jedi && wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz
 USER root
-# Give ownership of ADDED files to the user. ADD always create the user as owned by root...
-RUN chown jedi /home/jedi/Toolchain-raspberrypi-arm.cmake
 RUN chown jedi /home/jedi/release-1.8.0.tar.gz
 USER jedi
-RUN cd /home/jedi && tar zxvf release-1.8.0.tar.gz
-RUN cd /home/jedi/googletest-release-1.8.0 && \
-	cmake -DCMAKE_TOOLCHAIN_FILE=/home/jedi/Toolchain-raspberrypi-arm.cmake && \
-# To install the library in the toolchain sysroot.
-# Look at the toolchain comfiguration file (), arm-bcm2708hardfp-linux-gnueabi-gcc
-# is the configured compiler.
-	make DESTDIR=`/home/jedi/rpi-toolchain/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-gcc --print-sysroot` install
-# So CMake can find gtest when using the toolchain
-RUN echo '' | cat >> /home/jedi/Toolchain-raspberrypi-arm.cmake
-RUN echo 'SET (ENV{GTEST_ROOT} $ENV{PI_TOOLS_HOME}/${PiToolsDir}/arm-bcm2708hardfp-linux-gnueabi/sysroot/usr/local/)' | cat >> /home/jedi/Toolchain-raspberrypi-arm.cmake
+RUN cd /home/jedi && tar zxf release-1.8.0.tar.gz && \
+  cd /home/jedi/googletest-release-1.8.0 && \
+  cmake -DCMAKE_TOOLCHAIN_FILE=/home/jedi/Toolchain-raspberrypi-arm.cmake && \
+  make DESTDIR=${PI_TOOLS_HOME}/${PI_TOOL} install && \
+  echo '' | cat >> /home/jedi/Toolchain-raspberrypi-arm.cmake && \
+  echo 'SET (ENV{GTEST_ROOT} $ENV{PI_TOOLS_HOME}/$ENV{PI_TOOL}/)' | cat >> /home/jedi/Toolchain-raspberrypi-arm.cmake
+
+#
+# librethinkdbxx
+#
+RUN cd /home/jedi/ && \
+  git clone https://github.com/jdmichaud/librethinkdbxx.git && \
+  cd librethinkdbxx && \
+  git reset --hard 6105d1f8f894cf522488edd26ed8118dc0f8200b && \
+  make -j `$(nproc)` && \
+  make DESTDIR=${PI_TOOLS_HOME}/${PI_TOOL} install
 
 #
 # libcurl
 #
-RUN curl -LO https://curl.haxx.se/download/curl-7.51.0.tar.gz && \
+RUN cd /home/jedi/ && \
+  curl -LO https://curl.haxx.se/download/curl-7.51.0.tar.gz && \
   tar zxf curl-7.51.0.tar.gz && \
   cd curl-7.51.0 && \
-  ./configure --host=arm-bcm2708hardfp-linux-gnueabi --prefix=/home/jedi/rpi-toolchain/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi --with-ssl && \
+  ./configure --host=arm-bcm2708hardfp-linux-gnueabi --prefix=${PI_TOOLS_HOME}/${PI_TOOL} --with-ssl && \
   make -j `$(nproc)` && \
   make install
 
@@ -138,7 +146,7 @@ RUN cd /home/jedi && \
   ln -s /home/jedi/dotfiles/.vimrc.local.bundles /home/jedi/.vimrc.local.bundles && \
   ln -s /home/jedi/dotfiles/.tmux.conf /home/jedi/.tmux.conf && \
   ln -s /home/jedi/dotfiles/.git /home/jedi/.git && \
-  ln -s /home/jedi/dotfiles/sh /home/jedi/sh
+  git clone https://github.com/jdmichaud/sh
 
 # Set prompt with image name
 RUN echo 'export PS1="`echo $PS1 | sed s/@.h/@rpi-build/g` "' >> /home/jedi/.profile
