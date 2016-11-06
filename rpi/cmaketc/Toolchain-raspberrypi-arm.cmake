@@ -18,7 +18,7 @@ SET (CMAKE_C_COMPILER $ENV{PI_TOOLS_HOME}/${PiToolsDir}/bin/arm-bcm2708hardfp-li
 SET (CMAKE_CXX_COMPILER $ENV{PI_TOOLS_HOME}/${PiToolsDir}/bin/arm-bcm2708hardfp-linux-gnueabi-g++)
 
 # where is the target environment
-SET (CMAKE_FIND_ROOT_PATH $ENV{PI_TOOLS_HOME}/${PiToolsDir})
+SET (CMAKE_FIND_ROOT_PATH $ENV{PI_TOOLS_HOME}/${PiToolsDir} $ENV{PI_TOOLS_HOME}/${PiToolsDir}/include)
 
 # search for programs in the build host directories
 SET (CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
