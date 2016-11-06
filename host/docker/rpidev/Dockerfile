@@ -76,6 +76,13 @@ RUN cd /home/jedi && \
 ENV PI_TOOLS_HOME /home/jedi/rpi-toolchain/
 # Retrieve the CMake toolchain configuration file
 ADD https://raw.githubusercontent.com/jdmichaud/domos/master/rpi/cmaketc/Toolchain-raspberrypi-arm.cmake /home/jedi/Toolchain-raspberrypi-arm.cmake
+# Set cross compiler environment
+ENV CROSS=/home/jedi/rpi-toolchain/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/arm-linux-gnueabihf
+ENV CC=$CROSS-gcc
+ENV CXX=$CROSS-g++
+ENV LD=$CROSS-ld
+ENV AR=$CROSS-ar
+ENV RANLIB=$CROSS-ranlib
 
 #
 # Google Test/Mock
@@ -99,30 +106,18 @@ RUN echo '' | cat >> /home/jedi/Toolchain-raspberrypi-arm.cmake
 RUN echo 'SET (ENV{GTEST_ROOT} $ENV{PI_TOOLS_HOME}/${PiToolsDir}/arm-bcm2708hardfp-linux-gnueabi/sysroot/usr/local/)' | cat >> /home/jedi/Toolchain-raspberrypi-arm.cmake
 
 #
-# Arduino IDE
+# libcurl
 #
-USER jedi
-RUN cd /tmp && \
-	wget https://downloads.arduino.cc/arduino-1.6.8-linux64.tar.xz && \
-	tar xf arduino-1.6.8-linux64.tar.xz && \
-	mv arduino-1.6.8 /home/jedi && \
-	echo "export PATH=$PATH:$HOME/arduino-1.6.8" >> /home/jedi/.bashrc
+RUN curl -LO https://curl.haxx.se/download/curl-7.51.0.tar.gz && \
+  tar zxf curl-7.51.0.tar.gz && \
+  cd curl-7.51.0 && \
+  ./configure --host=arm-bcm2708hardfp-linux-gnueabi --prefix=/home/jedi/rpi-toolchain/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi --with-ssl && \
+  make -j `$(nproc)` && \
+  make install
 
-## # For nfs
-## RUN apt-get install -y nfs-kernel-server
-## RUN apt-get install -y module-init-tools
-## # Create root nfs folder
-## RUN mkdir -p /nfs/rpi
-## # Import the nfs configuration file
-## RUN echo "/nfs/rpi 192.168.1.0/24(rw,fsid=1,sync,no_root_squash,no_subtree_check)" >> /etc/exports
-## # Port used by nfs
-## EXPOSE 111/udp 2049/tcp
-## # Copy necessary files
-## COPY nfs-start.sh /home/jedi/nfs-start.sh
-## RUN chmod +x /home/jedi/nfs-start.sh
-## # Initialize the NFS server
-## ENTRYPOINT ["/home/jedi/nfs-start.sh"]
-
+#
+# Finalize image
+#
 USER jedi
 
 # Force color prompt
