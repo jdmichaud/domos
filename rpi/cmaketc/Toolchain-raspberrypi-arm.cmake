@@ -4,18 +4,18 @@ SET (CMAKE_SYSTEM_NAME Linux)
 SET (CMAKE_SYSTEM_VERSION 1)
 
 # Check for Raspberry Pi Tools and bail out if they don't have it
-if(DEFINED ENV{PI_TOOLS_HOME})
-  message("Using Raspberry Pi Tools found in $ENV{PI_TOOLS_HOME}")
+if(DEFINED ENV{PI_TOOLS_HOME} AND DEFINED ENV{PI_TOOL})
+  message("Using Raspberry Pi Tools found in $ENV{PI_TOOLS_HOME}/ENV{PI_TOOL}")
 else()
-  message("PI_TOOLS_HOME is not set; You must tell CMake where to find Raspberry Pi Tools (cross-compiler)")
+  message("PI_TOOLS_HOME or PI_TOOL is not set; You must tell CMake where to find Raspberry Pi Tools (cross-compiler)")
   return()
 endif()
 
-SET (PiToolsDir arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi)
+SET (PiToolsDir ENV{PI_TOOL})
 
 # specify the cross compiler
-SET (CMAKE_C_COMPILER $ENV{PI_TOOLS_HOME}/${PiToolsDir}/bin/arm-bcm2708hardfp-linux-gnueabi-gcc)
-SET (CMAKE_CXX_COMPILER $ENV{PI_TOOLS_HOME}/${PiToolsDir}/bin/arm-bcm2708hardfp-linux-gnueabi-g++)
+SET (CMAKE_C_COMPILER $ENV{PI_TOOLS_HOME}/${PiToolsDir}/bin/arm-linux-gnueabihf-gcc)
+SET (CMAKE_CXX_COMPILER $ENV{PI_TOOLS_HOME}/${PiToolsDir}/bin/arm-linux-gnueabihf-g++)
 
 # where is the target environment
 SET (CMAKE_FIND_ROOT_PATH $ENV{PI_TOOLS_HOME}/${PiToolsDir} $ENV{PI_TOOLS_HOME}/${PiToolsDir}/include)
