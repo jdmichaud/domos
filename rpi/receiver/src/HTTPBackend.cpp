@@ -16,5 +16,7 @@ HTTPBackend::~HTTPBackend() {
 void HTTPBackend::processDoorSignal(int sensor_id, int sensor_type, uint8_t message) {
   std::ostringstream oss;
   oss << "?sensor_type=" << sensor_type << "&sensor_id=" << sensor_id << "&state=" << (message == 0) ? "closed" : "open";
-  post(m_url.c_str(), oss.str().c_str());
+  if (post(m_url.c_str(), oss.str().c_str()) == HTTP_FAIL) {
+    std::cerr << "POST request to backend " << m_url << " failed with " << getLastError() << std::endl;
+  }
 }

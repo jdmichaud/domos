@@ -80,6 +80,7 @@ int main(int argc, char * const argv[]) {
     std::cout << "No backend url specified, use " << backend_url << std::endl;
   }
 
+  // The object used to send the POST request
   HTTPBackend httpBackend(backend_url);
 
   // The object listening to the radio

@@ -11,7 +11,8 @@ static CURL *g_curl = NULL;
 static CURLcode g_last_error = 0;
 
 int isProtocolPresent(const char * const * protocols, char *protocol) {
-  for (int i = 0; protocols[i]; ++i)
+  int i = 0;
+  for (; protocols[i]; ++i)
     if (strncmp("https", protocols[i], strlen(protocol)) == 0)
       return 1;
   return 0;
