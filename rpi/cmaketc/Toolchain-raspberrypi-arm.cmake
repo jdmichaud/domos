@@ -11,14 +11,12 @@ else()
   return()
 endif()
 
-SET (PiToolsDir $ENV{PI_TOOL})
-
 # specify the cross compiler
-SET (CMAKE_C_COMPILER $ENV{PI_TOOLS_HOME}/${PiToolsDir}/bin/arm-linux-gnueabihf-gcc)
-SET (CMAKE_CXX_COMPILER $ENV{PI_TOOLS_HOME}/${PiToolsDir}/bin/arm-linux-gnueabihf-g++)
+SET (CMAKE_C_COMPILER $ENV{PI_TOOLS_HOME}/$ENV{PI_TOOL}/bin/arm-linux-gnueabihf-gcc)
+SET (CMAKE_CXX_COMPILER $ENV{PI_TOOLS_HOME}/$ENV{PI_TOOL}/bin/arm-linux-gnueabihf-g++)
 
 # where is the target environment
-SET (CMAKE_FIND_ROOT_PATH $ENV{PI_TOOLS_HOME}/${PiToolsDir} $ENV{PI_TOOLS_HOME}/${PiToolsDir}/include)
+SET (CMAKE_FIND_ROOT_PATH $ENV{PI_TOOLS_HOME}/$ENV{PI_TOOL} $ENV{PI_TOOLS_HOME}/$ENV{PI_TOOL}/include)
 
 # search for programs in the build host directories
 SET (CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
