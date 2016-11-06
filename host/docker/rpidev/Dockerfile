@@ -49,9 +49,6 @@ RUN apt-get install -y build-essential \
 RUN easy_install pip
 RUN pip install pyopenssl ndg-httpsclient pyasn1
 
-# Google Test/Mock to compile with x86 as target
-RUN cd /usr/src/gmock && cmake CMakeLists.txt && make
-
 # To use the RPi cross-compilation toolchain,
 # which are composed of 32bits executables
 RUN dpkg --add-architecture i386
@@ -90,6 +87,7 @@ ENV RANLIB=$CROSS-ranlib
 #
 # Google Test/Mock
 #
+### ARM
 # Download google test/mock and compile it
 RUN cd /home/jedi && wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz
 USER root
@@ -101,20 +99,26 @@ RUN cd /home/jedi && tar zxf release-1.8.0.tar.gz && \
   make DESTDIR=${PI_TOOLS_HOME}/${PI_TOOL} install && \
   echo '' | cat >> /home/jedi/Toolchain-raspberrypi-arm.cmake && \
   echo 'SET (ENV{GTEST_ROOT} $ENV{PI_TOOLS_HOME}/$ENV{PI_TOOL}/)' | cat >> /home/jedi/Toolchain-raspberrypi-arm.cmake
+### amd64
+# Google Test/Mock to compile with x86 as target
+RUN cd /usr/src/gmock && cmake CMakeLists.txt && make
 
 #
 # librethinkdbxx
 #
+### ARM
 RUN cd /home/jedi/ && \
   git clone https://github.com/jdmichaud/librethinkdbxx.git && \
   cd librethinkdbxx && \
   git reset --hard 6105d1f8f894cf522488edd26ed8118dc0f8200b && \
   make -j `$(nproc)` && \
   make DESTDIR=${PI_TOOLS_HOME}/${PI_TOOL} install
+### amd64 (TODO)
 
 #
 # libcurl
 #
+# ARM
 RUN cd /home/jedi/ && \
   curl -LO https://curl.haxx.se/download/curl-7.51.0.tar.gz && \
   tar zxf curl-7.51.0.tar.gz && \
@@ -122,6 +126,8 @@ RUN cd /home/jedi/ && \
   ./configure --host=arm-bcm2708hardfp-linux-gnueabi --prefix=${PI_TOOLS_HOME}/${PI_TOOL} --with-ssl && \
   make -j `$(nproc)` && \
   make install
+### amd64
+# Installed with apt-get
 
 #
 # Finalize image

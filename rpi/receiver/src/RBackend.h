@@ -6,13 +6,17 @@
 #include <rethinkdb.h>
 #include "Backend.h"
 
-class RBackend : public Backend {
-    RBackend (const std::string &url);
+namespace R = RethinkDB;
 
-    virtual void processDoorSignal(int sensor_id, int sensor_type, uint8_t message) override;
+class RBackend : public Backend {
+public:
+  RBackend (const std::string &url);
+
+  virtual void processDoorSignal(int sensor_id, int sensor_type, uint8_t message) override;
 
 private:
-    std::string m_url;
+  std::string m_url;
+  std::unique_ptr<R::Connection> m_conn;
 };
 
 
