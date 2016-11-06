@@ -11,7 +11,7 @@ else()
   return()
 endif()
 
-SET (PiToolsDir ENV{PI_TOOL})
+SET (PiToolsDir $ENV{PI_TOOL})
 
 # specify the cross compiler
 SET (CMAKE_C_COMPILER $ENV{PI_TOOLS_HOME}/${PiToolsDir}/bin/arm-linux-gnueabihf-gcc)
