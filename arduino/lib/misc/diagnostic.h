@@ -18,7 +18,7 @@ void print_diagnostic(int sensor_type, int sendor_id) {
 }
 
 void ask_for_device_number(int device_number_addr, int *device_number) {
-  Serial.print(" Enter a new devide id (press enter for no change): ");
+  Serial.print(" Enter a new device id (press enter for no change): ");
   delay(100);
   while (Serial.available() == 0)
     /* just wait */ ;
