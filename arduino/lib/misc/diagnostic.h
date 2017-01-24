@@ -19,6 +19,8 @@ void print_diagnostic(int sensor_type, int sendor_id) {
 
 void ask_for_device_number(int device_number_addr, int *device_number) {
   Serial.print(" Enter a new device id (press enter for no change): ");
+  // To make sure we had time to output the string to the serial line
+  // before reading and thus blocking the serial line.
   delay(100);
   while (Serial.available() == 0)
     /* just wait */ ;
@@ -30,6 +32,7 @@ void ask_for_device_number(int device_number_addr, int *device_number) {
       EEPROM.write(device_number_addr, *device_number);
       Serial.print("New sensor id: ");
       Serial.println(*device_number);
+      // Same reason as above.
       delay(100);
     }
   }
