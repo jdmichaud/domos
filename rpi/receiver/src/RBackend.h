@@ -10,7 +10,7 @@ namespace R = RethinkDB;
 
 class RBackend : public Backend {
 public:
-  RBackend (const std::string &url);
+  RBackend(const std::string &url, const std::string &database, const std::string &table);
 
   virtual void processDoorSignal(int sensor_id, int sensor_type, uint8_t message) override;
 

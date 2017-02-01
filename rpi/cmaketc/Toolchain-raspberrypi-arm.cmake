@@ -5,9 +5,9 @@ SET (CMAKE_SYSTEM_VERSION 1)
 
 # Check for Raspberry Pi Tools and bail out if they don't have it
 if(DEFINED ENV{PI_TOOLS_HOME} AND DEFINED ENV{PI_TOOL})
-  message("Using Raspberry Pi Tools found in $ENV{PI_TOOLS_HOME}/$ENV{PI_TOOL}")
+  message(STATUS "Using Raspberry Pi Tools found in $ENV{PI_TOOLS_HOME}/$ENV{PI_TOOL}")
 else()
-  message("PI_TOOLS_HOME or PI_TOOL is not set; You must tell CMake where to find Raspberry Pi Tools (cross-compiler)")
+  message(FATAL_ERROR "PI_TOOLS_HOME or PI_TOOL is not set; You must tell CMake where to find Raspberry Pi Tools (cross-compiler)")
   return()
 endif()
 

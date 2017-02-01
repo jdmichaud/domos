@@ -37,21 +37,27 @@ void help() {
   std::cerr << "  -V, --verbose             make the program more verbose" << std::endl;
   std::cerr << "      --url url             provide the backend URL to connect to in the form of" << std::endl;
   std::cerr << "                            http://url:port" << std::endl;
+  std::cerr << "      --database database   the database name" << std::endl;
+  std::cerr << "      --table table         the table name" << std::endl;
 }
 
-std::tuple<bool, std::string>
+std::tuple<bool, std::string, std::string, std::string>
 parse_options(int argc, char * const argv[]) {
   struct option longopts[] = {
     { "version",  no_argument,        nullptr, 'v' },
     { "help",     no_argument,        nullptr, 'h' },
     { "verbose",  no_argument,        nullptr, 'V' },
     { "url",      required_argument,  nullptr, 'u' },
+    { "database", required_argument,  nullptr, 'd' },
+    { "table",    required_argument,  nullptr, 't' },
     { 0, 0, 0, 0 },
   };
 
   int ret = 0;
   int verbose = 0;
   std::string backend_url;
+  std::string database_name;
+  std::string table_name;
   while ((ret = getopt_long(argc, argv, "vhV", longopts, NULL)) != -1) {
     switch (ret) {
       case 'v':
@@ -66,15 +72,23 @@ parse_options(int argc, char * const argv[]) {
       case 'u':
         backend_url = argv[optind++];
         break;
+      case 'd':
+        database_name = argv[optind++];
+        break;
+      case 't':
+        table_name = argv[optind++];
+        break;
     }
   }
-  return std::make_tuple(verbose, backend_url);
+  return std::make_tuple(verbose, backend_url, database_name, table_name);
 }
 
 int main(int argc, char * const argv[]) {
   bool verbose;
   std::string backend_url;
-  std::tie(verbose, backend_url) = parse_options(argc, argv);
+  std::string database_name;
+  std::string table_name;
+  std::tie(verbose, backend_url, database_name, table_name) = parse_options(argc, argv);
   VERBOSE(std::cout << "Verbose mode activated" << std::endl);
   if (backend_url == "") {
     backend_url = DEFAULT_BACKEND_URL;
@@ -82,7 +96,7 @@ int main(int argc, char * const argv[]) {
   }
 
   // The object used to send the POST request
-  RBackend rBackend(backend_url);
+  RBackend rBackend(backend_url, database_name, table_name);
 
   // The object listening to the radio
   RF33Adapter rf33;
