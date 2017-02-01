@@ -1,8 +1,12 @@
 var express = require('express')
 var bodyParser = require('body-parser');
 var lodash = require('lodash');
+var db = require('memory-db');
 
-const REST_URL_PREFIX = '/api';
+const constants = Object.freeze({
+  REST_URL_PREFIX = '/api',
+});
+
 const db = {};
 const watcher = {};
 
@@ -79,29 +83,29 @@ app.get('/', function (req, res) {
   res.send('Hello World!')
 });
 
-app.get(REST_URL_PREFIX + '/[^/]+/', function (req, res) {
+app.get(constants.REST_URL_PREFIX + '/[^/]+/', function (req, res) {
   const resource = req.url.match(/\/api\/([^\/]+)\/.*/)[1];
   list(resource, req.query, res);
 });
 
-app.get(REST_URL_PREFIX + '/*/:id', function (req, res) {
+app.get(constants.REST_URL_PREFIX + '/*/:id', function (req, res) {
   const resource = req.url.match(/\/api\/([^\/]+)\/.*/)[1];
   retrieve(resource, req.params.id, req.query, res);
 });
 
-app.post(REST_URL_PREFIX + '/[^/]+/', function (req, res) {
+app.post(constants.REST_URL_PREFIX + '/[^/]+/', function (req, res) {
   const resource = req.url.match(/\/api\/([^\/]+)\/.*/)[1];
   create(resource, req.body, req.query, res);
   publish(resource);
 });
 
-app.post(REST_URL_PREFIX + '/*/:id', function (req, res) {
+app.post(constants.REST_URL_PREFIX + '/*/:id', function (req, res) {
   const resource = req.url.match(/\/api\/([^\/]+)\/.*/)[1];
   update(resource, req.params.id, req.body, req.query, res);
   publish(resource);
 });
 
-app.delete(REST_URL_PREFIX + '/*/:id', function (req, res) {
+app.delete(constants.REST_URL_PREFIX + '/*/:id', function (req, res) {
   const resource = req.url.match(/\/api\/([^\/]+)\/.*/)[1];
   del(resource, req.params.id, res);
   publish(resource);
