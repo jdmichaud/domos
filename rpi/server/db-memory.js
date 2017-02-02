@@ -1,6 +1,6 @@
 var lodash = require('lodash');
 
-function db() {
+function Db() {
   const _db = {};
   return {
     get: function (resource, id) {
@@ -42,4 +42,4 @@ function db() {
   };
 }
 
-module.exports = db;
+module.exports = Db;

@@ -46,7 +46,7 @@ function getItemFromPath(dirpath) {
   return {};
 }
 
-function db(rootPath) {
+function Db(rootPath) {
   if (lodash.isUndefined(rootPath)) {
     rootPath = path.join(process.cwd(), 'db');
   }
@@ -106,7 +106,7 @@ function db(rootPath) {
   };
 }
 
-module.exports = db;
+module.exports = Db;
 
 // var db = require('./db-filesystem')('/tmp/data');
 // db.create('door-switches', '{"open":true}');
