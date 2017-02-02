@@ -1,7 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var lodash = require('lodash');
-var db = require('./db-memory');
+var db = require('./db-memory')();
 
 const constants = Object.freeze({
   REST_URL_PREFIX: '/api',
@@ -54,6 +54,7 @@ app.disable('x-powered-by');
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => res.send('Hello World!'));
+
 
 app.get(`${constants.REST_URL_PREFIX}/[^/]+/`, (req, res) => {
   const resource = req.url.match(/\/api\/([^/]+)\/.*/)[1];
