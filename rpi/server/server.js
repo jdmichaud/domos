@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const lodash = require('lodash');
 const constants = require('./constants');
 
-const DomosServer = function DomosServer(db, rest) {
+const Server = function Server(db, rest) {
   const watcher = {};
 
   // Used to callback the client which requested a long polling
@@ -61,9 +61,9 @@ const DomosServer = function DomosServer(db, rest) {
   return {
     listen: function listen(host, port) {
       app.listen(port, host, () =>
-      console.log(`domos server listening on port ${host}:${port}`));
+      console.log(`server listening on port ${host}:${port}`));
     },
   };
 };
 
-module.exports = DomosServer;
+module.exports = Server;
