@@ -56,9 +56,9 @@ function Db(rootPath) {
         const filepath = path.join(rootPath, resource);
         const filenames = fs.readdirSync(filepath)
           // Filter out the deleted items
-          .filter(id => idRegex.test(id))
+          .filter(idfolder => idRegex.test(idfolder))
           // Get the last updated file in the folder
-          .map(id => path.join(id, getLastEntryInDir(path.join(filepath, id))));
+          .map(idfolder => path.join(idfolder, getLastEntryInDir(path.join(filepath, idfolder))));
         return filenames
           .map(filename =>
             JSON.parse(fs.readFileSync(path.join(filepath, filename))));
@@ -74,19 +74,17 @@ function Db(rootPath) {
         .map(id => parseInt(id, 10));
       let maxid = Math.max.apply({}, pathWithIds);
       maxid = maxid > 0 ? maxid : 0;
-      const item = JSON.parse(data);
-      item.id = maxid + 1;
-      console.log(item);
-      mkdirpSync(path.join(filepath, String(item.id)));
-      fs.writeFileSync(path.join(filepath, String(item.id), `${resource}_${timestamp()}`), 
-                       JSON.stringify(item));
+      data.id = maxid + 1;
+      mkdirpSync(path.join(filepath, String(data.id)));
+      fs.writeFileSync(path.join(filepath, String(data.id), `${resource}_${timestamp()}`),
+                       JSON.stringify(data));
       return data;
     },
     update: function (resource, id, data) {
       const filepath = path.join(rootPath, resource, String(id));
       const item = getItemFromPath(filepath);
-      lodash.merge(item, JSON.parse(data));
-      fs.writeFileSync(path.join(filepath, `${resource}_${timestamp()}`), 
+      lodash.merge(item, data);
+      fs.writeFileSync(path.join(filepath, `${resource}_${timestamp()}`),
                        JSON.stringify(item));
       return item;
     },
@@ -95,13 +93,13 @@ function Db(rootPath) {
       const item = getItemFromPath(filepath);
       if (!lodash.isEmpty(item)) {
         try {
-          const delname = `${filepath}${constants.DELETE_MARK}${timestamp()}`
+          const delname = `${filepath}${constants.DELETE_MARK}${timestamp()}`;
           fs.renameSync(filepath, delname);
         } catch (e) {
           console.log(e);
         }
       }
-      return(item);
+      return (item);
     },
   };
 }
