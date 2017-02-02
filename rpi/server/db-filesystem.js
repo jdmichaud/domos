@@ -65,7 +65,8 @@ function db(rootPath) {
           .map(id => path.join(id, getLastEntryInDir(path.join(filepath, id))));
         console.log('filenames:', filenames);
         return filenames
-          .map(filename => JSON.parse(fs.readFileSync(path.join(filepath, filename))));
+          .map(filename =>
+            JSON.parse(fs.readFileSync(path.join(filepath, filename))));
       }
       const filepath = path.join(rootPath, resource, String(id));
       return getItemFromPath(filepath);
@@ -82,6 +83,11 @@ function db(rootPath) {
       return data;
     },
     update: function (resource, id, data) {
+      const filepath = path.join(rootPath, resource, String(id));
+      const item = getItemFromPath(filepath);
+      lodash.merge(item, data);
+      fs.writeFileSync(path.join(filepath, String(maxid), `${resource}_${timestamp()}`), item);
+      return item;
     },
     del: function (resource, id) {
       const filepath = path.join(rootPath, resource, String(id));
