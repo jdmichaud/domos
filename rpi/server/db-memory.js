@@ -3,11 +3,11 @@ var lodash = require('lodash');
 function Db() {
   const _db = {};
   return {
-    get: function (resource, id) {
+    filter: function (resource) {
       _db[resource] = _db[resource] || [];
-      if (id === undefined) {
-        return _db[resource];
-      }
+      return _db[resource];
+    },
+    get: function (resource, id) {
       const result = _db[resource].filter(instance => instance.id === id);
       if (result.length) {
         return result[0];

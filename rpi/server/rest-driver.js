@@ -3,7 +3,7 @@ const lodash = require('lodash');
 function RestDriver(database) {
   return {
     list: function list(resource, query, res) {
-      res.send(database.get(resource));
+      res.send(database.filter(resource));
     },
 
     create: function create(resource, data, query, res) {

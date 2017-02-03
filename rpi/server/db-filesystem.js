@@ -51,18 +51,18 @@ function Db(rootPath) {
     rootPath = path.join(process.cwd(), 'db');
   }
   return {
+    filter: function (resource) {
+      const filepath = path.join(rootPath, resource);
+      const filenames = fs.readdirSync(filepath)
+        // Filter out the deleted items
+        .filter(idfolder => idRegex.test(idfolder))
+        // Get the last updated file in the folder
+        .map(idfolder => path.join(idfolder, getLastEntryInDir(path.join(filepath, idfolder))));
+      return filenames
+        .map(filename =>
+          JSON.parse(fs.readFileSync(path.join(filepath, filename))));
+    },
     get: function (resource, id) {
-      if (lodash.isUndefined(id)) {
-        const filepath = path.join(rootPath, resource);
-        const filenames = fs.readdirSync(filepath)
-          // Filter out the deleted items
-          .filter(idfolder => idRegex.test(idfolder))
-          // Get the last updated file in the folder
-          .map(idfolder => path.join(idfolder, getLastEntryInDir(path.join(filepath, idfolder))));
-        return filenames
-          .map(filename =>
-            JSON.parse(fs.readFileSync(path.join(filepath, filename))));
-      }
       const filepath = path.join(rootPath, resource, String(id));
       return getItemFromPath(filepath);
     },
