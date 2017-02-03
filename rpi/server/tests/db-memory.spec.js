@@ -4,11 +4,11 @@ const Db = require('../db-memory');
 
 describe('db-memory', () => {
   let db;
-  
+
   beforeEach(() => {
     db = Db();
   });
-  
+
   it('shall create an element', () => {
     testDb.testCreate(db);
   });

@@ -1,3 +1,5 @@
+/* eslint no-empty: 0 */
+
 const lodash = require('lodash');
 const tmp = require('tmp');
 const testDb = require('./db.spec.helper');
@@ -8,8 +10,12 @@ describe('db-filesystem', () => {
   let dataFolder;
 
   beforeEach(() => {
-    dataFolder = tmp.dirSync();
+    dataFolder = tmp.dirSync({ unsafeCleanup: true });
     db = Db(dataFolder.name);
+  });
+
+  afterEach(() => {
+    try { dataFolder.removeCallback(); } catch (e) {}
   });
 
   it('shall create an element', () => {

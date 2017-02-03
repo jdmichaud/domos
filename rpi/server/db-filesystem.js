@@ -51,16 +51,29 @@ function Db(rootPath) {
     rootPath = path.join(process.cwd(), 'db');
   }
   return {
-    filter: function (resource) {
-      const filepath = path.join(rootPath, resource);
-      const filenames = fs.readdirSync(filepath)
-        // Filter out the deleted items
-        .filter(idfolder => idRegex.test(idfolder))
-        // Get the last updated file in the folder
-        .map(idfolder => path.join(idfolder, getLastEntryInDir(path.join(filepath, idfolder))));
-      return filenames
-        .map(filename =>
-          JSON.parse(fs.readFileSync(path.join(filepath, filename))));
+    filter: function (resource, query) {
+      function filterall() {
+        const filepath = path.join(rootPath, resource);
+        const filenames = fs.readdirSync(filepath)
+          // Filter out the deleted items
+          .filter(idfolder => idRegex.test(idfolder))
+          // Get the last updated file in the folder
+          .map(idfolder => path.join(idfolder, getLastEntryInDir(path.join(filepath, idfolder))));
+        return filenames
+          .map(filename =>
+            JSON.parse(fs.readFileSync(path.join(filepath, filename))));
+      }
+      const all = filterall();
+      if (lodash.isUndefined(query) || lodash.isEmpty(query)) {
+        return all;
+      }
+      return all.filter(item =>
+        Object.keys(query).reduce((accumulator, property) =>
+          accumulator &&
+          item.hasOwnProperty(property) &&
+          lodash.isEqual(query[property], item[property]),
+          true)
+      );
     },
     get: function (resource, id) {
       const filepath = path.join(rootPath, resource, String(id));

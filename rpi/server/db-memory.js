@@ -3,9 +3,18 @@ var lodash = require('lodash');
 function Db() {
   const _db = {};
   return {
-    filter: function (resource) {
+    filter: function (resource, query) {
       _db[resource] = _db[resource] || [];
-      return _db[resource];
+      if (lodash.isUndefined(query) || lodash.isEmpty(query)) {
+        return _db[resource];
+      }
+      return _db[resource].filter(item =>
+        Object.keys(query).reduce((accumulator, property) =>
+          accumulator &&
+          item.hasOwnProperty(property) &&
+          lodash.isEqual(query[property], item[property]),
+          true)
+      );
     },
     get: function (resource, id) {
       const result = _db[resource].filter(instance => instance.id === id);
