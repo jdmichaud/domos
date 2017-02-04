@@ -1,0 +1,21 @@
+2017/02/04 13:24:52 [error] 74#0: *1 no "ssl_certificate" is defined in server listening on SSL port while SSL handshaking, client: 127.0.0.1, server: 127.0.0.1:443
+2017/02/04 13:24:59 [error] 74#0: *2 no "ssl_certificate" is defined in server listening on SSL port while SSL handshaking, client: 127.0.0.1, server: 127.0.0.1:443
+2017/02/04 13:32:19 [error] 20#0: *1 no "ssl_certificate" is defined in server listening on SSL port while SSL handshaking, client: 172.17.0.1, server: 0.0.0.0:443
+2017/02/04 13:32:20 [error] 20#0: *2 no "ssl_certificate" is defined in server listening on SSL port while SSL handshaking, client: 172.17.0.1, server: 0.0.0.0:443
+2017/02/04 13:35:04 [error] 20#0: *1 no "ssl_certificate" is defined in server listening on SSL port while SSL handshaking, client: 127.0.0.1, server: 127.0.0.1:443
+2017/02/04 13:35:10 [error] 20#0: *2 no "ssl_certificate" is defined in server listening on SSL port while SSL handshaking, client: 127.0.0.1, server: 127.0.0.1:443
+2017/02/04 13:35:10 [error] 20#0: *3 no "ssl_certificate" is defined in server listening on SSL port while SSL handshaking, client: 127.0.0.1, server: 127.0.0.1:443
+2017/02/04 13:43:29 [error] 20#0: *4 no "ssl_certificate" is defined in server listening on SSL port while SSL handshaking, client: 127.0.0.1, server: 127.0.0.1:443
+2017/02/04 14:09:50 [error] 20#0: *2 "/home/jedi/static/index.html" is not found (2: No such file or directory), client: 127.0.0.1, server: , request: "GET / HTTP/1.1", host: "localhost"
+2017/02/04 14:09:55 [error] 20#0: *3 "/home/jedi/static/index.html" is not found (2: No such file or directory), client: 127.0.0.1, server: , request: "GET / HTTP/1.1", host: "localhost"
+2017/02/04 14:10:00 [error] 20#0: *4 "/home/jedi/static/index.html" is not found (2: No such file or directory), client: 127.0.0.1, server: , request: "GET / HTTP/1.1", host: "localhost"
+2017/02/04 14:10:17 [error] 20#0: *8 "/home/jedi/static/index.html" is not found (2: No such file or directory), client: 127.0.0.1, server: , request: "GET / HTTP/1.1", host: "localhost"
+2017/02/04 14:10:17 [error] 20#0: *8 open() "/home/jedi/static/favicon.ico" failed (2: No such file or directory), client: 127.0.0.1, server: , request: "GET /favicon.ico HTTP/1.1", host: "localhost", referrer: "https://localhost/"
+2017/02/04 14:10:29 [error] 20#0: *8 "/home/jedi/static/index.html" is not found (2: No such file or directory), client: 127.0.0.1, server: , request: "GET / HTTP/1.1", host: "localhost"
+2017/02/04 14:10:29 [error] 20#0: *8 open() "/home/jedi/static/favicon.ico" failed (2: No such file or directory), client: 127.0.0.1, server: , request: "GET /favicon.ico HTTP/1.1", host: "localhost", referrer: "https://localhost/"
+2017/02/04 14:10:51 [error] 20#0: *8 "/home/jedi/static/index.html" is not found (2: No such file or directory), client: 127.0.0.1, server: , request: "GET / HTTP/1.1", host: "localhost"
+2017/02/04 14:10:51 [error] 20#0: *8 open() "/home/jedi/static/favicon.ico" failed (2: No such file or directory), client: 127.0.0.1, server: , request: "GET /favicon.ico HTTP/1.1", host: "localhost", referrer: "https://localhost/"
+2017/02/04 14:10:53 [error] 20#0: *8 "/home/jedi/static/index.html" is not found (2: No such file or directory), client: 127.0.0.1, server: , request: "GET / HTTP/1.1", host: "localhost"
+2017/02/04 14:10:58 [error] 20#0: *8 "/home/jedi/static/index.html" is not found (2: No such file or directory), client: 127.0.0.1, server: , request: "GET / HTTP/1.1", host: "localhost"
+2017/02/04 14:11:18 [error] 20#0: *18 connect() failed (111: Connection refused) while connecting to upstream, client: 127.0.0.1, server: , request: "GET /api HTTP/1.1", upstream: "http://127.0.0.1:12000/api", host: "localhost"
+2017/02/04 14:11:27 [error] 20#0: *20 connect() failed (111: Connection refused) while connecting to upstream, client: 127.0.0.1, server: , request: "GET /api HTTP/1.1", upstream: "http://127.0.0.1:12000/api", host: "localhost"
