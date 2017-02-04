@@ -7,8 +7,7 @@
 # docker run --rm -it --net=host -v /path/to/nginx/store:/tmp/nginx domos-web-server bash --login
 
 
-#FROM sdhibit/rpi-raspbian
-FROM ubuntu
+FROM sdhibit/rpi-raspbian
 MAINTAINER novidee
 ENV APPLICATION domos-web-server
 
