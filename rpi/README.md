@@ -197,11 +197,17 @@ git clone https://github.com/raspberrypi/linux
 
 # Install Docker
 
+
+[//]: # (To install docker on raspbian - Deprecated:)
+[//]: # (```)
+[//]: # (curl -sSL http://downloads.hypriot.com/docker-hypriot_1.10.3-1_armhf.deb >/tmp/docker-hypriot_1.10.3-1_armhf.deb)
+[//]: # (sudo dpkg -i /tmp/docker-hypriot_1.10.3-1_armhf.deb)
+[//]: # (rm -f /tmp/docker-hypriot_1.10.3-1_armhf.deb)
+[//]: # (```)
+
 To install docker on raspbian:
 ```
-curl -sSL http://downloads.hypriot.com/docker-hypriot_1.10.3-1_armhf.deb >/tmp/docker-hypriot_1.10.3-1_armhf.deb
-sudo dpkg -i /tmp/docker-hypriot_1.10.3-1_armhf.deb
-rm -f /tmp/docker-hypriot_1.10.3-1_armhf.deb
+curl -sSL get.docker.com | sh
 ```
 
 Make sure your user had access to docker
