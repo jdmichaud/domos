@@ -104,18 +104,6 @@ RUN cd /home/jedi && tar zxf release-1.8.0.tar.gz && \
 RUN cd /usr/src/gmock && cmake CMakeLists.txt && make
 
 #
-# librethinkdbxx
-#
-### ARM
-RUN cd /home/jedi/ && \
-  git clone https://github.com/jdmichaud/librethinkdbxx.git && \
-  cd librethinkdbxx && \
-  git reset --hard 6105d1f8f894cf522488edd26ed8118dc0f8200b && \
-  make -j `$(nproc)` && \
-  make DESTDIR=${PI_TOOLS_HOME}/${PI_TOOL} install
-### amd64 (TODO)
-
-#
 # libcurl
 #
 # ARM

@@ -7,7 +7,6 @@
 #include "RF33_adapter.hpp"
 #include "HTTPBackend.h"
 #include "include/sensor_types.h"
-#include "RBackend.h"
 
 #define VERSION "0.0.1"
 
@@ -70,13 +69,13 @@ parse_options(int argc, char * const argv[]) {
         verbose = true;
         break;
       case 'u':
-        backend_url = argv[optind++];
+        backend_url = argv[optind - 1];
         break;
       case 'd':
-        database_name = argv[optind++];
+        database_name = argv[optind - 1];
         break;
       case 't':
-        table_name = argv[optind++];
+        table_name = argv[optind - 1];
         break;
     }
   }
@@ -92,11 +91,11 @@ int main(int argc, char * const argv[]) {
   VERBOSE(std::cout << "Verbose mode activated" << std::endl);
   if (backend_url == "") {
     backend_url = DEFAULT_BACKEND_URL;
-    std::cout << "No backend url specified, use " << backend_url << std::endl;
   }
+  std::cout << "Pushing to " << backend_url << std::endl;
 
   // The object used to send the POST request
-  RBackend rBackend(backend_url, database_name, table_name);
+  HTTPBackend httpBackend(backend_url);
 
   // The object listening to the radio
   RF33Adapter rf33;
@@ -107,7 +106,7 @@ int main(int argc, char * const argv[]) {
   }
   rf33.receiveMessage([&](const packet_s &packet) {
     if (packet.stype == DOOR_SENSOR) {
-      rBackend.processDoorSignal(packet.sid, packet.stype, packet.message);
+      httpBackend.processDoorSignal(packet.sid, packet.stype, packet.message);
     } else {
       std::cerr << "Unknown sensor type: " << packet.stype << std::endl;
     }

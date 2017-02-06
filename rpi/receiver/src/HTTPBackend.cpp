@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include "http/http.h"
+#include "include/sensor_types.h"
 #include "HTTPBackend.h"
 
 HTTPBackend::HTTPBackend(const std::string &url) : m_url(url) {
@@ -14,9 +15,14 @@ HTTPBackend::~HTTPBackend() {
 }
 
 void HTTPBackend::processDoorSignal(int sensor_id, int sensor_type, uint8_t message) {
-  std::ostringstream oss;
-  oss << "?sensor_type=" << sensor_type << "&sensor_id=" << sensor_id << "&state=" << (message == 0) ? "closed" : "open";
-  if (post(m_url.c_str(), oss.str().c_str()) == HTTP_FAIL) {
+  std::ostringstream full_url;
+  full_url << m_url << "/" << (GET_RESOURCE_NAME(sensor_type)) << "/";
+  std::ostringstream body;
+  body << "{"
+       << "\"sensorId\":" << sensor_id << ","
+       << "\"open\":\""   << (message ? "true" : "false") << "\""
+       << "}";
+  if (post(full_url.str().c_str(), body.str().c_str()) == HTTP_FAIL) {
     std::cerr << "POST request to backend " << m_url << " failed with " << getLastError() << std::endl;
   }
 }
