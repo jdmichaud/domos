@@ -1,0 +1,30 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "description": "Domos web frontend",
+  "main": "index.js",
+  "scripts": {
+    "dist": "node_modules/.bin/webpack",
+    "serve": "echo to do",
+    "test": "echo to do"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jdmichaud/domos"
+  },
+  "author": "Jean-Daniel Michaud",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jdmichaud/domos/issues"
+  },
+  "homepage": "https://github.com/jdmichaud/domos",
+  "devDependencies": {
+    "awesome-typescript-loader": "^3.0.7",
+    "source-map-loader": "^0.1.6",
+    "tslint": "^4.4.2",
+    "tslint-loader": "^3.4.2",
+    "typescript": "^2.2.1",
+    "webpack": "^2.2.1",
+    "webpack-dev-server": "^2.4.1"
+  }
+}
