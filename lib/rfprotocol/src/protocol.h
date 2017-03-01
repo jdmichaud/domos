@@ -19,7 +19,7 @@
  * address 0 DE <---^  |  |  |      |  |  |  ^---> EF address 0
  * address 1 AD <------   |  |      |  |   ------> BE address 1
  * address 2 BE <---------   |      |   ---------> AD address 2
- * address 3 EF <------------        ------------> EF address 3
+ * address 3 EF <------------        ------------> DE address 3
  *
  *            Big-Endian                    Little-Endian
  */
