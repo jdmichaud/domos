@@ -31,7 +31,9 @@ RUN apt-get install -y \
  # python-pip \
   less \
   sudo \
-  bc
+  bc \
+# for FFmpeg
+  yasm
 
 # RethinkDB dependencies
 RUN apt-get install -y \
@@ -59,10 +61,15 @@ RUN cd /home/jedi && \
   git checkout b65595ffb74e5853ba61916f49bdbccfc54f1300 && \
   echo "export PI_TOOLS_HOME=$HOME/rpi-toolchain" >> ~/.bashrc
 ENV PI_TOOLS_HOME /home/jedi/rpi-toolchain/
-# Retrieve the CMake toolchain configuration file. Do we need that???
+ENV PI_TOOL arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64
+# Retrieve the CMake toolchain configuration file
 ADD https://raw.githubusercontent.com/jdmichaud/domos/master/rpi/cmaketc/Toolchain-raspberrypi-arm.cmake /home/jedi/Toolchain-raspberrypi-arm.cmake
-# Setup the environment for cross-compiling
-ENV CROSS=/home/jedi/rpi-toolchain/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/arm-linux-gnueabihf
+# Give ownership of ADDED files to the user. ADD always create the user as owned by root...
+USER root
+RUN chown jedi /home/jedi/Toolchain-raspberrypi-arm.cmake
+USER jedi
+# Set cross compiler environment
+ENV CROSS=${PI_TOOLS_HOME}/${PI_TOOL}/bin/arm-linux-gnueabihf
 ENV CC=$CROSS-gcc
 ENV CXX=$CROSS-g++
 ENV LD=$CROSS-ld
@@ -73,8 +80,20 @@ ENV RANLIB=$CROSS-ranlib
 # Download, compile and package ffmpeg
 #
 RUN cd /home/jedi && \
+  ## userland
   # Userland contains libmmal used by ffmpeg to access the GPU h264 encoder
-  git clone https://github.com/raspberrypi/userland.git --depth=1 \
-  git clone https://github.com/FFmpeg/FFmpeg.git --depth=1 \
-  cd FFmpeg
-
+  git clone https://github.com/raspberrypi/userland.git --depth=1 && \
+  cd userland && \
+  # Use our own Toolchain configration
+  sed -ri 's@../../../makefiles/cmake/toolchains/arm-linux-gnueabihf.cmake@../../../../Toolchain-raspberrypi-arm.cmake@' buildme && \
+  # Compile userland
+  ./buildme && \
+  cd .. && \
+  ## FFmpeg
+  git clone https://github.com/FFmpeg/FFmpeg.git --depth=1 && \
+  cd FFmpeg && \
+  # Set the library PATH
+  export LD_LIBRARY_PATH=/home/jedi/rpi-toolchain/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/arm-linux-gnueabihf/libc/usr/lib/arm-linux-gnueabihf/ && \
+  # This is for cc1 used by gcc. No other place to specify in the command line so we change the PATH
+  export PATH=$PATH:${PI_TOOLS_HOME}/${PI_TOOL}/libexec/gcc/arm-linux-gnueabihf/4.8.3/ && \
+  ./configure --enable-cross-compile --arch=armel --cpu=cortex-a7 --target-os=linux --sysroot=${PI_TOOLS_HOME}/${PI_TOOL}/arm-linux-gnueabihf/libc --sysinclude=${PI_TOOLS_HOME}/${PI_TOOL}/lib/gcc/arm-linux-gnueabihf/4.8.3/include --cross-prefix=${PI_TOOLS_HOME}/${PI_TOOL}/bin/arm-linux-gnueabihf- --prefix=/tmp/ --enable-mmal --enable-omx-rpi
