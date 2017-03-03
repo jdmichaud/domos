@@ -36,6 +36,19 @@ ffplay seems to work better in rdp mode:
 ffplay -i sdp.file -fflags nobuffer -flags low_delay -framedrop -strict experimental
 ```
 
+### RPi hardware acceleration
+
+First cross-compile ffmpeg using the Dockerfile in this folder.
+Then, on the raspberry
+```
+./ffmpeg -i /dev/video0 -s 960x720 -vcodec h264_omx -f rtp rtp://192.168.0.101:1234
+```
+
+For a better quality, increase the bitrate:
+```
+./ffmpeg -i /dev/video0 -b:v 1M -s 960x720 -vcodec h264_omx -f rtp rtp://192.168.0.101:1234
+```
+
 ### Resources
 
 https://trac.ffmpeg.org/wiki/StreamingGuide
