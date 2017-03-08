@@ -1,0 +1,22 @@
+# interface file manually-generated for buildroot overlay
+
+auto lo
+iface lo inet loopback
+
+# By default, disable wired connection to speed up boot
+# auto eth0
+# iface eth0 inet dhcp
+#   pre-up /etc/network/nfs_check
+#   wait-delay 15
+
+allow-hotplug wlan0
+auto wlan0
+iface wlan0 inet dhcp
+  wireless-essid {{SSID}}
+  pre-up /etc/network/if-up.d/set_ssid.sh
+  pre-up wpa_supplicant -B w -D wext -i wlan0 -c /etc/wpa_supplicant.conf -dd
+  post-down killall -q wpa_supplicant
+  # udhcpc start too quick and try to get an IP while the interface is still
+  # not up. Add some options to start later.
+  udhcpc_opts -t 0 -T 5 -S
+

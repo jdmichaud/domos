@@ -26,8 +26,7 @@ RUN apt-get install -y \
   sudo
 
 # From https://buildroot.org/downloads/manual/manual.html#requirement-mandatory
-RUN apt install -y \
-  which \
+RUN apt-get install -y \
   sed \
   make \
   binutils \
@@ -48,26 +47,31 @@ RUN apt install -y \
   bc \
   wget
 
-# From https://buildroot.org/downloads/manual/manual.html#requirement-optional
-RUN apt install -y \
-  ncurses5 \
-  bazaar \
-  cvs \
-  git \
-  mercurial \
-  rsync \
-  scp \
-  subversion \
-  javac \
-  jar \
-  asciidoc \
-  graphviz \
-  python-matplotlib
+ # From https://buildroot.org/downloads/manual/manual.html#requirement-optional
+ RUN apt-get install -y \
+   libncurses5-dev \
+   bzr \
+   cvs \
+   git \
+   mercurial \
+   subversion \
+   graphviz \
+   python-matplotlib
 
+COPY configs /home/jedi/configs
+COPY overlays /home/jedi/overlays
+# Give ownership of ADDED files to the user. ADD always create the user as owned by root...
+USER root
+RUN chown jedi /home/jedi/configs
+RUN chown -R jedi /home/jedi/overlays
 USER jedi
 
 # Download buildroot package
 RUN cd /home/jedi && \
   curl -sLO https://buildroot.org/downloads/buildroot-2017.02.tar.gz && \
-  tar zxf buildroot-2017.02.tar.gz
-
+  tar zxf buildroot-2017.02.tar.gz && \
+  # Use our own version of the raspberry2 config as buildroot config
+  cp /home/jedi/configs/raspberrypi2_defconfig && /home/jedi/buildroot-2017.02/configs/ && \
+  cd /home/jedi/buildroot-2017.02 && \
+  make raspberrypi2_defconfig && \
+  make

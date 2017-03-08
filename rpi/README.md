@@ -29,7 +29,7 @@ At the end of the file, you should see the new USB device message. Look for some
 The card is mounted on /dev/sdd here. Identify all the partitions (they should
 be detail in the dmesg logs after the aforementioned log).
 
-Unmount al lthos partitions (we assume sdd as the device and partition number 1 & 2):
+Unmount all those partitions (we assume sdd as the device and partition number 1 & 2):
 ```
 sudo umount /dev/sdd1
 sudo umount /dev/sdd2
@@ -159,8 +159,8 @@ pi ALL=(ALL) ALL
 
 To configure the Wifi, plug the dongle. Then edit `/etc/network/interfaces`. Configure wlan0 this way:
 ```
-auto wlan0
 allow-hotplug wlan0
+auto wlan0
 iface wlan0 inet dhcp
   wpa-ssid "YOURSSID"
   wpa-psk "YOURPASSWD"
