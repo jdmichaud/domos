@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dist": "node_modules/.bin/webpack",
-    "serve": "echo to do",
+    "serve": "node_modules/.bin/webpack-dev-server --host 0.0.0.0 --port 8000 --content-base dist",
     "test": "echo to do"
   },
   "repository": {
@@ -20,11 +20,19 @@
   "homepage": "https://github.com/jdmichaud/domos",
   "devDependencies": {
     "awesome-typescript-loader": "^3.0.7",
+    "copy-webpack-plugin": "^4.0.1",
+    "css-loader": "^0.26.2",
+    "file-loader": "^0.10.1",
+    "jquery": "^3.1.1",
     "source-map-loader": "^0.1.6",
+    "style-loader": "^0.13.2",
     "tslint": "^4.4.2",
     "tslint-loader": "^3.4.2",
     "typescript": "^2.2.1",
     "webpack": "^2.2.1",
     "webpack-dev-server": "^2.4.1"
+  },
+  "dependencies": {
+    "bootstrap": "^3.3.7"
   }
 }
