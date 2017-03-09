@@ -24,6 +24,10 @@ module.exports = {
         test: /\.tsx?$/,
         loader: 'tslint-loader',
         exclude: /(node_modules)/,
+        options: {
+          configFile: 'node_modules/tslint-microsoft-contrib/tslint.json',
+          typeCheck: true,
+        }
       },
       { 
         test: /\.tsx?$/, 
