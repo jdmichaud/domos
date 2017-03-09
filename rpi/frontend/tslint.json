@@ -1,0 +1,12 @@
+{
+  "extends": "tslint-microsoft-contrib",
+  "rules": {
+    "trailing-comma": [
+      true,
+      {
+        "multiline": "always"
+      }
+    ],
+    "export-name": false
+  }
+}

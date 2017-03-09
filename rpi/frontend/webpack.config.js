@@ -3,18 +3,24 @@ const webpack = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
-  entry: path.join('app', 'js', 'main.ts'),
+  context: path.join(__dirname, 'app'),
+  // WARNING !!
+  // 1. If you don't specify './' webpack is lost.
+  // 2. You can't specify './' if you use path.join
+  // 3. Without path.join, it will fail on Windows.
+  // https://github.com/webpack/webpack/issues/223
+  entry: './js/main',
   output: {
-    path: path.resolve(__dirname, 'dist'),
+    path: path.join(__dirname, 'dist'),
     filename: 'app.js'
   },
   devtool: "source-map",
   resolve: {
     // Add '.ts' and '.tsx' as resolvable extensions.
-    extensions: [".ts", ".js", ],
+    extensions: [".ts", ".js"],
     modules: [
       "node_modules",
-      path.resolve(__dirname, ".")
+      path.join(__dirname, 'app'),
     ],
   },
   module: {
@@ -25,13 +31,17 @@ module.exports = {
         loader: 'tslint-loader',
         exclude: /(node_modules)/,
         options: {
-          configFile: 'node_modules/tslint-microsoft-contrib/tslint.json',
+          configFile: 'tslint.json',
           typeCheck: true,
         }
       },
+      // Faster alternative to ts-loader
       { 
         test: /\.tsx?$/, 
-        use: 'awesome-typescript-loader?configFileName="tscondig.json"',
+        loader: 'awesome-typescript-loader',
+        options: {
+          configFileName: 'tsconfig.json',
+        },
         exclude: /(node_modules)/,
       },
       {
@@ -50,9 +60,11 @@ module.exports = {
         use: 'file-loader?name=resources/fonts/[name].[ext]?[hash]',
       },
     ],
+    // https://github.com/angular/angular/issues/11580
+    exprContextCritical: false,
   },  
   plugins: [
-    new webpack.ProvidePlugin({ jQuery: "jquery" }),
-    new CopyWebpackPlugin([{ from: 'app/index.html' }]),
+    new webpack.ProvidePlugin({ jQuery: 'jquery' }),
+    new CopyWebpackPlugin([{ from: 'index.html' }]),
   ],
 };
