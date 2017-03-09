@@ -1,5 +1,11 @@
 #!/bin/bash
 
+#
+# This script is launched everytune the wlan0 interface is started.
+# It will check is a wifi network is condifured and if it is not, will ask
+# for a SSID and a password and configure it.
+#
+
 INTERFACE_FILE=/etc/network/interfaces
 WPA_FILE=/etc/wpa_supplicant.conf
 
@@ -13,7 +19,11 @@ then
   exit 0
 fi
 
-read -p "ssid: " SSID
+# Prompt the user for SSID and password
+SSID=
+while [[ $SSID = "" ]]; do
+	read -p "ssid: " SSID
+done
 read -p "wifi password (won't be stored): " -s PASSWORD
 
 # Replace the SSID
