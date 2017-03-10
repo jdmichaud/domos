@@ -1,0 +1,15 @@
+auto lo
+iface lo inet loopback
+
+allow-hotplug wlan0
+auto wlan0
+iface wlan0 inet static
+  address 192.168.1.1
+  netmask 255.255.255.0
+  pre-up /etc/network/if-pre-up.d/set_ssid_ap.sh
+  wait-delay 15
+  # Start the hostapd daemon
+  up /etc/network/if-up.d/hostapd_startup.sh
+  # Start the dhcpd daemon
+  up /etc/network/if-up.d/dhcpdc_startup.sh
+
