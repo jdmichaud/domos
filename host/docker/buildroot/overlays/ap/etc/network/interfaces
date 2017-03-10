@@ -6,7 +6,7 @@ auto wlan0
 iface wlan0 inet static
   address 192.168.1.1
   netmask 255.255.255.0
-  pre-up /etc/network/if-pre-up.d/set_ssid_ap.sh
+  pre-up /etc/network/if-pre-up.d/check_hostapdconf.sh
   wait-delay 15
   # Start the hostapd daemon
   up /etc/network/if-up.d/hostapd_startup.sh

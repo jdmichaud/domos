@@ -1,0 +1,36 @@
+#!/bin/bash
+#
+# Will prompt for a SSID and password and modify the WiFi configuration file.
+#
+
+# Define some colors
+NC='\[\033[0m\]' # No Color
+RED='\[\033[0;31m\]'
+
+FILE=/etc/hostapd.conf
+
+# Sanity check
+if [[ ! -f $FILE ]]
+then
+  echo "Error: $FILE does not exist"
+  exit 1
+fi
+
+# Prompt the user for SSID and password
+SSID=
+while [[ $SSID = "" ]]; do
+  read -p "ssid: " SSID
+done
+
+# Check our replacement will work
+grep 'ssid=' $FILE > /dev/null
+if [[ $? -ne 0 ]]
+then
+  echo "${RED}Error:${NC} $FILE does not contain a ssid field"
+  exit 1
+fi
+
+# Replace the SSID
+sed -i "s/ssid=(.*)/${SSID}/" $FILE
+
+echo "AP configuration to SSID $SSID done"

@@ -30,8 +30,8 @@ done
 read -p "wifi password (won't be stored): " -s PASSWORD
 
 # Replace the SSID
-sed -i s/{{SSID}}/Kramer2/g $INTERFACE_FILE
-sed -i s/{{SSID}}/Kramer2/g $WPA_FILE
+sed -i s/{{SSID}}/$SSID/g $INTERFACE_FILE
+sed -i s/{{SSID}}/$SSID/g $WPA_FILE
 
 # Hash the password
 KEY=`wpa_passphrase $SSID $PASSWORD | egrep "[^#]psk" | awk -F'=' '{ print $2 }'`
