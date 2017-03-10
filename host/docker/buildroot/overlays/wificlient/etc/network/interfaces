@@ -13,10 +13,10 @@ allow-hotplug wlan0
 auto wlan0
 iface wlan0 inet dhcp
   wireless-essid {{SSID}}
-  pre-up /etc/network/if-up.d/set_ssid.sh
+  pre-up /etc/network/if-pre-up.d/check_wifi_client_conf.sh
   pre-up wpa_supplicant -B w -D wext -i wlan0 -c /etc/wpa_supplicant.conf -dd
-  post-down killall -q wpa_supplicant
   # udhcpc start too quick and try to get an IP while the interface is still
   # not up. Add some options to start later.
   udhcpc_opts -t 0 -T 5 -S
+  post-down killall -q wpa_supplicant
 

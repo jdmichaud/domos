@@ -3,6 +3,10 @@
 # Will prompt for a SSID and password and modify the WiFi configuration file.
 #
 
+# Define some colors
+NC='\[\033[0m\]' # No Color
+RED='\[\033[0;31m\]'
+
 INTERFACE_FILE=/etc/network/interfaces
 WPA_FILE=/etc/wpa_supplicant.conf
 
@@ -31,6 +35,14 @@ sed -i s/{{SSID}}/Kramer2/g $WPA_FILE
 
 # Hash the password
 KEY=`wpa_passphrase $SSID $PASSWORD | egrep "[^#]psk" | awk -F'=' '{ print $2 }'`
+
+# Check our replacement will work
+grep 'psk=' $WPA_FILE > /dev/null
+if [[ $? -ne 0 ]]
+then
+  echo "${RED}Error:${NC} $WPA_FILE do not contain a psk field"
+  exit 1
+fi
 
 # Replace the password
 sed -ir s/psk=.*/psk=$KEY/ $WPA_FILE
