@@ -1,28 +1,27 @@
 #!/bin/bash
-
 #
-# This script is launched everytune the wlan0 interface is started.
-# It will check is a wifi network is condifured and if it is not, will ask
-# for a SSID and a password and configure it.
+# Will prompt for a SSID and password and modify the WiFi configuration file.
 #
 
 INTERFACE_FILE=/etc/network/interfaces
 WPA_FILE=/etc/wpa_supplicant.conf
 
-echo $INTERFACE_FILE
-
-# If the interface file contains {{SSID}}, it means we need to configure it
-grep {{SSID}} $INTERFACE_FILE > /dev/null
-if [[ $? -ne 0 ]]
+# Sanity check
+if [[ ! -f $INTERFACE_FILE ]]
 then
-  echo "WiFi already configured"
-  exit 0
+  echo "Error: No interface file $INTERFACE_FILE"
+  exit 1
+fi
+if [[ ! -f $WPA_FILE ]]
+then
+  echo "Error: No wpa supplicant configuration file $WPA_FILE"
+  exit 1
 fi
 
 # Prompt the user for SSID and password
 SSID=
 while [[ $SSID = "" ]]; do
-	read -p "ssid: " SSID
+  read -p "ssid: " SSID
 done
 read -p "wifi password (won't be stored): " -s PASSWORD
 
@@ -36,3 +35,4 @@ KEY=`wpa_passphrase $SSID $PASSWORD | egrep "[^#]psk" | awk -F'=' '{ print $2 }'
 # Replace the password
 sed -ir s/psk=.*/psk=$KEY/ $WPA_FILE
 
+echo "Wifi configuration to SSID $SSID done"
