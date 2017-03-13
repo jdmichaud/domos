@@ -5,7 +5,7 @@
 # will execute set_ssid.sh.
 #
 
-FILE=/etc/hostapd.conf
+FILE=/etc/hostapd/hostapd.conf
 SUBCOMMAND=set_ssid_ap
 
 # Sanity check
@@ -17,10 +17,16 @@ fi
 
 # If the interface file contains {{SSID}}, it means we need to configure it
 grep {{SSID}} $FILE > /dev/null
-if [[ $? -ne 0 ]]
+if [[ $? -eq 0 ]]
 then
-  echo "AP already configured"
-  exit 0
+  echo "AP needs to be configured"
+  bash -c $SUBCOMMAND
 fi
 
-bash -c $SUBCOMMAND
+# If the interface file contains {{SSID}}, it means we need to configure it
+grep {{KEY}} $FILE > /dev/null
+if [[ $? -eq 0 ]]
+then
+  echo "AP needs to be configured"
+  bash -c $SUBCOMMAND
+fi

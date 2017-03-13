@@ -71,8 +71,8 @@ Number  Start      End        Type     File system  Flags
  2      8,40,32    482,12,54  primary  ext4
         482,12,55  482,18,47           Free Space
 ```
-You will resize your root partition to the end of the SD card. First remove the root partition
-(here partition 2)and then extend it.
+You will resize your root partition to the end of the SD card. First remove the
+root partition (here partition 2) and then extend it.
 
 ```
 (parted) rm 2
@@ -113,9 +113,10 @@ Check the Raspberry pin out [here](http://pinout.xyz/).
 
 Plug the USB cable to your computer.
 The 5V pin is to input AND output 5V.
-:warning: This will provide 5V directly to the raspberry. No fuse or voltage regulator on the 5V pin.
-A less risky way is to not to plug the RED cable and use another USB cable to provide for power.
-It requires an additional cable though.
+:warning: This will provide 5V directly to the raspberry. No fuse or voltage
+regulator on the 5V pin. A less risky way is not to plug the RED cable and
+use another USB cable to provide for power. It requires an additional cable
+though.
 
 Once plugged, install screen on the host:
 ```

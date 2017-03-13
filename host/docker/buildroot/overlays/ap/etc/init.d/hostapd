@@ -1,0 +1,48 @@
+#!/bin/sh
+# Inspired by https://www.apt-browse.org/browse/ubuntu/trusty/universe/i386/hostapd/1:2.1-0ubuntu1/file/etc/init.d/hostapd
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+DAEMON_SBIN=/usr/sbin/hostapd
+DAEMON_CONF=/etc/hostapd/hostapd.conf
+NAME=hostapd
+DESC="advanced IEEE 802.11 management"
+PIDFILE=/var/run/hostapd.pid
+
+[ -x "$DAEMON_SBIN" ] || exit 0
+[ -n "$DAEMON_CONF" ] || exit 0
+
+DAEMON_OPTS="-B -P $PIDFILE $DAEMON_OPTS $DAEMON_CONF"
+
+case "$1" in
+  start)
+    echo "Starting $DESC" "$NAME ..." > /dev/kmsg
+    start-stop-daemon --start --oknodo --quiet --exec "$DAEMON_SBIN" \
+      --pidfile "$PIDFILE" -- $DAEMON_OPTS > /dev/kmsg
+  ;;
+  stop)
+    echo "Stopping $DESC" "$NAME ..." > /dev/kmsg
+    start-stop-daemon --stop --oknodo --quiet --exec "$DAEMON_SBIN" \
+      --pidfile "$PIDFILE" > /dev/kmsg
+  ;;
+  reload)
+    echo "Reloading $DESC" "$NAME ..." > /dev/kmsg
+    start-stop-daemon --stop --signal HUP --exec "$DAEMON_SBIN" \
+      --pidfile "$PIDFILE" > /dev/kmsg
+  ;;
+  restart|force-reload)
+    $0 stop
+    sleep 8
+    $0 start
+  ;;
+  status)
+  ps | grep "$DAEMON_SBIN"
+  exit $?
+  ;;
+  *)
+  N=/etc/init.d/$NAME
+  echo "Usage: $N {start|stop|restart|force-reload|reload|status}" >&2
+  exit 1
+  ;;
+esac
+
+exit 0

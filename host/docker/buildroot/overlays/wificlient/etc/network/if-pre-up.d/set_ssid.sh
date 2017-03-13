@@ -29,6 +29,13 @@ while [[ $SSID = "" ]]; do
 done
 read -p "wifi password (won't be stored): " -s PASSWORD
 
+# Check password staisfies wpa_passphrase requirement of at least 8 characters
+if [[ `echo $PASSWORD | wc -c` -lt 8 ]]
+then
+  echo "${RED}Error:${NC} Password must contain at least 8 character"
+  exit 1
+fi
+
 # Replace the SSID
 sed -i s/{{SSID}}/$SSID/g $INTERFACE_FILE
 sed -i s/{{SSID}}/$SSID/g $WPA_FILE

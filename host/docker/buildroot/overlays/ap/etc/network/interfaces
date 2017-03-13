@@ -3,13 +3,19 @@ iface lo inet loopback
 
 allow-hotplug wlan0
 auto wlan0
+#iface wlan0 inet static
+#  address 192.168.1.1
+#  netmask 255.255.255.0
 iface wlan0 inet static
-  address 192.168.1.1
+  address 192.168.42.1
   netmask 255.255.255.0
-  pre-up /etc/network/if-pre-up.d/check_hostapdconf.sh
+  # pre-up /etc/network/if-pre-up.d/check_hostapdconf.sh
   wait-delay 15
   # Start the hostapd daemon
-  up /etc/network/if-up.d/hostapd_startup.sh
+  #up /etc/init.d/hostapd start
+  up hostapd -dd -i wlan0 /etc/hostapd/hostapd.conf 2>&1 > /tmp/hostapd.log &
+  down /etc/init.d/hostapd stop
   # Start the dhcpd daemon
-  up /etc/network/if-up.d/dhcpdc_startup.sh
+  # up dhcpd -f -q -d -cf /etc/dhcp/dhcpd.conf wlan0 -tf /tmp/dhcpd.transactions 2>&1 > /tmp/dhcpd
+  #down dhcpcd -x
 
