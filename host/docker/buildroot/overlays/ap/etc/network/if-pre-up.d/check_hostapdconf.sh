@@ -11,7 +11,7 @@ SUBCOMMAND=set_ssid_ap
 # Sanity check
 if [[ ! -f $FILE ]]
 then
-  echo "Error: No interface file $FILE"
+  echo "Error: No interface file $FILE" > /dev/kmsg
   exit 1
 fi
 
@@ -19,14 +19,18 @@ fi
 grep {{SSID}} $FILE > /dev/null
 if [[ $? -eq 0 ]]
 then
-  echo "AP needs to be configured"
+  echo "AP needs to be configured" > /dev/kmsg
   bash -c $SUBCOMMAND
+  exit 0
 fi
 
 # If the interface file contains {{SSID}}, it means we need to configure it
 grep {{KEY}} $FILE > /dev/null
 if [[ $? -eq 0 ]]
 then
-  echo "AP needs to be configured"
+  echo "AP needs to be configured" > /dev/kmsg
   bash -c $SUBCOMMAND
+  exit 0
 fi
+
+echo "AP is configured" > /dev/kmsg
