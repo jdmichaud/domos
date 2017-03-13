@@ -1,3 +1,5 @@
+# AP interface template
+
 auto lo
 iface lo inet loopback
 
@@ -7,7 +9,6 @@ auto wlan0
 iface wlan0 inet static
   address 192.168.1.1
   netmask 255.255.255.0
-  pre-up /etc/network/if-pre-up.d/check_hostapdconf.sh
   wait-delay 15
   # Start the hostapd daemon
   up /etc/init.d/hostapd start

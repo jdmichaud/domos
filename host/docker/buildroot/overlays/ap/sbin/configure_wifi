@@ -7,7 +7,7 @@ DHCPD_STARTUP_FILE=S80dhcp-server
 INPUT=/tmp/menu.sh.$$
 
 # trap and delete temp files
-trap "rm $OUTPUT; rm $INPUT; exit" SIGHUP SIGINT SIGTERM
+trap "rm $INPUT; exit" SIGHUP SIGINT SIGTERM
 
 # Display a nice waiting dialog box
 function retrieve_AP() {
@@ -74,7 +74,7 @@ function configure_client() {
 
   if [[ $returncode -ne 0 ]]
   then
-    nothing_done
+    do_nothing
   fi
 
   # Stop daemon
@@ -82,14 +82,23 @@ function configure_client() {
   /etc/init.d/$DHCPD_STARTUP_FILE stop
 
   # Rewrite configuration files
-  sed 's/{{SSID}}/$SSID/g; s/{{PWD}}/$PWD/g; s/{{PSKEY}}/$PSKEY/g' \
-    /etc/ezwifi/templates/etc/network/interface_client > /etc/network/interface
-  sed 's/{{SSID}}/$SSID/g; s/{{PWD}}/$PWD/g; s/{{PSKEY}}/$PSKEY/g' \
+  rm -fr /etc/network/interfaces
+  sed -e "s/{{SSID}}/$SSID/g" -e "s/{{PWD}}/$PWD/g" -e "s/{{PSKEY}}/$PSKEY/g" \
+    /etc/ezwifi/templates/etc/network/interfaces_client > /etc/network/interfaces
+  sed -e "s/{{SSID}}/$SSID/g" -e "s/{{PWD}}/$PWD/g" -e "s/{{PSKEY}}/$PSKEY/g" \
     /etc/ezwifi/templates/etc/wpa_supplicant.conf > /etc/wpa_supplicant.conf
   # Disable dhcpd daemon
   mv /etc/init.d/$DHCPD_STARTUP_FILE /etc/init.d/_$DHCPD_STARTUP_FILE
 
+  # We should not have to reboot but apparently, ifdown/ifup does not work.
+  # Only if we modprobe -r the wifi interface driver (8192cu here) it works
+  # without rebootinh. The problem is, not everybody uses realtek devices...
+  #ifdown wlan0
+  #killall wpa_supplicant
+  #ifup wlan0
+
   all_done
+  reboot
 }
 
 function configure_AP() {
@@ -97,29 +106,37 @@ function configure_AP() {
 
   if [[ $returncode -ne 0 ]]
   then
-    nothing_done
+    do_nothing
   fi
 
   # Rewrite configuration files
-  sed 's/{{SSID}}/$SSID/g; s/{{PWD}}/$PWD/g; s/{{PSKEY}}/$PSKEY/g' \
-    /etc/ezwifi/templates/etc/network/interface_AP > /etc/network/interface
-  sed 's/{{SSID}}/$SSID/g; s/{{PWD}}/$PWD/g; s/{{PSKEY}}/$PSKEY/g' \
+  rm -fr /etc/network/interfaces
+  sed -e "s/{{SSID}}/$SSID/g" -e "s/{{PWD}}/$PWD/g" -e "s/{{PSKEY}}/$PSKEY/g" \
+    /etc/ezwifi/templates/etc/network/interfaces_AP > /etc/network/interfaces
+  sed -e "s/{{SSID}}/$SSID/g" -e "s/{{PWD}}/$PWD/g" -e "s/{{PSKEY}}/$PSKEY/g" \
     /etc/ezwifi/templates/etc/hostapd/hostapd.conf > /etc/hostapd/hostapd.conf
   # Enable dhcpd daemon
   mv /etc/init.d/_$DHCPD_STARTUP_FILE /etc/init.d/$DHCPD_STARTUP_FILE
 
-  # Stop daemon
-  /etc/init.d/hostapd start
+  ifdown wlan0
+  sleep 1
+  killall wpa_supplicant
+  sleep 1
+  killall udhcpc
+  sleep 1
+  ifup wlan0
+  sleep 1
   /etc/init.d/$DHCPD_STARTUP_FILE start
 
   all_done
+  #reboot
 }
 
 function all_done() {
   echo "Your configuration has been changed"
 }
 
-function nothing_done() {
+function do_nothing() {
   echo "Your configuration has not been modified"
   exit 1
 }
@@ -134,5 +151,5 @@ menuitem=$(<"${INPUT}")
 case $menuitem in
   Client) configure_client;;
   AP) configure_AP;;
-  *) nothing_done;;
+  *) do_nothing;;
 esac
