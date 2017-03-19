@@ -6,17 +6,12 @@
 #
 
 INTERFACE_FILE=/etc/network/interfaces
-SUBCOMMAND=set_ssid.sh
+SUBCOMMAND=set_ssid
 
 # Sanity check
 if [[ ! -f $INTERFACE_FILE ]]
 then
   echo "Error: No interface file $INTERFACE_FILE"
-  exit 1
-fi
-if [[ ! -x $SUBCOMMAND ]]
-then
-  echo "Error: Missing sub script $SUBCOMMAND"
   exit 1
 fi
 
