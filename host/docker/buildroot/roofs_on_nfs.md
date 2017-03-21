@@ -1,8 +1,19 @@
 ### Prepare the rootfs folder
 
-Mount the root file system. As explained in the buildroot manual, don't try to
-use the `output/target` folder directly, but mount an image in `output/images`
+As explained in the buildroot manual, don't try to use the `output/target`
+folder directly, but mount an image in `output/images`
+
+First create a loop device pointing to the filesystem image file (/dev/loop0 is
+assumed to be available)
 ```
+losetup /dev/loop0 /path/to/filesysyem/image
+```
+Tip: For buildroot, the filesystem is probably something like
+`output/image/root_ext4`
+
+Then mount that loop device to a local folder (create the folder first)
+```
+mkdir -p /path/to/roots
 mount /dev/loop0 /path/to/roots
 ```
 
@@ -46,4 +57,14 @@ mount -t nfs -o proto=tcp,port=2049 <server-ip>:/path/to/roots /mnt/somewhere/
 Modify the `cmdline.txt`
 ```
 root=/dev/nfs ip=dhcp rootwait console=tty1 console=ttyAMA0,115200 nfsroot=<server-ip>:/path/to/roots
+```
+
+### If file shall be change
+
+After a change to the file, you'll have to unmount, un loop, reloop and remount
+```
+umount /path/to/roots
+losetup -d /dev/loop0
+losetup /dev/loop0 /path/to/filesysyem/image
+mount /dev/loop0 /path/to/roots
 ```

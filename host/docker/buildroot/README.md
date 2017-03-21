@@ -10,9 +10,10 @@ TODO: Make the container take a buildroot configuration file.
 ## Docker
 
 The Docker is used to build images for raspberry using:
- - A stable buildroot (TODO: as of now master buildroot for raspberry pi zero W)
- - Apply overlays, patch and configs from this buildroot directory (see
-   buildroot manual)
+ - A stable buildroot (TODO: as of now buildroot master branch instead of stable
+   branch for raspberry pi zero W)
+ - Apply overlays, patch and configs from this buildroot directory (see the
+   buildroot manual) mounted as a volume in the container as it is started
  - Export the target filesystem to a particular folder to be used as a nfs
    mounting point for the rapsberry board to ease up development and testing
 
@@ -20,7 +21,7 @@ To launch the container, you have to :
 0. Run the container as interactive
 1. Specify a volume in the container pointing to this directory, in order for the
    buildroot process to have access to the overlays, configs, etc... The buildroot
-   configs expect this buildroot folder to be at `../`
+   configs expect this buildroot folder to be at `../` from the checked out folder
 2. Specify an output folder, which will allow the host to provide it as an NFS
    folder to the raspberry board (TODO: embed and NFS in the container to avoid
    this step)
@@ -65,7 +66,7 @@ sudo dd bs=4M if=sdcard.img of=/dev/sdX
 
 Stick in in the RPi and go!
 
-You can also boot the raspberry from nfs... More on that later.
+You can also boot the raspberry [from nfs](roofs_on_nfs.md).
 
 ## Configs
 
