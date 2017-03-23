@@ -89,6 +89,12 @@ RUN cd /home/jedi && \
   # Compile userland
   ./buildme && \
   cd .. && \
+  ## libvpx
+  git clone https://chromium.googlesource.com/webm/libvpx && \
+  cd libvpx && \
+  ./configure && \
+  make -j `nproc` && \
+  cd .. && \
   ## FFmpeg
   git clone https://github.com/FFmpeg/FFmpeg.git --depth=1 && \
   cd FFmpeg && \
@@ -96,5 +102,5 @@ RUN cd /home/jedi && \
   export LD_LIBRARY_PATH=/home/jedi/rpi-toolchain/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/arm-linux-gnueabihf/libc/usr/lib/arm-linux-gnueabihf/ && \
   # This is for cc1 used by gcc. No other place to specify in the command line so we change the PATH
   export PATH=$PATH:${PI_TOOLS_HOME}/${PI_TOOL}/libexec/gcc/arm-linux-gnueabihf/4.8.3/ && \
-  ./configure --enable-cross-compile --arch=armel --cpu=cortex-a7 --target-os=linux --sysroot=${PI_TOOLS_HOME}/${PI_TOOL}/arm-linux-gnueabihf/libc --sysinclude=${PI_TOOLS_HOME}/${PI_TOOL}/lib/gcc/arm-linux-gnueabihf/4.8.3/include --cross-prefix=${PI_TOOLS_HOME}/${PI_TOOL}/bin/arm-linux-gnueabihf- --prefix=/tmp/ --enable-mmal --enable-omx-rpi --enable-omx --extra-cflags="-I../userland/ -I../userland/interface/vmcs_host/khronos/IL/ -I../userland/host_applications/linux/libs/bcm_host/include/" --extra-ldflags="-L../userland/build/lib/" --extra-libs="-lmmal_core -lmmal -lmmal_util -lvcos -lcontainers -lbcm_host -lmmal_vc_client -lmmal_components -lvchiq_arm -lvcsm" && \
+  ./configure --enable-cross-compile --arch=armel --cpu=cortex-a7 --target-os=linux --sysroot=${PI_TOOLS_HOME}/${PI_TOOL}/arm-linux-gnueabihf/libc --sysinclude=${PI_TOOLS_HOME}/${PI_TOOL}/lib/gcc/arm-linux-gnueabihf/4.8.3/include --cross-prefix=${PI_TOOLS_HOME}/${PI_TOOL}/bin/arm-linux-gnueabihf- --prefix=/tmp/ --enable-mmal --enable-omx-rpi --enable-omx --enable-libvpx --extra-cflags="-I../userland/ -I../userland/interface/vmcs_host/khronos/IL/ -I../userland/host_applications/linux/libs/bcm_host/include/" --extra-ldflags="-L../userland/build/lib/" --extra-libs="-lmmal_core -lmmal -lmmal_util -lvcos -lcontainers -lbcm_host -lmmal_vc_client -lmmal_components -lvchiq_arm -lvcsm" && \
   make -j `nproc`
