@@ -52,3 +52,40 @@ For a better quality, increase the bitrate:
 ### Resources
 
 https://trac.ffmpeg.org/wiki/StreamingGuide
+
+# Gstreamer
+
+ffmpeg being unable to instruct the hardware encoder to produce intermediary key
+frames in the stream, we have to resort to gstreamer:
+```
+GS_DEBUG=2 LD_PRELOAD=libEGL.so:libGLESv2.so gst-launch-1.0 -vv \
+    v4l2src ! \
+    videoscale ! \
+    videorate  ! \
+    videoconvert ! \
+    video/x-raw,width=320,height=240,framerate=30/1,format=I420 ! \
+    omxh264enc inline-header=true periodicty-idr=1 target-bitrate=300000 control-rate=variable ! \
+    video/x-h264,profile=high,width=320,height=240,framerate=30/1 ! \
+    h264parse ! \
+    mpegtsmux ! \
+    tcpserversink host=0.0.0.0 port=8090
+```
+
+This can be read by a VLC but not by a browser, which do not support mpeg2
+transport layer containers. Use flv instead:
+
+```
+GS_DEBUG=2 LD_PRELOAD=libEGL.so:libGLESv2.so gst-launch-1.0 -vv \
+    v4l2src ! \
+    videoscale ! \
+    videorate  ! \
+    videoconvert ! \
+    video/x-raw,width=320,height=240,framerate=30/1,format=I420 ! \
+    omxh264enc inline-header=true periodicty-idr=1 target-bitrate=300000 control-rate=variable ! \
+    video/x-h264,profile=high,width=320,height=240,framerate=30/1 ! \
+    h264parse ! \
+    flvmux streamable=true ! \
+    tcpserversink host=0.0.0.0 port=8090
+```
+
+But this does not work yet...
