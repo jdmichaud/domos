@@ -59,7 +59,7 @@ Modify the `cmdline.txt`
 root=/dev/nfs ip=dhcp rootwait console=tty1 console=ttyAMA0,115200 nfsroot=<server-ip>:/path/to/roots
 ```
 
-### If file shall be change
+### To change a file
 
 After a change to the file, you'll have to unmount, un loop, reloop and remount
 ```
