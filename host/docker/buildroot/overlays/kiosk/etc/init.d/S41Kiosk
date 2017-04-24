@@ -1,0 +1,4 @@
+#!/bin/bash
+
+qt-webkit-kiosk -platform linuxfb -c /root/config.ini -u $(cat /root/home.url) &
+
