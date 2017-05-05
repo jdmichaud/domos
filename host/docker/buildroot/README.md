@@ -34,15 +34,22 @@ docker run -it \
   buildroot bash --login
 ```
 
-Once in the container, to build an image, go in the `buildroot-20XX.XX` folder,
-and copy the config file from the buildroot imported volume and checkout that config:
+Once in the container, to build an image, go in home folder and execure
+`prepare_image.sh`:
+```
+./buildroot/prepare_image.sh <image-type> buildroot-20XX.XX
+```
+`prepare_image.sh` will create the links to the package, prepare the
+configuration, etc... Refere to the script itseld for more details.
+
+Once done, call the `make` command to prepare the out of tree build in the shared
+volume:
 ```
 cd /home/jedi/buildroot-20XX.XX
-cp ../buildroot/configs/raspberryX_defconfig
-make O=/home/jedi/output raspberryX_defconfig
+make O=/home/jedi/output raspberrypiX_defconfig
 ```
 
-The `raspberryX_defconfig` config is now ready to compile. Go to the output
+The `raspberrypiX_defconfig` config is now ready to compile. Go to the output
 directory and launch the compilation
 
 ```
