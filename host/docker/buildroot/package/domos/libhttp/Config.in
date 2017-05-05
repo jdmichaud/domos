@@ -1,0 +1,7 @@
+config BR2_PACKAGE_LIBHTTP
+	bool "libhttp"
+	select BR2_PACKAGE_LIBCURL
+	help
+	  A library providing a simple API to perform HTTP request from C++
+
+	  http://github.com/jdmichaud/domos

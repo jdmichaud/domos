@@ -14,3 +14,10 @@ add_definitions(-std=c99)
 add_library(http STATIC
   http.c
 )
+
+set_target_properties(http PROPERTIES PUBLIC_HEADER "http.h")
+
+install(TARGETS http
+	ARCHIVE DESTINATION lib
+	PUBLIC_HEADER DESTINATION include)
+
