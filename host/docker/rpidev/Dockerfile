@@ -55,6 +55,11 @@ RUN dpkg --add-architecture i386
 RUN apt-get update
 RUN apt-get install -y libz1:i386 libncurses5:i386 libbz2-1.0:i386 libc6:i386 libstdc++6:i386
 
+### amd64
+# Google Test/Mock to compile with x86 as target
+# It will compiled for ARM later on
+RUN cd /usr/src/gmock && cmake CMakeLists.txt && make
+
 # Install platformio
 RUN pip install platformio
 
@@ -99,9 +104,6 @@ RUN cd /home/jedi && tar zxf release-1.8.0.tar.gz && \
   make DESTDIR=${PI_TOOLS_HOME}/${PI_TOOL} install && \
   echo '' | cat >> /home/jedi/Toolchain-raspberrypi-arm.cmake && \
   echo 'SET (ENV{GTEST_ROOT} $ENV{PI_TOOLS_HOME}/$ENV{PI_TOOL}/)' | cat >> /home/jedi/Toolchain-raspberrypi-arm.cmake
-### amd64
-# Google Test/Mock to compile with x86 as target
-RUN cd /usr/src/gmock && cmake CMakeLists.txt && make
 
 #
 # libcurl
