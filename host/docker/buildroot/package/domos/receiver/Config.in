@@ -1,0 +1,10 @@
+config BR2_PACKAGE_RECEIVER
+	bool "receiver"
+	select BR2_PACKAGE_LIBHTTP
+	select BR2_PACKAGE_RCSWITCH
+	select BR2_PACKAGE_LIBRFPROTOCOL
+	help
+	  Receiver is used to catch signals emitted by sensors through multiple
+	  channels and produce a REST call to the domos backend.
+
+	  http://github.com/jdmichaud/domos
