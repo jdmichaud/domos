@@ -47,7 +47,8 @@ function controller() {
 
   ln --verbose --symbolic --force `pwd`/buildroot/configs/raspberrypi2_defconfig ${destination}/configs/
   ln --verbose --symbolic --force `pwd`/buildroot/package/domos ${destination}/package/
-  if [ -f ${destination}/package/Config.in.orig ]
+  ln --verbose --symbolic --force `pwd`/buildroot/package/rcswitch ${destination}/package/
+    if [ -f ${destination}/package/Config.in.orig ]
   then
 	# If the Config.in has already been modified, reinitialize it with the original
     cp --verbose --remove-destination \
@@ -59,6 +60,8 @@ function controller() {
     fi
   sed --in-place '$imenu "Domos packages"\
         source "package/domos/libhttp/Config.in"\
+        source "package/domos/librfprotocol/Config.in"\
+        source "package/rcswitch/Config.in"\
 endmenu\
 \
 ' ${destination}/package/Config.in

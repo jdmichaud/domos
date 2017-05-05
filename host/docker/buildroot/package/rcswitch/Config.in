@@ -1,0 +1,7 @@
+config BR2_PACKAGE_RCSWITCH
+	bool "rcswitch"
+	select BR2_PACKAGE_WIRINGPI
+	help
+	  Arduino lib to operate 433/315Mhz devices like power outlet sockets.
+
+	  https://github.com/sui77/rc-switch

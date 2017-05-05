@@ -1,0 +1,7 @@
+config BR2_PACKAGE_LIBRFPROTOCOL
+	bool "librfprotocol"
+	help
+	  A library to manipulate a simple protocol based on 64 bits of data
+
+	  http://github.com/jdmichaud/domos
+ 
