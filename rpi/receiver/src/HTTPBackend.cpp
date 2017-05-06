@@ -3,7 +3,7 @@
 #include <sstream>
 
 #include "http.h"
-#include "include/sensor_types.h"
+#include "sensor_types.h"
 #include "HTTPBackend.h"
 
 HTTPBackend::HTTPBackend(const std::string &url) : m_url(url) {

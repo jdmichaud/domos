@@ -1,10 +1,17 @@
+# By default, buildroot build only shared libraries (including wiringPi)
+# Receiver depends on static libraries to simplify linking with wiringPi
+# We might change this later...
 config BR2_PACKAGE_RECEIVER
 	bool "receiver"
 	select BR2_PACKAGE_LIBHTTP
 	select BR2_PACKAGE_RCSWITCH
 	select BR2_PACKAGE_LIBRFPROTOCOL
+	depends on BR2_STATIC_LIBS || BR2_SHARED_STATIC_LIBS
 	help
 	  Receiver is used to catch signals emitted by sensors through multiple
 	  channels and produce a REST call to the domos backend.
 
 	  http://github.com/jdmichaud/domos
+
+comment "receiver needs a toolchain w/ static library"
+	depends on !BR2_STATIC_LIBS && !BR2_SHARED_STATIC_LIBS

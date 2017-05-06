@@ -6,7 +6,7 @@
 #include "protocol.h"
 #include "RF33_adapter.hpp"
 #include "HTTPBackend.h"
-#include "include/sensor_types.h"
+#include "sensor_types.h"
 
 #define VERSION "0.0.1"
 
