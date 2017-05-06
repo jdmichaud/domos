@@ -2,7 +2,7 @@
 #include <protocol.h>
 #include <sstream>
 
-#include "http/http.h"
+#include "http.h"
 #include "include/sensor_types.h"
 #include "HTTPBackend.h"
 

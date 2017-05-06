@@ -12,7 +12,7 @@ add_library(rfprotocol STATIC
   protocol.c
 )
 
-set_target_properties(rfprotocol PROPERTIES PUBLIC_HEADER "protocol.h")
+set_target_properties(rfprotocol PROPERTIES PUBLIC_HEADER "protocol.h;bitop.h;sensor_types.h")
 
 install(
 	TARGETS rfprotocol
