@@ -1,0 +1,59 @@
+From 58ef08f32f5c5746a78e1329ae664afce41d6cc4 Mon Sep 17 00:00:00 2001
+From: JD <jean.daniel.michaud@gmail.com>
+Date: Sat, 6 May 2017 22:04:42 +0200
+Subject: [PATCH] Add callback handler
+
+---
+ RCSwitch.cpp | 10 ++++++++++
+ RCSwitch.h   |  1 +
+ 2 files changed, 11 insertions(+)
+
+diff --git a/RCSwitch.cpp b/RCSwitch.cpp
+index 0d9a1ae..6f7ce06 100644
+--- a/RCSwitch.cpp
++++ b/RCSwitch.cpp
+@@ -85,6 +85,8 @@ enum {
+    numProto = sizeof(proto) / sizeof(proto[0])
+ };
+ 
++static void (*g_custom_interrupt_handler)(void) = NULL;
++
+ #if not defined( RCSwitchDisableReceiving )
+ volatile unsigned long RCSwitch::nReceivedValue = 0;
+ volatile unsigned int RCSwitch::nReceivedBitlength = 0;
+@@ -536,6 +538,10 @@ void RCSwitch::enableReceive(int interrupt) {
+   this->enableReceive();
+ }
+ 
++void RCSwitch::registerCustomInterruptHandler(void (*function)(void)) {
++  g_custom_interrupt_handler = function;
++}
++
+ void RCSwitch::enableReceive() {
+   if (this->nReceiverInterrupt != -1) {
+     RCSwitch::nReceivedValue = 0;
+@@ -693,5 +699,9 @@ void RECEIVE_ATTR RCSwitch::handleInterrupt() {
+ 
+   RCSwitch::timings[changeCount++] = duration;
+   lastTime = time;  
++
++  // Call the custom interrupt handler
++  if (g_custom_interrupt_handler && RCSwitch::nReceivedValue != 0)
++    g_custom_interrupt_handler();
+ }
+ #endif
+diff --git a/RCSwitch.h b/RCSwitch.h
+index b7755e0..7204dfe 100644
+--- a/RCSwitch.h
++++ b/RCSwitch.h
+@@ -82,6 +82,7 @@ class RCSwitch {
+     
+     #if not defined( RCSwitchDisableReceiving )
+     void enableReceive(int interrupt);
++    void registerCustomInterruptHandler(void (*function)(void));
+     void enableReceive();
+     void disableReceive();
+     bool available();
+-- 
+2.7.4
+
