@@ -13,7 +13,7 @@ new file mode 100644
 index 0000000..744c0db
 --- /dev/null
 +++ b/CMakeLists.txt
-@@ -0,0 +1,20 @@
+@@ -0,0 +1,21 @@
 +cmake_minimum_required(VERSION 3.0.2 FATAL_ERROR)
 +project(rc-switch)
 +
