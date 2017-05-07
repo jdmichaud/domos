@@ -63,6 +63,7 @@ function controller() {
         source "package/domos/libhttp/Config.in"\
         source "package/domos/librfprotocol/Config.in"\
         source "package/domos/receiver/Config.in"\
+        source "package/domos/kiosk/Config.in"\
 endmenu\
 \
 ' ${destination}/package/Config.in

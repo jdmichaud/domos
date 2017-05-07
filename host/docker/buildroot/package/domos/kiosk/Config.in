@@ -1,0 +1,11 @@
+config BR2_PACKAGE_KIOSK
+	bool "kiosk"
+	depends on BR2_PACKAGE_QT5
+	select BR2_PACKAGE_QT5BASE_GUI
+	select BR2_PACKAGE_QT5DECLARATIVE_QUICK
+	select BR2_PACKAGE_QT5WEBKIT
+	help
+	  A lightweight Qt5/Webkit based full screen browser to be used on a kiosk
+	  application
+
+	  http://github.com/jdmichaud/kiosk
