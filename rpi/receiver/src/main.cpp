@@ -2,20 +2,24 @@
 #include <stdint.h>
 #include <iostream>
 #include <tuple>
+#include <bitset>
 #include <protocol.h>
 #include "protocol.h"
 #include "RF33_adapter.hpp"
 #include "HTTPBackend.h"
 #include "sensor_types.h"
+#include "verbose.h"
 
 #define VERSION "0.0.1"
 
+bool g_verbose = false;
+
 // The RF device data pin
+// /!\ Warning: These are not WiringPi numbers !! but the BCM numbers !
+// e.g.: If RF_DEVICE_COMM_PIN is configured to 27 it means BCM 27 (wiring Pi 2)
 #define RF_DEVICE_COMM_PIN 27
 // Default backend URL is localhost
 #define DEFAULT_BACKEND_URL "http://127.0.0.1:28015"
-
-#define VERBOSE(s) if (verbose) { s; }
 
 void version() {
   std::cout << "receiver v" << VERSION << " (rfprotocol v" << RFP_VERSION << ")" << std::endl;
@@ -83,11 +87,10 @@ parse_options(int argc, char * const argv[]) {
 }
 
 int main(int argc, char * const argv[]) {
-  bool verbose;
   std::string backend_url;
   std::string database_name;
   std::string table_name;
-  std::tie(verbose, backend_url, database_name, table_name) = parse_options(argc, argv);
+  std::tie(g_verbose, backend_url, database_name, table_name) = parse_options(argc, argv);
   VERBOSE(std::cout << "Verbose mode activated" << std::endl);
   if (backend_url == "") {
     backend_url = DEFAULT_BACKEND_URL;
@@ -105,6 +108,12 @@ int main(int argc, char * const argv[]) {
     return retcode;
   }
   rf33.receiveMessage([&](const packet_s &packet) {
+    VERBOSE(std::cout << "received "
+      << "stype: " << packet.stype
+      << "sid: " << packet.sid
+      << "message: " << packet.message
+      << "battery_indicator: " << packet.battery_indicator
+      << std::endl);
     if (packet.stype == DOOR_SENSOR) {
       httpBackend.processDoorSignal(packet.sid, packet.stype, packet.message);
     } else {

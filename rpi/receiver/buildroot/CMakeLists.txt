@@ -62,6 +62,7 @@ add_executable(${EXE_NAME}
 	../src/HTTPBackend.cpp
 	../src/HTTPBackend.h
 	../src/Backend.h
+	../src/verbose.h
 )
 add_definitions(-std=c++11 -Wfatal-errors)
 target_link_libraries(${EXE_NAME}
