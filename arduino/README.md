@@ -31,6 +31,21 @@ make pololu
 Bonus: To get the status of the programmer, run `make pololu`, and copy-paste
 the avrdude command without the `-U firmware` option.
 
+# From a VM
+
+Make sure the pololu device is not caught by the host by configuring you VM software.
+
+# In docker
+
+If you are programming your arduino from docker:
+1. Execute the command with root user (using sudo)
+2. Launch the container with the specified device:
+```
+docker run --device=/dev/ttyACM0 --device=/dev/ttyACM1 -it -v /home/jedi/projects/domos/:/home/jedi/domos arduinodev bash --login
+```
+
+/!\ Note that the device need to be plugged
+
 # Serial communication
 
 When pluging a USB-to-TTL serial line to the Atmega328 (with Atmega RX to
