@@ -1,0 +1,6 @@
+config BR2_PACKAGE_RF24
+	bool "RF24"
+	help
+	  A library for NRF24L01(+) communication.
+
+	  https://github.com/nRF24/RF24.git

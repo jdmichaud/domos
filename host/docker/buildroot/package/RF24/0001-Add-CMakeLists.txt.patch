@@ -1,0 +1,46 @@
+From 56bdaae91ead1973beeab9c2606d879e2369ecf5 Mon Sep 17 00:00:00 2001
+From: JD <jean.daniel.michaud@gmail.com>
+Date: Fri, 5 May 2017 13:36:24 +0200
+Subject: [PATCH] Add CMakeLists.txt
+
+---
+ CMakeLists.txt | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+ create mode 100644 CMakeLists.txt
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+new file mode 100644
+index 0000000..744c0db
+--- /dev/null
++++ b/CMakeLists.txt
+@@ -0,0 +1,26 @@
++cmake_minimum_required(VERSION 3.0.2 FATAL_ERROR)
++project(RF24)
++
++add_definitions(-std=c++03)
++
++include_directories(
++  utility
++)
++#-----------------------------------------------------------------------
++# Setup Library
++#-----------------------------------------------------------------------
++add_library(rf24 STATIC
++  RF24.cpp
++  RF24.h
++  nRF24L01.h
++  RF24_config.h
++  printf.h
++)
++
++set_target_properties(rf24 PROPERTIES PUBLIC_HEADER "RF24.h;nRF24L01.h;RF24_config.h;")
++
++install(
++	TARGETS rf24
++	ARCHIVE DESTINATION lib
++	PUBLIC_HEADER DESTINATION include
++)
++
+-- 
+2.7.4
+

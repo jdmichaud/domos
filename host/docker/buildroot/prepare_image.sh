@@ -48,7 +48,8 @@ function controller() {
   ln --verbose --symbolic --force `pwd`/buildroot/configs/raspberrypi2_defconfig ${destination}/configs/
   ln --verbose --symbolic --force `pwd`/buildroot/package/domos ${destination}/package/
   ln --verbose --symbolic --force `pwd`/buildroot/package/rcswitch ${destination}/package/
-    if [ -f ${destination}/package/Config.in.orig ]
+  ln --verbose --symbolic --force `pwd`/buildroot/package/RF24 ${destination}/package/
+  if [ -f ${destination}/package/Config.in.orig ]
   then
 	# If the Config.in has already been modified, reinitialize it with the original
     cp --verbose --remove-destination \
@@ -64,6 +65,7 @@ function controller() {
         source "package/domos/librfprotocol/Config.in"\
         source "package/domos/receiver/Config.in"\
         source "package/domos/kiosk/Config.in"\
+        source "package/RF24/Config.in"\
 endmenu\
 \
 ' ${destination}/package/Config.in

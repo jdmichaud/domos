@@ -1,0 +1,39 @@
+From 3a38c371b6e62350ab6d4a7c963ba435b0f067ce Mon Sep 17 00:00:00 2001
+From: JD <jean.daniel.michaud@gmail.com>
+Date: Mon, 8 May 2017 16:43:38 +0200
+Subject: [PATCH] Force includes to RPi
+
+---
+ RF24.h        | 2 +-
+ RF24_config.h | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/RF24.h b/RF24.h
+index d8635fc..fe90dbb 100644
+--- a/RF24.h
++++ b/RF24.h
+@@ -18,7 +18,7 @@
+ #include "RF24_config.h"
+ 
+ #if defined (RF24_LINUX) || defined (LITTLEWIRE)
+-  #include "utility/includes.h"
++  #include "utility/RPi/includes.h"
+ #elif defined SOFTSPI
+   #include <DigitalIO.h>
+ #endif
+diff --git a/RF24_config.h b/RF24_config.h
+index efbf5f6..710ceef 100644
+--- a/RF24_config.h
++++ b/RF24_config.h
+@@ -40,7 +40,7 @@
+   // The configure script detects device and copies the correct includes.h file to /utility/includes.h
+   // This behavior can be overridden by calling configure with respective parameters
+   // The includes.h file defines either RF24_RPi, MRAA, LITTLEWIRE or RF24_SPIDEV and includes the correct RF24_arch_config.h file
+-  #include "utility/includes.h"
++  #include "utility/RPi/includes.h"
+ 
+ //ATTiny  
+ #elif defined(__AVR_ATtiny25__) || defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__) || defined(__AVR_ATtiny24__) || defined(__AVR_ATtiny44__) || defined(__AVR_ATtiny84__) || defined(__AVR_ATtiny2313__) || defined(__AVR_ATtiny4313__) || defined(__AVR_ATtiny861__)  
+-- 
+2.7.4
+
