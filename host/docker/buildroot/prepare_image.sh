@@ -61,11 +61,12 @@ function controller() {
     fi
   sed --in-place '$imenu "Domos packages"\
         source "package/rcswitch/Config.in"\
+        source "package/433Utils/Config.in"\
+        source "package/RF24/Config.in"\
         source "package/domos/libhttp/Config.in"\
         source "package/domos/librfprotocol/Config.in"\
         source "package/domos/receiver/Config.in"\
         source "package/domos/kiosk/Config.in"\
-        source "package/RF24/Config.in"\
 endmenu\
 \
 ' ${destination}/package/Config.in
