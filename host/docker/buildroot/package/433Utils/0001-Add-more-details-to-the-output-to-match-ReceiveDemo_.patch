@@ -1,0 +1,102 @@
+From 2a434c95344b0180e163afb195e325a4d4f480e8 Mon Sep 17 00:00:00 2001
+From: JD <100024149@ge.com>
+Date: Fri, 12 May 2017 14:10:59 +0200
+Subject: [PATCH] Add more details to the output (to match ReceiveDemo_Advanced
+ output from rc-switch)
+
+---
+ RPi_utils/RFSniffer.cpp | 63 +++++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 58 insertions(+), 5 deletions(-)
+
+diff --git a/RPi_utils/RFSniffer.cpp b/RPi_utils/RFSniffer.cpp
+index 7532429..2690afa 100644
+--- a/RPi_utils/RFSniffer.cpp
++++ b/RPi_utils/RFSniffer.cpp
+@@ -15,7 +15,47 @@
+      
+ RCSwitch mySwitch;
+  
++static char *dec2binWzerofill(unsigned long Dec, unsigned int bitLength) {
++  static char bin[64]; 
++  unsigned int i=0;
+ 
++  while (Dec > 0) {
++    bin[32+i++] = ((Dec & 1) > 0) ? '1' : '0';
++    Dec = Dec >> 1;
++  }
++
++  for (unsigned int j = 0; j< bitLength; j++) {
++    if (j >= bitLength - i) {
++      bin[j] = bin[ 31 + i - (j - (bitLength - i)) ];
++    } else {
++      bin[j] = '0';
++    }
++  }
++  bin[bitLength] = '\0';
++  
++  return bin;
++}
++
++static const char* bin2tristate(const char* bin) {
++  static char returnValue[50];
++  int pos = 0;
++  int pos2 = 0;
++  while (bin[pos]!='\0' && bin[pos+1]!='\0') {
++    if (bin[pos]=='0' && bin[pos+1]=='0') {
++      returnValue[pos2] = '0';
++    } else if (bin[pos]=='1' && bin[pos+1]=='1') {
++      returnValue[pos2] = '1';
++    } else if (bin[pos]=='0' && bin[pos+1]=='1') {
++      returnValue[pos2] = 'F';
++    } else {
++      return "not applicable";
++    }
++    pos = pos+2;
++    pos2++;
++  }
++  returnValue[pos2] = '\0';
++  return returnValue;
++}
+ 
+ int main(int argc, char *argv[]) {
+   
+@@ -36,18 +76,31 @@ int main(int argc, char *argv[]) {
+      if (pulseLength != 0) mySwitch.setPulseLength(pulseLength);
+      mySwitch.enableReceive(PIN);  // Receiver on interrupt 0 => that is pin #2
+      
+-    
+      while(1) {
+   
+       if (mySwitch.available()) {
+     
+-        int value = mySwitch.getReceivedValue();
++        unsigned long decimal = mySwitch.getReceivedValue();
++        unsigned int length - mySwitch.getReceivedBitlength();
++        unsigned int delay = mySwitch.getReceivedDelay();
++        unsigned int *raw = mySwitch.getReceivedRawdata();
++        unsigned int protocol = mySwitch.getReceivedProtocol();
+     
+-        if (value == 0) {
++        if (decimal == 0) {
+           printf("Unknown encoding\n");
+         } else {    
+-   
+-          printf("Received %i\n", mySwitch.getReceivedValue() );
++          const char* b = dec2binWzerofill(decimal, length);
++          fprintf(stdout, "Decimal: %l (%ibits)\n", decimal, length);
++          fprintf(stdout, "Binary: %s\n", b);
++          fprintf(stdout, "Tri-State: %s\n", bin2tristate(b));
++          fprintf(stdout, "PulseLength: %u microseconds\n", delay);
++          fprintf(stdout, "Protocol: %u\n", protocol);
++          fprintf(stdout, "Raw data: ");
++          for (unsigned int i = 0; i <= length * 2; i++) {
++            fprintf(stdout, "%i", raw[i]);
++            fprintf(stdout, ",");
++          }
++          fprintf(stdout, "\n");
+         }
+     
+         mySwitch.resetAvailable();
+-- 
+2.10.2
+
