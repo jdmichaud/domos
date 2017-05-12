@@ -11,7 +11,6 @@ static std::condition_variable cv;
 
 void transmissionHandler() {
   // A signal is being received, wake up program
-  VERBOSE(std::cout << "signal received" << std::endl);
   cv.notify_all();
 }
 
@@ -32,6 +31,7 @@ int RF33Adapter::receiveMessage(std::function<void(const packet_s &)> callback) 
   bool receiving_first = true;
   uint64_t previous_value = 0;
   uint64_t value = 0;
+  uint64_t count = 0;
   packet_t raw_packet = 0;
   VERBOSE(std::cout << "listening..." << std::endl);
   while(1) {
@@ -42,7 +42,8 @@ int RF33Adapter::receiveMessage(std::function<void(const packet_s &)> callback) 
       value = _rfSwitch.getReceivedValue();
       // std::cout << value << std::endl;
       _rfSwitch.resetAvailable();
-      VERBOSE(std::cout << "value received: " << value << std::endl);
+      count++;
+      VERBOSE(std::cout << "value received (" << count << "): " << value << std::endl);
       if (value == previous_value)
         continue; // If we receive the same value, this is just a repeat
       previous_value = value;
