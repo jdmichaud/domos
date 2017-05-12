@@ -12,10 +12,4 @@
 433UTILS_DEPENDENCIES = wiringpi
 433UTILS_SUBDIR = RPi_utils
 
-define 433UTILS_INSTALL_TARGET_CMDS
-	$(INSTALL) -D -m 0755 $(@D)/RPi_utils/RFSniffer $(TARGET_DIR)/usr/lib
-	$(INSTALL) -D -m 0755 $(@D)/RPi_utils/send $(TARGET_DIR)/usr/lib
-	$(INSTALL) -D -m 0755 $(@D)/RPi_utils/codesend $(TARGET_DIR)/usr/lib
-endef
-
-$(eval $(generic-package))
+$(eval $(cmake-package))

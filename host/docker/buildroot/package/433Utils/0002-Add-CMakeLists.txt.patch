@@ -1,0 +1,90 @@
+From 3f0099214c78484a7ddeb33eb1d9650a0d0c8318 Mon Sep 17 00:00:00 2001
+From: jd <jean.daniel.michaud@gmail.com>
+Date: Fri, 12 May 2017 21:29:40 +0200
+Subject: [PATCH] Add CMakeLists.txt
+
+---
+ RPi_utils/CMakeLists.txt | 71 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 71 insertions(+)
+ create mode 100644 RPi_utils/CMakeLists.txt
+
+diff --git a/RPi_utils/CMakeLists.txt b/RPi_utils/CMakeLists.txt
+new file mode 100644
+index 0000000..9852f0a
+--- /dev/null
++++ b/RPi_utils/CMakeLists.txt
+@@ -0,0 +1,71 @@
++cmake_minimum_required(VERSION 3.0.2 FATAL_ERROR)
++project(433Utils)
++
++# External dependencies (but still build by us...)
++find_library(WIRINGPI_LIBRARY NAMES libwiringPi.a wiringPi)
++find_path(WIRINGPI_INCLUDE_DIRS NAMES wiringPi.h)
++find_library(RCSWITCH_LIBRARY NAMES librc-switch.a rc-switch)
++find_path(RCSWITCH_INCLUDE_DIRS NAMES RCSwitch.h)
++
++if (DEFINED ENV{WIRINGPI_LIBRARY-NOTFOUND})
++  message(FATAL_ERROR "wiringPi library not found")
++else()
++  message(STATUS "wiringPi library found ${WIRINGPI_LIBRARY}")
++  message(STATUS "wiringPi headers found ${WIRINGPI_INCLUDE_DIRS}")
++endif()
++
++if (DEFINED ENV{RCSWITCH_LIBRARY-NOTFOUND})
++  message(FATAL_ERROR "rc-switch library not found")
++else()
++  message(STATUS "rc-switch library found ${RCSWITCH_LIBRARY}")
++  message(STATUS "rc-switch headers found ${RCSWITCH_INCLUDE_DIRS}")
++endif()
++
++add_definitions(-std=c++11 -Wfatal-errors)
++add_definitions(-DRPI)
++
++include_directories(
++  ${WIRINGPI_INCLUDE_DIRS}
++  ${RCSWITCH_INCLUDE_DIRS}
++)
++
++##############################################
++# Sniffer
++##############################################
++set(SNIFFER_EXE_NAME rfsniffer)
++add_executable(${SNIFFER_EXE_NAME}
++  RFSniffer.cpp
++)
++target_link_libraries(${SNIFFER_EXE_NAME}
++  ${WIRINGPI_LIBRARY}
++  ${RCSWITCH_LIBRARY}
++)
++
++##############################################
++# send
++##############################################
++set(SEND_EXE_NAME send)
++add_executable(${SEND_EXE_NAME}
++  send.cpp
++)
++target_link_libraries(${SEND_EXE_NAME}
++  ${WIRINGPI_LIBRARY}
++  ${RCSWITCH_LIBRARY}
++)
++
++##############################################
++# codesend
++##############################################
++set(CODESEND_EXE_NAME codesend)
++add_executable(${CODESEND_EXE_NAME}
++  codesend.cpp
++)
++target_link_libraries(${CODESEND_EXE_NAME}
++  ${WIRINGPI_LIBRARY}
++  ${RCSWITCH_LIBRARY}
++)
++
++install(
++  TARGETS ${SNIFFER_EXE_NAME} ${SEND} ${CODESEND}
++  RUNTIME DESTINATION bin
++)
+-- 
+2.7.4
+

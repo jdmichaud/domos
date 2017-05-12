@@ -49,15 +49,16 @@ function controller() {
   ln --verbose --symbolic --force `pwd`/buildroot/package/domos ${destination}/package/
   ln --verbose --symbolic --force `pwd`/buildroot/package/rcswitch ${destination}/package/
   ln --verbose --symbolic --force `pwd`/buildroot/package/RF24 ${destination}/package/
+  ln --verbose --symbolic --force `pwd`/buildroot/package/433Utils ${destination}/package/
   if [ -f ${destination}/package/Config.in.orig ]
   then
-	# If the Config.in has already been modified, reinitialize it with the original
+  	# If the Config.in has already been modified, reinitialize it with the original
     cp --verbose --remove-destination \
       ${destination}/package/Config.in.orig ${destination}/package/Config.in
   else
-	# otherwise, back it up
+	  # otherwise, back it up
     cp --verbose --no-clobber \
-        ${destination}/package/Config.in ${destination}/package/Config.in.orig
+      ${destination}/package/Config.in ${destination}/package/Config.in.orig
     fi
   sed --in-place '$imenu "Domos packages"\
         source "package/rcswitch/Config.in"\

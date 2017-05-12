@@ -71,7 +71,7 @@ index 7532429..2690afa 100644
      
 -        int value = mySwitch.getReceivedValue();
 +        unsigned long decimal = mySwitch.getReceivedValue();
-+        unsigned int length - mySwitch.getReceivedBitlength();
++        unsigned int length = mySwitch.getReceivedBitlength();
 +        unsigned int delay = mySwitch.getReceivedDelay();
 +        unsigned int *raw = mySwitch.getReceivedRawdata();
 +        unsigned int protocol = mySwitch.getReceivedProtocol();
