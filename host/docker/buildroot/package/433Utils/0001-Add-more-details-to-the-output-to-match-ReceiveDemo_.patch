@@ -83,7 +83,7 @@ index 7532429..2690afa 100644
 -   
 -          printf("Received %i\n", mySwitch.getReceivedValue() );
 +          const char* b = dec2binWzerofill(decimal, length);
-+          fprintf(stdout, "Decimal: %l (%ibits)\n", decimal, length);
++          fprintf(stdout, "Decimal: %u (%i bits)\n", decimal, length);
 +          fprintf(stdout, "Binary: %s\n", b);
 +          fprintf(stdout, "Tri-State: %s\n", bin2tristate(b));
 +          fprintf(stdout, "PulseLength: %u microseconds\n", delay);
