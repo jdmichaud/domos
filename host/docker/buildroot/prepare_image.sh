@@ -50,7 +50,8 @@ function controller() {
   ln --verbose --symbolic --force `pwd`/buildroot/package/rcswitch ${destination}/package/
   ln --verbose --symbolic --force `pwd`/buildroot/package/RF24 ${destination}/package/
   ln --verbose --symbolic --force `pwd`/buildroot/package/433Utils ${destination}/package/
-  if [ -f ${destination}/package/Config.in.orig ]
+  ln --verbose --symbolic --force `pwd`/buildroot/package/qt5webengine ${destination}/package/qt5/
+    if [ -f ${destination}/package/Config.in.orig ]
   then
   	# If the Config.in has already been modified, reinitialize it with the original
     cp --verbose --remove-destination \
@@ -64,6 +65,7 @@ function controller() {
         source "package/rcswitch/Config.in"\
         source "package/433Utils/Config.in"\
         source "package/RF24/Config.in"\
+        source "package/qt5/qt5webengine/Config.in"\
         source "package/domos/libhttp/Config.in"\
         source "package/domos/librfprotocol/Config.in"\
         source "package/domos/receiver/Config.in"\
@@ -72,21 +74,7 @@ endmenu\
 \
 ' ${destination}/package/Config.in
   # wiringPi has some trouble to build in parallel
-  patch --forward --reject-file=- ${destination}/package/wiringpi/wiringpi.mk << 'EOF'
---- a/wiringpi.mk       2017-05-13 18:46:12.251577789 +0000
-+++ b/wiringpi.mk       2017-05-13 18:46:37.943713759 +0000
-@@ -37,8 +37,8 @@
- endef
-
- define WIRINGPI_INSTALL_TARGET_CMDS
--	$(TARGET_MAKE_ENV) $(MAKE) -C $(@D)/wiringPi $(WIRINGPI_LIB_INSTALL_TARGETS) DESTDIR=$(TARGET_DIR) PREFIX=/usr LDCONFIG=true
--	$(TARGET_MAKE_ENV) $(MAKE) -C $(@D)/devLib $(WIRINGPI_LIB_INSTALL_TARGETS) DESTDIR=$(TARGET_DIR) PREFIX=/usr LDCONFIG=true
-+	$(TARGET_MAKE_ENV) $(MAKE1) -C $(@D)/wiringPi $(WIRINGPI_LIB_INSTALL_TARGETS) DESTDIR=$(TARGET_DIR) PREFIX=/usr LDCONFIG=true
-+	$(TARGET_MAKE_ENV) $(MAKE1) -C $(@D)/devLib $(WIRINGPI_LIB_INSTALL_TARGETS) DESTDIR=$(TARGET_DIR) PREFIX=/usr LDCONFIG=true
-	$(INSTALL) -D -m 0755 $(@D)/gpio/gpio $(TARGET_DIR)/usr/bin/gpio
-	$(INSTALL) -D -m 0755 $(@D)/gpio/pintest $(TARGET_DIR)/usr/bin/pintest
- endef
-EOF
+  sed --in-place 's/$(MAKE)/$(MAKE1)/g' ${destination}/package/wiringpi/wiringpi.mk
   # No board script to be overridden
 }
 
