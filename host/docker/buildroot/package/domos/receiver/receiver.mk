@@ -5,7 +5,7 @@
 ###############################################################################
 
 RECEIVER_VERSION = master
-RECEIVER_SITE = git://github.com/jdmichaud/domos.git
+RECEIVER_SITE = http://github.com/jdmichaud/domos.git
 RECEIVER_SITE_METHOD = git
 RECEIVER_LICENSE = Apache v2.0
 RECEIVER_LICENSE_FILES = LICENSE

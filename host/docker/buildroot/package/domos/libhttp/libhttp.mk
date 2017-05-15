@@ -5,7 +5,7 @@
 ################################################################################
 
 LIBHTTP_VERSION = master
-LIBHTTP_SITE = git://github.com/jdmichaud/domos.git
+LIBHTTP_SITE = http://github.com/jdmichaud/domos.git
 LIBHTTP_SITE_METHOD = git
 LIBHTTP_LICENSE = Apache v2.0
 LIBHTTP_LICENSE_FILES = LICENSE
