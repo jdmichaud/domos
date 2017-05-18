@@ -1,0 +1,10 @@
+config BR2_PACKAGE_QT5WEBVIEW
+    bool "qt5webview"
+    depends on BR2_PACKAGE_QT5WEBENGINE
+	help
+    QtWebview
+
+    http://doc.qt.io/archives/qt-5.8/qtwebview-index.html
+
+comment "qt5webview needs BR2_PACKAGE_QT5WEBENGINE"
+	depends on !BR2_PACKAGE_QT5WEBENGINE
