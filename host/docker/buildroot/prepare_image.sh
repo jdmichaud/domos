@@ -51,7 +51,8 @@ function controller() {
   ln --verbose --symbolic --force `pwd`/buildroot/package/RF24 ${destination}/package/
   ln --verbose --symbolic --force `pwd`/buildroot/package/433Utils ${destination}/package/
   ln --verbose --symbolic --force `pwd`/buildroot/package/qt5webengine ${destination}/package/qt5/
-    if [ -f ${destination}/package/Config.in.orig ]
+  ln --verbose --symbolic --force `pwd`/buildroot/package/qt5webview ${destination}/package/qt5/
+  if [ -f ${destination}/package/Config.in.orig ]
   then
   	# If the Config.in has already been modified, reinitialize it with the original
     cp --verbose --remove-destination \
@@ -66,6 +67,7 @@ function controller() {
         source "package/433Utils/Config.in"\
         source "package/RF24/Config.in"\
         source "package/qt5/qt5webengine/Config.in"\
+        source "package/qt5/qt5webview/Config.in"\
         source "package/domos/libhttp/Config.in"\
         source "package/domos/librfprotocol/Config.in"\
         source "package/domos/receiver/Config.in"\

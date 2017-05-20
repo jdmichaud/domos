@@ -56,7 +56,7 @@ endif
 
 ifneq ($(BR2_STATIC_LIBS),y)
 define QT5WEBVIEW_INSTALL_TARGET_LIBS
-	cp -dpf $(STAGING_DIR)/usr/lib/libQt5Webview*.so.* $(TARGET_DIR)/usr/lib
+	cp -dpf $(STAGING_DIR)/usr/lib/libQt5WebView*.so.* $(TARGET_DIR)/usr/lib
 endef
 endif
 
