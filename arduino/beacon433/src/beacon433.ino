@@ -65,8 +65,10 @@ void loop() {
   unsigned long timestamp = millis();
 
   digitalWrite(LED_PIN, 1);
-  rfDevice.send(int2bin(counter));
-  // rfDevice.send(PING_MESSAGE);
+  // The transmission with this signal is very poor.
+  //rfDevice.send(int2bin(counter));
+  // The transmission with this signal is good. Keep it as standard configuration.
+  rfDevice.send(PING_MESSAGE);
   Serial.println(int2bin(counter));
   digitalWrite(LED_PIN, 0);
 
