@@ -108,12 +108,8 @@ int main(int argc, char * const argv[]) {
     return retcode;
   }
   rf33.receiveMessage([&](const packet_s &packet) {
-    VERBOSE(std::cout << "received "
-      << "stype: " << packet.stype
-      << "sid: " << packet.sid
-      << "message: " << packet.message
-      << "battery_indicator: " << packet.battery_indicator
-      << std::endl);
+    VERBOSE(fprintf(stdout, "stype: %u sid: %u message: %u battery_indicator: %u\n", \
+      packet.stype, packet.sid, packet.message, packet.battery_indicator));
     if (packet.stype == DOOR_SENSOR) {
       httpBackend.processDoorSignal(packet.sid, packet.stype, packet.message);
     } else {
