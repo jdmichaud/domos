@@ -12,9 +12,9 @@ FROM ubuntu:xenial
 # Create user
 RUN useradd jedi --create-home --password jedi && echo "jedi:jedi" | chpasswd && adduser jedi sudo
 
-RUN apt-get update
 # Some utilities
-RUN apt-get install -y build-essential \
+RUN apt-get update && apt-get install -y \
+  build-essential \
 	sudo \
 	nano \
 	vim \
