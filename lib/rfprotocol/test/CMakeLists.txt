@@ -11,7 +11,7 @@ else()
   # for gtest
   enable_testing()
   find_package(GTest REQUIRED)
-  find_package(Threads)
+  find_package(Threads REQUIRED)
 
   #Includes
   include_directories(${GTEST_INCLUDE_DIRS})
