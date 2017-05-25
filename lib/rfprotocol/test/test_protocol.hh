@@ -134,10 +134,11 @@ TEST(RFProtocolTest, ReadMessage) {
   // magic = MAGIC_NUMBER;
   // stype = 52; // 3 bits
   // sid = 196; // 3 bits
-  // mlength = 5; // 1 bit
+  // battery_indicator = false // 0 bit
+  // mlength = 5; // 2 bit
   // message = 28; // 3 bits
-  // parity = 0; // 3 + 3 + 1 + 3 = 11 -> even number of 1
-  ipacket = 0x1C05000000621AB2;
+  // parity = 0; // 3 + 3 + 2 + 3 = 12 -> even number of 1
+  ipacket = 0x1C05000000629AB2;
   // Copy the header into the buffer and append an additional ictet
   memcpy(buffer, &ipacket, sizeof(packet_t));
   buffer[8] = 69;
