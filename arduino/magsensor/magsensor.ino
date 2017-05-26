@@ -66,8 +66,7 @@ void setupRFDevice() {
 }
 
 void sendStatus(boolean open) {
-  char codeWord1[33];
-  char codeWord2[33];
+  char codeWord[33];
   packet_t packet;
   // Power up RF device
   digitalWrite(RF_DEVICE_POWER_PIN, HIGH);
@@ -77,30 +76,19 @@ void sendStatus(boolean open) {
   // Battery level indicator
   bool battery_indicator = readVcc() < minimal_battery_level ? true : false;
   // Create the RF packet
-  create_packet(DOOR_SENSOR, g_device_number, battery_indicator,
-                1, &message, &packet, NULL);
-  codeWord1[32] = '\0';
-  codeWord2[32] = '\0';
+  create_packet(DOOR_SENSOR, g_device_number,
+                battery_indicator, &message, &packet);
+  codeWord[32] = '\0';
   for (int packetSize = sizeof (packet_t) * CHAR_BIT; packetSize; --packetSize) {
-    if (packetSize <= 32) {
-      codeWord1[packetSize - 1] = packet & 1 ? '1' : '0';
-      // Serial.print("CodeWord1 ");
-      // Serial.print(packetSize);
-      // Serial.print(" ");
-      // Serial.println(codeWord1[packetSize]);
-    }
-    else {
-      codeWord2[packetSize - 33] = packet & 1 ? '1' : '0';
-      // Serial.print("CodeWord2 ");
-      // Serial.print(packetSize - 32);
-      // Serial.print(" ");
-      // Serial.println(codeWord2[packetSize - 32]);
-    }
+    codeWord[packetSize - 1] = packet & 1 ? '1' : '0';
+    // Serial.print("CodeWord1 ");
+    // Serial.print(packetSize);
+    // Serial.print(" ");
+    // Serial.println(codeWord1[packetSize]);
     packet >>= 1;
   }
   // Send packet
-  rfDevice.send(codeWord1);
-  rfDevice.send(codeWord2);
+  rfDevice.send(codeWord);
   // Power down RF device
   digitalWrite(RF_DEVICE_POWER_PIN, LOW);
 }
