@@ -77,7 +77,7 @@ void sendStatus(boolean open) {
   bool battery_indicator = readVcc() < minimal_battery_level ? true : false;
   // Create the RF packet
   create_packet(DOOR_SENSOR, g_device_number,
-                battery_indicator, &message, &packet);
+                battery_indicator, message, &packet);
   codeWord[32] = '\0';
   for (int packetSize = sizeof (packet_t) * CHAR_BIT; packetSize; --packetSize) {
     codeWord[packetSize - 1] = packet & 1 ? '1' : '0';
