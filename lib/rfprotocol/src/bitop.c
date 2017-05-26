@@ -6,7 +6,8 @@ uint32_t pack(uint32_t value, uint8_t size, uint8_t *buffer, uint32_t offset) {
   uint8_t new_offset = offset;
   while (size > 0) { // As long as there are some bits to store
     // Point to the next char with empty bits in the buffer
-    uint8_t *p = buffer + (new_offset + 1) / (sizeof (char) * CHAR_BIT);
+    uint8_t char_offset = new_offset / (sizeof (char) * CHAR_BIT);
+    uint8_t *p = buffer + char_offset;
     uint32_t local_offset = new_offset % (sizeof (char) * CHAR_BIT);
     uint8_t shift = 0;
     uint8_t shifted_value = 0;
@@ -37,7 +38,7 @@ uint32_t pack(uint32_t value, uint8_t size, uint8_t *buffer, uint32_t offset) {
       shifted_value = value << shift;
     }
     // Write the bits into the buffer
-    p[0] = p[0] | shifted_value;
+    *p = *p | shifted_value;
     size -= written_bits;
     new_offset += written_bits;
     /*
@@ -68,31 +69,32 @@ uint32_t unpack(uint64_t *value, uint8_t size,
      * v     :                            ..XX XXXX
      * size  : 9
      */
-    uint8_t  v = *(buffer + ((new_offset + 1) / (sizeof (char) * CHAR_BIT)));
+    uint8_t char_offset = new_offset / (sizeof (char) * CHAR_BIT);
+    uint8_t  v = *(buffer + char_offset);
     uint32_t local_offset = new_offset % (sizeof (char) * CHAR_BIT);
-    uint8_t written_bits = 0;
-    if (size >= CHAR_BIT) {
-      written_bits = CHAR_BIT - local_offset;
+    uint8_t read_bits = 0;
+    if (size >= CHAR_BIT - local_offset) {
+      read_bits = CHAR_BIT - local_offset;
     } else {
-      written_bits = size;
+      read_bits = size;
       v >>= CHAR_BIT - local_offset - size;
     }
     /*
-     * buffer:     .... ....  .... ....  .... ...X XXXX  ....
-     * v     :                                ...X XXXX
-     * write_mask: 0000 0000  0000 0000  0000 0001 1111
+     * buffer:     .... ....  .... ....  .... ..XX XXXX  ....
+     * v     :                                ..XX XXXX
+     * read_mask:  0000 0000  0000 0000  0000 0011 1111
      * size  : 9
      */
-    uint64_t write_mask = (1 << written_bits) - 1;
+    uint64_t read_mask = (1 << read_bits) - 1;
     /*
      * v     :                                             ..XX XXXX
-     * write_mask:                                         0011 1111
+     * read_mask:                                          0011 1111
      * value : .... ....  .... ....  .... ....  .... ....  YYXX XXXX
      */
-    *value |= (v & write_mask);
-    size -= written_bits;
+    *value |= (v & read_mask);
+    size -= read_bits;
     *value <<= size < 8 ? size : 8;
-    new_offset += written_bits;
+    new_offset += read_bits;
   }
   return new_offset;
 }

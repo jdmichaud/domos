@@ -1,6 +1,7 @@
+#include <strings.h>
+#include <math.h>
 #include "gtest/gtest.h"
 #include "bitop.h"
-#include <strings.h>
 
 TEST(BitOpTest, PackTestEmptyBuffer) {
   uint8_t buffer[4];
@@ -79,7 +80,7 @@ TEST(BitOpTest, UnpackTestComplex) {
 
 TEST(BitOpTest, UnpackTestComplex2) {
   uint8_t buffer[8];
-  bzero(&buffer, sizeof (char) * 4);
+  bzero(&buffer, sizeof (char) * 8);
   buffer[0] = 0xB2;
   buffer[1] = 0x1A;
   buffer[2] = 0x62;
@@ -92,3 +93,17 @@ TEST(BitOpTest, UnpackTestComplex2) {
   unpack(&value, 8, buffer, 9);
   EXPECT_EQ(52, value);
 }
+
+TEST(BitOpTest, PackUnpack) {
+  uint8_t buffer[4];
+  for (uint8_t offset = 0; offset < 32; ++offset) {
+    for (uint8_t size = 1; size <= 32 - offset; ++size) {
+      bzero(&buffer, sizeof (char) * 4);
+      pack(pow(2, size) - 1, size, buffer, offset);
+      uint32_t value = 0;
+      unpacki(&value, size, buffer, offset);
+      EXPECT_EQ(pow(2, size) - 1, value);
+    }
+  }
+}
+
