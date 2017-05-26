@@ -4,8 +4,8 @@
 #include "bitop.h"
 #include "protocol.h"
 // For debugging
-// uint64_t t;
-// printf("%" PRIu64 "\n", t);
+// uint32_t t;
+// printf("%" PRIu32 "\n", t);
 #include <inttypes.h>
 
 const uint64_t m1  = 0x5555555555555555; //binary: 0101...
@@ -23,16 +23,15 @@ uint8_t hammingw(uint64_t x) {
 }
 
 void create_packet(uint8_t sensor_type, uint8_t sensor_id,
-                   bool battery_indicator, uint32_t message_length,
-                   uint8_t *message, packet_t *packet, uint8_t **messagerest) {
+                   bool battery_indicator, uint8_t message,
+                   packet_t *packet) {
   memset(packet, 0, sizeof(packet_t));
   pack(MAGIC_NUMBER,  MAGIC_NUMBER_SIZE,  (uint8_t *) packet, MAGIC_NUMBER_OFFSET);
-  pack(sensor_type,   SENSOR_TYPE_SIZE,   (uint8_t *) packet, SENSOR_TYPE_OFFSET);
-  pack(sensor_id,     SENSOR_ID_SIZE,     (uint8_t *) packet, SENSOR_ID_OFFSET);
   pack(battery_indicator ? 1 : 0,
                       BATT_REPL_SIZE,     (uint8_t *) packet, BATT_REPL_OFFSET);
-  pack(message_length,MESSAGE_LENGTH_SIZE,(uint8_t *) packet, MESSAGE_LENGTH_OFFSET);
-  pack(message[0],    MESSAGE_SIZE,       (uint8_t *) packet, MESSAGE_OFFSET);
+  pack(sensor_type,   SENSOR_TYPE_SIZE,   (uint8_t *) packet, SENSOR_TYPE_OFFSET);
+  pack(sensor_id,     SENSOR_ID_SIZE,     (uint8_t *) packet, SENSOR_ID_OFFSET);
+  pack(message,       MESSAGE_SIZE,       (uint8_t *) packet, MESSAGE_OFFSET);
   // Compute parity
 #ifdef LITTLE_ENDIAN
   pack(hammingw(*packet & 0xFFFFFFFFFFFFFE00) & 1, PARITY_SIZE,
@@ -41,13 +40,6 @@ void create_packet(uint8_t sensor_type, uint8_t sensor_id,
   pack(hammingw(*packet & 0x7FFFFFFFFFFFFF) & 1, PARITY_SIZE,
                 (uint8_t *) packet, PARITY_OFFSET);
 #endif
-  // Set the rest of the message
-  if (messagerest) {
-    *messagerest = NULL;
-    if (message_length > 1) {
-      *messagerest = &message[1];
-    }
-  }
 }
 
 int read_packet(packet_t packet, packet_s *spacket) {
@@ -57,11 +49,10 @@ int read_packet(packet_t packet, packet_s *spacket) {
   memset(spacket, 0, sizeof(packet_s));
   unpackc(&magic_number,       MAGIC_NUMBER_SIZE,  (uint8_t *) &packet, MAGIC_NUMBER_OFFSET);
   unpackc(&parity,             PARITY_SIZE,        (uint8_t *) &packet, PARITY_OFFSET);
-  unpackc(&(spacket->stype),   SENSOR_TYPE_SIZE,   (uint8_t *) &packet, SENSOR_TYPE_OFFSET);
-  unpackc(&(spacket->sid),     SENSOR_ID_SIZE,     (uint8_t *) &packet, SENSOR_ID_OFFSET);
   unpackc(&battery_indicator,  BATT_REPL_SIZE,     (uint8_t *) &packet, BATT_REPL_OFFSET);
   spacket->battery_indicator = battery_indicator == 1 ? true : false;
-  unpacki(&(spacket->mlength), MESSAGE_LENGTH_SIZE,(uint8_t *) &packet, MESSAGE_LENGTH_OFFSET);
+  unpackc(&(spacket->stype),   SENSOR_TYPE_SIZE,   (uint8_t *) &packet, SENSOR_TYPE_OFFSET);
+  unpackc(&(spacket->sid),     SENSOR_ID_SIZE,     (uint8_t *) &packet, SENSOR_ID_OFFSET);
   unpackc(&(spacket->message), MESSAGE_SIZE,       (uint8_t *) &packet, MESSAGE_OFFSET);
   // Check magic number
   if (magic_number != MAGIC_NUMBER)
@@ -74,17 +65,5 @@ int read_packet(packet_t packet, packet_s *spacket) {
 #endif
   if (computed_parity != parity)
     return PARITY_ERROR;
-  return 0;
-}
-
-int read_message(uint8_t *buffer, packet_s *packet, uint8_t **messagerest) {
-  packet_t *header = (packet_t *) buffer;
-  // Decode the header
-  int ret = read_packet(*header, packet);
-  if (ret) return ret;
-  // If the message is longer than 1 octet, make it point to messagerest
-  *messagerest = NULL;
-  if (packet->mlength > 1)
-    *messagerest = &buffer[sizeof(packet_t)];
   return 0;
 }

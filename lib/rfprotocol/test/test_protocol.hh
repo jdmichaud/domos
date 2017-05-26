@@ -48,63 +48,10 @@ TEST(RFProtocolTest, HammingWeight) {
   EXPECT_EQ(33, hammingw(5555555555555555555));
 }
 
-TEST(RFProtocolTest, CreatePacket) {
-  uint8_t message[1] = { 170 };
-  packet_t packet;
-  uint8_t *rest = message;
-  create_packet(12, 248, false, 1, message, &packet, &rest);
-  EXPECT_EQ(0xAA010000007C06B2, packet);
-  EXPECT_EQ(NULL, rest);
-}
-
-TEST(RFProtocolTest, CreatePacketBatteryLevel) {
-  uint8_t message[1] = { 170 };
-  packet_t packet;
-  uint8_t *rest = message;
-  create_packet(12, 248, true, 1, message, &packet, &rest);
-  EXPECT_EQ(0xAA010000407C86B2, packet);
-  EXPECT_EQ(NULL, rest);
-}
-
-TEST(RFProtocolTest, CreatePacketLongMessage) {
-  uint8_t message[3] = { 170, 42, 254 };
-  packet_t packet;
-  uint8_t *rest = message;
-  create_packet(12, 248, false, 3, message, &packet, &rest);
-  EXPECT_EQ(0xAA030000007C86B2, packet);
-  EXPECT_EQ(&message[1], rest);
-}
-
-TEST(RFProtocolTest, ReadPacket) {
-  packet_t ipacket;
-  // magic = MAGIC_NUMBER;
-  // stype = 52; // 3 bits
-  // sid = 196; // 3 bits
-  // battery_indicator = false // 1 bit
-  // mlength = 5; // 2 bits
-  // message = 29; // 4 bits
-  // parity = 0; // 3 + 3 + 1 + 3 = 10 -> even number of 1
-  ipacket = 0x1D05000000621AB2;
-  packet_s opacket;
-  bzero(&opacket, sizeof(packet_s));
-  int ret = read_packet(ipacket, &opacket);
-  EXPECT_EQ(0, ret);
-  EXPECT_EQ(52,           opacket.stype);
-  EXPECT_EQ(196,          opacket.sid);
-  EXPECT_EQ(false,        opacket.battery_indicator);
-  EXPECT_EQ(5,            opacket.mlength);
-  EXPECT_EQ(29,           opacket.message);
-}
-
 TEST(RFProtocolTest, ReadPacketWrongMagicNumber) {
   packet_t ipacket;
-  // magic = 42;
-  // stype = 52; // 3 bits
-  // sid = 196; // 3 bits
-  // mlength = 1; // 1 bit
-  // message = 28; // 3 bits
-  // parity = 0; // 3 + 3 + 1 + 3 = 10 -> even number of 1
-  ipacket = 0x1C01000000621A2A;
+  // Magic number is supposed to be 178 (B2)
+  ipacket = 0x000000A2;
   packet_s opacket;
   bzero(&opacket, sizeof(packet_s));
   int ret = read_packet(ipacket, &opacket);
@@ -114,58 +61,27 @@ TEST(RFProtocolTest, ReadPacketWrongMagicNumber) {
 TEST(RFProtocolTest, ReadPacketParityError) {
   packet_t ipacket;
   // magic = MAGIC_NUMBER;
-  // stype = 52; // 3 bits
-  // sid = 196; // 3 bits
-  // mlength = 1; // 1 bit
-  // message = 28; // 3 bits
-  // parity = 0; // 3 + 3 + 1 + 3 = 10 -> even number of 1
+  // stype = 3; // 2 bits
+  // sid = 8; // 1 bit
+  // battery_indicator = 0; // 0 bit
+  // message = 78; // 4 bits
+  create_packet(3, 8, false, 78, &ipacket);
+  // parity = 0; // 2 + 1 + 4 = 7 -> odd number of 1 so paity should be 0
   //   set to 1 for this test
-  ipacket = 0x1C01000000629AB2;
+  ipacket |= 1 << 8;
   packet_s opacket;
   bzero(&opacket, sizeof(packet_s));
   int ret = read_packet(ipacket, &opacket);
   EXPECT_EQ(PARITY_ERROR, ret);
 }
 
-TEST(RFProtocolTest, ReadMessage) {
-  uint8_t *buffer = new uint8_t[sizeof(uint8_t) * 9];
-  bzero(buffer, sizeof(uint8_t) * 9);
-  packet_t ipacket;
-  // magic = MAGIC_NUMBER;
-  // stype = 52; // 3 bits
-  // sid = 196; // 3 bits
-  // battery_indicator = false // 0 bit
-  // mlength = 5; // 2 bit
-  // message = 28; // 3 bits
-  // parity = 0; // 3 + 3 + 2 + 3 = 12 -> even number of 1
-  ipacket = 0x1C05000000629AB2;
-  // Copy the header into the buffer and append an additional ictet
-  memcpy(buffer, &ipacket, sizeof(packet_t));
-  buffer[8] = 69;
-
-  // Observed outcome
-  packet_s opacket;
-  bzero(&opacket, sizeof(packet_s));
-  uint8_t *messagerest;
-  int ret = read_message(buffer, &opacket, &messagerest);
-  EXPECT_EQ(0,    ret);
-  EXPECT_EQ(52,   opacket.stype);
-  EXPECT_EQ(196,  opacket.sid);
-  EXPECT_EQ(false,opacket.battery_indicator);
-  EXPECT_EQ(5,    opacket.mlength);
-  EXPECT_EQ(28,   opacket.message);
-  EXPECT_EQ(&buffer[8], messagerest);
-  delete[] buffer;
-}
-
 TEST(RFProtocolTest, MagSensor) {
   packet_t ipacket;
-  uint8_t message = 0;
-  create_packet(5, 1, false, 1, &message, &ipacket, NULL);
+  create_packet(5, 1, false, 0, &ipacket);
   packet_s opacket;
   read_packet(ipacket, &opacket);
-  EXPECT_EQ(5, opacket.stype);
-  EXPECT_EQ(1, opacket.sid);
-  EXPECT_EQ(1, opacket.mlength);
-  EXPECT_EQ(0, opacket.message);
+  EXPECT_EQ(5,     opacket.stype);
+  EXPECT_EQ(false, opacket.battery_indicator);
+  EXPECT_EQ(1,     opacket.sid);
+  EXPECT_EQ(0,     opacket.message);
 }
