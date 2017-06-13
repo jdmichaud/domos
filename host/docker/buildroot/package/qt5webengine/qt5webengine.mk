@@ -35,12 +35,15 @@ ifdef QT5WEBENGINE_QMAKE_CFLAGS
 QT5WEBENGINE_QMAKEFLAGS += 'QMAKE_CFLAGS+=$(QT5WEBENGINE_QMAKE_CFLAGS)'
 endif
 
+## Debug
+QT5WEBENGINE_QMAKEFLAGS += CONFIG+=debug
+
 QT5WEBENGINE_MAKE_ENV = $(TARGET_MAKE_ENV) PATH="$(@D):$$PATH"
 
 # $(@D) needs to be in the PATH because of the python -> python2 symbolic link
 # below.
 define QT5WEBENGINE_CONFIGURE_CMDS
-	ln -s $(HOST_DIR)/usr/bin/python2 $(@D)/python
+	ln -sf $(HOST_DIR)/usr/bin/python2 $(@D)/python
 	(cd $(@D); $(QT5WEBENGINE_MAKE_ENV) $(HOST_DIR)/usr/bin/qmake $(QT5WEBENGINE_QMAKEFLAGS))
 endef
 
