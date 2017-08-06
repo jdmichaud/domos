@@ -1,7 +1,7 @@
 config BR2_PACKAGE_QT5WEBENGINE
     bool "qt5webengine"
     depends on BR2_PACKAGE_QT5_JSCORE_AVAILABLE
-    depends on BR2_TOOLCHAIN_BUILDROOT_USE_SSP
+    depends on BR2_TOOLCHAIN_BUILDROOT_USE_SSP || BR2_TOOLCHAIN_HAS_SSP
     select BR2_PACKAGE_QT5BASE
     select BR2_PACKAGE_QT5BASE_GUI
     select BR2_PACKAGE_QT5BASE_FONTCONFIG
@@ -43,4 +43,4 @@ comment "qt5webengine needs BR2_PACKAGE_QT5_JSCORE_AVAILABLE"
   depends on !BR2_PACKAGE_QT5_JSCORE_AVAILABLE
 
 comment "qt5webengine needs a toolchain w/ stack smashing protection"
-  depends on !BR2_TOOLCHAIN_BUILDROOT_USE_SSP
+  depends on !BR2_TOOLCHAIN_BUILDROOT_USE_SSP && !BR2_TOOLCHAIN_HAS_SSP
