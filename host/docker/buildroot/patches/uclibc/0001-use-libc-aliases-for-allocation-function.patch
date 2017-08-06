@@ -1,0 +1,91 @@
+diff -Naur a/libc/stdlib/malloc-standard/calloc.c b/libc/stdlib/malloc-standard/calloc.c
+--- a/libc/stdlib/malloc-standard/calloc.c	2017-04-23 00:38:22.000000000 +0200
++++ b/libc/stdlib/malloc-standard/calloc.c	2017-07-10 19:49:16.714244847 +0200
+@@ -18,7 +18,7 @@
+ 
+ 
+ /* ------------------------------ calloc ------------------------------ */
+-void* calloc(size_t n_elements, size_t elem_size)
++void* __libc_calloc(size_t n_elements, size_t elem_size)
+ {
+     mchunkptr p;
+     unsigned long  clearsize;
+@@ -91,3 +91,5 @@
+     return mem;
+ }
+ 
++void *calloc (size_t __nmemb, size_t __size)
++  __attribute__ ((weak, alias ("__libc_calloc")));
+diff -Naur a/libc/stdlib/malloc-standard/free.c b/libc/stdlib/malloc-standard/free.c
+--- a/libc/stdlib/malloc-standard/free.c	2017-04-23 00:38:22.000000000 +0200
++++ b/libc/stdlib/malloc-standard/free.c	2017-07-10 19:50:29.273613225 +0200
+@@ -267,7 +267,7 @@
+ 
+ 
+ /* ------------------------------ free ------------------------------ */
+-void free(void* mem)
++void __libc_free(void* mem)
+ {
+     mstate av;
+ 
+@@ -412,3 +412,5 @@
+     __MALLOC_UNLOCK;
+ }
+ 
++void free (void *__ptr)
++  __attribute__ ((weak, alias ("__libc_free")));
+diff -Naur a/libc/stdlib/malloc-standard/malloc.c b/libc/stdlib/malloc-standard/malloc.c
+--- a/libc/stdlib/malloc-standard/malloc.c	2017-04-23 00:38:22.000000000 +0200
++++ b/libc/stdlib/malloc-standard/malloc.c	2017-07-10 19:49:06.074336716 +0200
+@@ -800,7 +800,7 @@
+ 
+ 
+ /* ------------------------------ malloc ------------------------------ */
+-void* malloc(size_t bytes)
++void* __libc_malloc(size_t bytes)
+ {
+     mstate av;
+ 
+@@ -1159,3 +1159,5 @@
+     return retval;
+ }
+ 
++void *malloc (size_t __size)
++  __attribute__ ((weak, alias ("__libc_malloc")));
+diff -Naur a/libc/stdlib/malloc-standard/memalign.c b/libc/stdlib/malloc-standard/memalign.c
+--- a/libc/stdlib/malloc-standard/memalign.c	2017-04-23 00:38:22.000000000 +0200
++++ b/libc/stdlib/malloc-standard/memalign.c	2017-07-11 18:54:04.557222972 +0200
+@@ -23,7 +23,7 @@
+ 
+ 
+ /* ------------------------------ memalign ------------------------------ */
+-void* memalign(size_t alignment, size_t bytes)
++void* __libc_memalign(size_t alignment, size_t bytes)
+ {
+     size_t nb;             /* padded  request size */
+     char*           m;              /* memory returned by malloc call */
+@@ -129,3 +129,6 @@
+ }
+ weak_alias(memalign, aligned_alloc)
+ libc_hidden_def(memalign)
++
++void *memalign (size_t alignment, size_t bytes)
++  __attribute__ ((weak, alias ("__libc_memalign")));
+diff -Naur a/libc/stdlib/malloc-standard/realloc.c b/libc/stdlib/malloc-standard/realloc.c
+--- a/libc/stdlib/malloc-standard/realloc.c	2017-04-23 00:38:22.000000000 +0200
++++ b/libc/stdlib/malloc-standard/realloc.c	2017-07-10 19:50:27.289630606 +0200
+@@ -18,7 +18,7 @@
+ 
+ 
+ /* ------------------------------ realloc ------------------------------ */
+-void* realloc(void* oldmem, size_t bytes)
++void* __libc_realloc(void* oldmem, size_t bytes)
+ {
+     mstate av;
+ 
+@@ -238,3 +238,5 @@
+     return retval;
+ }
+ 
++void *realloc (void *__ptr, size_t __size)
++  __attribute__ ((weak, alias ("__libc_realloc")));
