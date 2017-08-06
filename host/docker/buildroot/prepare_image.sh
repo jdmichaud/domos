@@ -52,6 +52,7 @@ function controller() {
   ln --verbose --symbolic --force `pwd`/buildroot/package/433Utils ${destination}/package/
   ln --verbose --symbolic --force `pwd`/buildroot/package/qt5webengine ${destination}/package/qt5/
   ln --verbose --symbolic --force `pwd`/buildroot/package/qt5webview ${destination}/package/qt5/
+  ln --verbose --symbolic --force `pwd`/buildroot/package/uclibc/uClibc-ng.config ${destination}/package/uclibc/
   if [ -f ${destination}/package/Config.in.orig ]
   then
   	# If the Config.in has already been modified, reinitialize it with the original
