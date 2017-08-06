@@ -29,7 +29,7 @@ endif
 # configuration scripts which is difficult to use due to architecture-dependent
 # arguments and because we prefer to use system-provided versions of the
 # comments.
-QT5WEBENGINE_QMAKEFLAGS = WEBENGINE_CONFIG=use_system_ffmpeg
+QT5WEBENGINE_QMAKEFLAGS = WEBENGINE_CONFIG+=use_system_ffmpeg
 
 ifdef QT5WEBENGINE_QMAKE_CFLAGS
 QT5WEBENGINE_QMAKEFLAGS += 'QMAKE_CFLAGS+=$(QT5WEBENGINE_QMAKE_CFLAGS)'
