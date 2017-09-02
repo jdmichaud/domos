@@ -58,6 +58,11 @@ RUN apt-get install -y \
    graphviz \
    python-matplotlib
 
+# Necessary to compile qtwebengine
+# See here: https://bugreports.qt.io/browse/QTBUG-61873
+RUN apt-get install -y \
+  g++-multilib
+
 COPY configs /home/jedi/configs
 COPY overlays /home/jedi/overlays
 # Give ownership of ADDED files to the user. ADD always create the user as owned by root...
