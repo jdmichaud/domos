@@ -53,6 +53,7 @@ function controller() {
   ln --verbose --symbolic --force `pwd`/buildroot/package/qt5webengine ${destination}/package/qt5/
   ln --verbose --symbolic --force `pwd`/buildroot/package/qt5webview ${destination}/package/qt5/
   ln --verbose --symbolic --force `pwd`/buildroot/package/uclibc/uClibc-ng.config ${destination}/package/uclibc/
+  # patch the main Config.in to add the domos package
   if [ -f ${destination}/package/Config.in.orig ]
   then
   	# If the Config.in has already been modified, reinitialize it with the original
@@ -67,7 +68,6 @@ function controller() {
         source "package/rcswitch/Config.in"\
         source "package/433Utils/Config.in"\
         source "package/RF24/Config.in"\
-        source "package/qt5/qt5webengine/Config.in"\
         source "package/qt5/qt5webview/Config.in"\
         source "package/domos/libhttp/Config.in"\
         source "package/domos/librfprotocol/Config.in"\
@@ -76,6 +76,15 @@ function controller() {
 endmenu\
 \
 ' ${destination}/package/Config.in
+  # Patch the qt5 Config.in to add qtwebengine
+  patch -d ${destination}/package/qt5/ -p1 << EOF
+--- a/Config.in     2017-09-02 16:43:28.069165894 +0000
++++ b/Config.in     2017-08-08 18:55:14.932852395 +0000
+@@ -81,2 +81,3 @@
+ source "package/qt5/qt5webkit/Config.in"
++source "package/qt5/qt5webengine/Config.in"
+ source "package/qt5/qt5websockets/Config.in"
+EOF
   # wiringPi has some trouble to build in parallel
   sed --in-place 's/$(MAKE)/$(MAKE1)/g' ${destination}/package/wiringpi/wiringpi.mk
   # No board script to be overridden
