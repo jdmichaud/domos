@@ -73,10 +73,7 @@ USER jedi
 
 # Download buildroot package
 RUN cd /home/jedi && \
-  curl -sLO https://buildroot.org/downloads/buildroot-2017.02.tar.gz && \
-  tar zxf buildroot-2017.02.tar.gz && \
-  # Use our own version of the raspberry2 config as buildroot config
-  cp /home/jedi/configs/raspberrypi2_defconfig /home/jedi/buildroot-2017.02/configs/ && \
-  cd /home/jedi/buildroot-2017.02 && \
-  make raspberrypi2_defconfig && \
-  make
+  curl -sLO https://buildroot.org/downloads/buildroot-2017.08.tar.gz && \
+  tar zxf buildroot-2017.02.tar.gz
+# Next: use prepare_image to setup the proper patches
+
