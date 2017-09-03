@@ -1,0 +1,20 @@
+<html>
+<body>
+<script src="hls.js"></script>
+<h1>Live Streaming</h1>
+<video id="video"></video>
+<script>
+  if(Hls.isSupported()) {
+    var video = document.getElementById('video');
+    var hls = new Hls();
+    hls.loadSource(`http://${location.host}/playlist.m3u8`);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED,function() {
+      video.play();
+    });
+  } else {
+    console.error('HLS is not supported by your browser');
+  }
+</script>
+</body>
+</html>

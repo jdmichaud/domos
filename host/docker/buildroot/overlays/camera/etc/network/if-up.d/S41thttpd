@@ -1,0 +1,5 @@
+#!/bin/sh
+
+thttpd -p 8000 -d /root/www/ -l /var/log/thttpd.log
+echo "HTTP server started"
+

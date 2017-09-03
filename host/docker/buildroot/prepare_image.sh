@@ -93,7 +93,12 @@ EOF
 # Prepare the domos camera.
 # Assuming a RPi Zero W.
 function camera() {
-  echo "... $1 ..."
+  echo "Preparing controller image..."
+  local destination
+  destination=$1
+
+  ln --verbose --symbolic --force `pwd`/buildroot/configs/raspberrypi0_defconfig ${destination}/configs/
+
 }
 
 # Check the number of argument
