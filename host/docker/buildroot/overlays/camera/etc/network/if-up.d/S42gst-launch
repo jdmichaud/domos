@@ -1,8 +1,37 @@
 #!/bin/sh
 
-IP_ADDR=$(ifconfig $IFACE | grep 'inet addr' | cut -c 21-33)
-echo "Address to broadcast images: ${IP_ADDR}:8000"
+if [[ $IFACE != "wlan0" && $IFACE != "eth0" ]];
+then
+  echo "$0: interface is $IFACE: ignored" > /dev/kmsg
+  exit 0
+fi
 
-(cd /root/www/ && GS_DEBUG=2 LD_PRELOAD=libEGL.so:libGLESv2.so gst-launch-1.0 -vv v4l2src ! videoscale ! videorate  ! videoconvert ! video/x-raw,width=320,height=240,framerate=30/1,format=I420 ! omxh264enc inline-header=true periodicty-idr=1 target-bitrate=300000 control-rate=variable ! video/x-h264,profile=high,width=320,height=240,framerate=30/1 ! h264parse ! mpegtsmux ! hlssink max-files=5 playlist-root=http://${IP_ADDR}:8000 &)
-echo "Camera started"
+# Wait for the interface to actually start to start
+while [ 1 ]; do
+  if [ $(ip add sh dev $IFACE | grep 'inet ' | wc -l) -ne 0 ]; then
+     break
+  fi
+  echo "$0: Waiting for $IFACE to get an IP" > /dev/kmsg
+  sleep 1
+done
+
+IP_ADDR=$(ifconfig $IFACE | grep 'inet addr' | cut -c 21-33)
+echo "$0: Address to broadcast images: ${IP_ADDR}:8000" > /dev/kmsg
+
+(
+  cd /root/www/ &&
+  rm -fr playlist.m3u8 segment* &&
+  GS_DEBUG=2 LD_PRELOAD=libEGL.so:libGLESv2.so gst-launch-1.0 -vv \
+    v4l2src ! \
+    videoscale ! \
+    videorate  ! \
+    videoconvert ! \
+    video/x-raw,width=320,height=240,framerate=30/1,format=I420 ! \
+    omxh264enc inline-header=true periodicty-idr=1 target-bitrate=300000 control-rate=variable ! \
+    video/x-h264,profile=high,width=320,height=240,framerate=30/1 ! \
+    h264parse ! \
+    mpegtsmux ! \
+    hlssink max-files=5 playlist-root=http://${IP_ADDR}:8000 > /dev/kmsg &
+)
+echo "$0: Camera started" > /dev/kmsg
 
