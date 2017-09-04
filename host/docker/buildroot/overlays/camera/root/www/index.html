@@ -7,6 +7,7 @@
   if(Hls.isSupported()) {
     var video = document.getElementById('video');
     var hls = new Hls();
+    hls.liveMaxLatencyDuration = 1;
     hls.loadSource(`http://${location.host}/playlist.m3u8`);
     hls.attachMedia(video);
     hls.on(Hls.Events.MANIFEST_PARSED,function() {

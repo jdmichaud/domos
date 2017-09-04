@@ -23,15 +23,13 @@ echo "$0: Address to broadcast images: ${IP_ADDR}:8000" > /dev/kmsg
   rm -fr playlist.m3u8 segment* &&
   GS_DEBUG=2 LD_PRELOAD=libEGL.so:libGLESv2.so gst-launch-1.0 -vv \
     v4l2src ! \
-    videoscale ! \
-    videorate  ! \
     videoconvert ! \
-    video/x-raw,width=320,height=240,framerate=30/1,format=I420 ! \
-    omxh264enc inline-header=true periodicty-idr=1 target-bitrate=300000 control-rate=variable ! \
-    video/x-h264,profile=high,width=320,height=240,framerate=30/1 ! \
+    video/x-raw,width=640,height=480,framerate=30/1,format=I420 ! \
+    omxh264enc inline-header=true periodicty-idr=90 target-bitrate=300000 control-rate=variable ! \
+    video/x-h264,profile=high,width=640,height=480,framerate=30/1 ! \
     h264parse ! \
     mpegtsmux ! \
-    hlssink max-files=5 playlist-root=http://${IP_ADDR}:8000 > /dev/kmsg &
+    hlssink max-files=5 playlist-root=http://${IP_ADDR}:8000 target-duration=3 > /dev/kmsg &
 )
 echo "$0: Camera started" > /dev/kmsg
 
