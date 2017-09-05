@@ -1,0 +1,6 @@
+--- a/Makefile	2017-09-05 20:23:04.373100118 +0200
++++ b/Makefile	2017-09-05 20:07:08.107698215 +0200
+@@ -1,2 +1,2 @@
+ overscan: overscan.c
+-	gcc -Wall -std=c99 -o overscan overscan.c
++	$(CC) -Wall -std=c99 -o overscan overscan.c

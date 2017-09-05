@@ -1,0 +1,6 @@
+config BR2_PACKAGE_RPI_SET_OVERSCAN
+	bool "set_overscan"
+	help
+	  A tool to dyncamically set the overscan on RPi.
+
+	  https://github.com/ukscone/set_overscan
