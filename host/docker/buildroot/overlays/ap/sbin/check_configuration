@@ -11,8 +11,9 @@ SUBCOMMAND=/sbin/configure_wifi
 # Sanity check
 if [[ ! -f $FILE ]]
 then
-  echo "Error: No interface file $FILE" > /dev/kmsg
-  exit 1
+  echo "No interface file $FILE, WiFi needs to be configured" > /dev/kmsg
+  bash -c $SUBCOMMAND
+  exit 0
 fi
 
 # If the interface file contains {{SSID}}, it means we need to configure it
