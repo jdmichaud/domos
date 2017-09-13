@@ -1,0 +1,6 @@
+#!/bin/sh
+
+echo " * START CAMERA ***"
+
+/etc/network/if-up.d/gst-launch.sh $IFACE > /var/log/gst-launch 2>&1 &
+

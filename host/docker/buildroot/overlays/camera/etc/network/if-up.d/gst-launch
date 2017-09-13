@@ -1,8 +1,10 @@
 #!/bin/sh
 
+IFACE=$1
+
 if [[ $IFACE != "wlan0" && $IFACE != "eth0" ]];
 then
-  echo "$0: interface is $IFACE: ignored" > /dev/kmsg
+  echo "$0: interface is $IFACE: ignored"
   exit 0
 fi
 
@@ -11,12 +13,12 @@ while [ 1 ]; do
   if [ $(ip add sh dev $IFACE | grep 'inet ' | wc -l) -ne 0 ]; then
      break
   fi
-  echo "$0: Waiting for $IFACE to get an IP" > /dev/kmsg
+  echo "$0: Waiting for $IFACE to get an IP"
   sleep 1
 done
 
-IP_ADDR=$(ifconfig $IFACE | grep 'inet addr' | cut -c 21-33)
-echo "$0: Address to broadcast images: ${IP_ADDR}:8000" > /dev/kmsg
+IP_ADDR=$(ifconfig $IFACE | grep 'inet addr' | cut -c 21-33 | tr -d [:space:])
+echo "$0: Address to broadcast images: ${IP_ADDR}:8000"
 
 (
   cd /root/www/ &&
@@ -29,7 +31,6 @@ echo "$0: Address to broadcast images: ${IP_ADDR}:8000" > /dev/kmsg
     video/x-h264,profile=high,width=640,height=480,framerate=30/1 ! \
     h264parse ! \
     mpegtsmux ! \
-    hlssink max-files=50 playlist-root=http://${IP_ADDR}:8000 target-duration=1 > /dev/kmsg &
+    hlssink max-files=50 playlist-root=http://${IP_ADDR}:8000 target-duration=1 &
 )
-echo "$0: Camera started" > /dev/kmsg
-
+echo "$0: Camera started"
