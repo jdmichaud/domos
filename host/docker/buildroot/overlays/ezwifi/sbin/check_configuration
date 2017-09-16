@@ -5,13 +5,13 @@
 # will execute configuration_wifi.sh.
 #
 
-FILE=/etc/network/interfaces
+FILE=/root/.wifi_configured
 SUBCOMMAND=/sbin/configure_wifi
 
 # Sanity check
 if [[ ! -f $FILE ]]
 then
-  echo "No interface file $FILE, WiFi needs to be configured" > /dev/kmsg
+  echo "WiFi needs to be configured" > /dev/kmsg
   bash -c $SUBCOMMAND
   exit 0
 fi
