@@ -6,14 +6,12 @@
 #
 
 FILE=/root/.wifi_configured
-SUBCOMMAND=/sbin/configure_wifi
 
 # Sanity check
 if [[ ! -f $FILE ]]
 then
   echo "WiFi needs to be configured" > /dev/kmsg
-  bash -c $SUBCOMMAND
-  exit 0
+  exit 1
 fi
 
 # If the interface file contains {{SSID}}, it means we need to configure it
@@ -21,6 +19,8 @@ grep {{SSID}} $FILE > /dev/null
 if [[ $? -eq 0 ]]
 then
   echo "WiFi needs to be configured" > /dev/kmsg
-  bash -c $SUBCOMMAND
-  exit 0
+  exit 1
 fi
+
+exit 0
+
