@@ -1,0 +1,24 @@
+#!/bin/sh
+# This script installs the wpa hooks to be called when associating with
+# an access point
+
+echo ">>> wpa hooking $@" > /dev/kmsg
+
+case "$1" in
+    start)
+    if [ -x /usr/bin/gst-wpa-hooks.sh ] ; then
+      echo "Hooking camera start to network status" > /dev/kmsg
+      wpa_cli -a /usr/bin/gst-wpa-hooks.sh -P /var/run/wpa_cli.pid 2>&1 > /dev/kmsg &
+    fi
+    ;;
+
+    stop)
+      echo "Unhooking camera start to network status" > /dev/kmsg
+      kill -9 `cat /var/run/wpa_cli.pid`
+    ;;
+
+    *)
+    echo "usage: $0 { start | stop }" >&2
+    exit 1
+    ;;
+esac
