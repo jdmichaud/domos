@@ -1,9 +1,19 @@
 #!/bin/sh
 
 IFACE=$1
+LOCKFILE=/var/run/gst-launch.pid
+# Check if already running
+if [[ -f $LOCKFILE ]]
+then
+  echo "gst-launch already running. bailing out."
+  exit 1
+fi
 
-echo "TOTO"
+# Setup lock file
+trap "{ rm -f $LOCKFILE; }" EXIT SIGINT SIGTERM
+echo $$ > $LOCKFILE
 
+# Check IFACE
 if [[ $IFACE != "wlan0" && $IFACE != "eth0" ]];
 then
   echo "$0: interface is $IFACE: ignored"
@@ -22,7 +32,7 @@ done
 IP_ADDR=$(ifconfig $IFACE | grep 'inet addr' | cut -c 21-33 | tr -d [:space:])
 echo "$0: Address to broadcast images: ${IP_ADDR}:8000"
 
-cd /root/www/ &&
+cd /var/www/ &&
 rm -fr playlist.m3u8 segment* &&
 GS_DEBUG=2 LD_PRELOAD=libEGL.so:libGLESv2.so gst-launch-1.0 -vv \
   v4l2src ! \
