@@ -4,7 +4,7 @@
 case "$1" in
     start)
     if [ -x /usr/bin/gst-launch.sh ] ; then
-      /usr/bin/gst-launch.sh &
+      /usr/bin/gst-launch.sh $2 > /var/log/gst-launch.log &
     fi
     ;;
 
@@ -13,9 +13,8 @@ case "$1" in
     ;;
 
     *)
-    echo "usage: $0 { start | stop }" >&2
+    echo "usage: $0 { start <interface> | stop }" >&2
     exit 1
     ;;
 
 esac
-
