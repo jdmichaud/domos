@@ -1,6 +1,7 @@
 #!/bin/sh
 
-exit 0
+. /root/commonconf
+
 case "$1" in
   bound)
     ACCESS_POINT_IP=$(netstat -rn | grep UG | awk -F' ' '{ print $2 }')
@@ -13,6 +14,6 @@ case "$1" in
       -X POST \
       -d '{ "ip": "'$IP'", "mac": "'$MAC'" }' \
       -H 'Content-type: application/json' \
-      $ACCESS_POINT_IP:12000/api/camera/
+      http://$ACCESS_POINT_IP:$CAMERA_REST_API_PORT/api/camera/
   ;;
 esac

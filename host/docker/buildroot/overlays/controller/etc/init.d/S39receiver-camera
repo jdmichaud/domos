@@ -1,0 +1,20 @@
+#!/bin/sh
+
+LOCKFILE=/var/run/receiver-camera.lock
+
+case "$1" in
+  start)
+    #start-stop-daemon --start --chuid root --background --make-pidfile --pidfile $LOCKFILE --exec receiver-camera-launcher.sh
+    receiver-camera-launcher.sh &
+    ;;
+
+  stop)
+    #start-stop-daemon --stop --pidfile $LOCKFILE
+    kill -9 $(ps | grep receiver-camera-launcher | grep -v grep)
+    ;;
+
+  *)
+    echo "usage: $0 { start | stop }" >&2
+    exit 1
+  ;;
+esac

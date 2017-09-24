@@ -1,4 +1,4 @@
 #!/bin/bash
 
-kiosk $(cat /root/home.url) &
+kiosk $(cat /root/home.url) > /var/log/kiosk.log 2>&1 &
 
