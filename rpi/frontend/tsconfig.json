@@ -7,7 +7,9 @@
     "target": "es5",
     "baseUrl": "app",
     // https://github.com/Microsoft/TypeScript-Sublime-Plugin/issues/470
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    // https://github.com/angular/angular/issues/14595
+    "lib": ["es2015", "es2017", "dom"]
   },
   "exclude": [
     "node_modules"
