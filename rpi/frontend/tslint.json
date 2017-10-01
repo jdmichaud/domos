@@ -8,6 +8,7 @@
       }
     ],
     "export-name": false,
-    "no-import-side-effect": false
+    "no-import-side-effect": false,
+    "no-constructor-vars": true
   }
 }

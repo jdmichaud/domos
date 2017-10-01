@@ -16,7 +16,12 @@ export class CamerasList implements OnInit {
   constructor(private cameraService: CameraService) {}
 
   public retrieveCameras(): void {
-    this.cameraService.getCameras().then((cameras: Camera[]): Camera[] => this.cameras = cameras);
+    this.cameraService.getCameras().subscribe(
+      (cameras: Camera[]): void => {
+        this.cameras = cameras;
+      },
+      (error) => console.error(error),
+      () => console.log('ERROR: Connection completed unexpectedly'));
   }
 
   public ngOnInit(): void {
