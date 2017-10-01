@@ -9,7 +9,10 @@
     // https://github.com/Microsoft/TypeScript-Sublime-Plugin/issues/470
     "experimentalDecorators": true,
     // https://github.com/angular/angular/issues/14595
-    "lib": ["es2015", "es2017", "dom"]
+    "lib": ["es2015", "es2017", "dom"],
+    // So we don';'t have to use @Inject to inject services in constructors
+    // https://blog.thoughtram.io/angular/2015/09/17/resolve-service-dependencies-in-angular-2.html
+    "emitDecoratorMetadata": true
   },
   "exclude": [
     "node_modules"

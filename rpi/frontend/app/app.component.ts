@@ -5,6 +5,6 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'domos-app',
-  template: '<h1>Domos is loaded</h1>',
+  templateUrl: './app.component.html',
 })
 export class AppComponent {}

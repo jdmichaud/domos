@@ -9,7 +9,7 @@ module.exports = {
   // 2. You can't specify './' if you use path.join
   // 3. Without path.join, it will fail on Windows.
   // https://github.com/webpack/webpack/issues/223
-  entry: './js/main',
+  entry: './main',
   output: {
     path: path.join(__dirname, 'dist'),
     filename: 'app.js'
@@ -38,11 +38,20 @@ module.exports = {
       // Faster alternative to ts-loader
       { 
         test: /\.tsx?$/, 
-        loader: 'awesome-typescript-loader',
-        options: {
-          configFileName: 'tsconfig.json',
-        },
+        loaders: [{
+          loader: 'awesome-typescript-loader',
+          options: {
+            configFileName: 'tsconfig.json',
+          },
+        // angular2-template-loader will replace templateUrl by template: require
+        // to embed the HTML into app.js
+        // For this, @types/requirejs is necessary
+        },'angular2-template-loader'],
         exclude: /(node_modules)/,
+      },
+      {
+        test: /\.html$/,
+        loader: 'raw-loader',
       },
       {
         test: /\.css$/,
