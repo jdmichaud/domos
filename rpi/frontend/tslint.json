@@ -9,6 +9,6 @@
     ],
     "export-name": false,
     "no-import-side-effect": false,
-    "no-constructor-vars": true
+    "no-parameter-properties": true
   }
 }
