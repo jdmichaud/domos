@@ -18,7 +18,7 @@ export class HlsService {
       const videoelt: HTMLVideoElement =
         <HTMLVideoElement> document.getElementById(`camera-${id}`);
       const hls: Hls = new Hls();
-      //hls.config.liveMaxLatencyDuration = 1;
+      hls.config.liveMaxLatencyDuration = 1;
       hls.loadSource(`http://${ip}:9000/playlist.m3u8`);
       hls.attachMedia(videoelt);
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
