@@ -18,6 +18,7 @@ export class CamerasList implements OnInit {
   public retrieveCameras(): void {
     this.cameraService.getCameras().subscribe(
       (cameras: Camera[]): void => {
+        console.log(cameras);
         this.cameras = cameras;
       },
       (error) => console.error(error),

@@ -12,7 +12,9 @@
     "lib": ["es2015", "es2017", "dom"],
     // So we don';'t have to use @Inject to inject services in constructors
     // https://blog.thoughtram.io/angular/2015/09/17/resolve-service-dependencies-in-angular-2.html
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    // So we can index object with strings
+    "suppressImplicitAnyIndexErrors": true
   },
   "exclude": [
     "node_modules"

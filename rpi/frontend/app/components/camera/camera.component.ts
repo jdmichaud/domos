@@ -1,7 +1,7 @@
 /**
  * Application main component
  */
-import { Component, Input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input } from '@angular/core';
 
 import { Camera } from 'classes/camera';
 import { HlsService } from 'services/hls.service';
@@ -11,13 +11,12 @@ import { HlsService } from 'services/hls.service';
   templateUrl: './camera.component.html',
   providers: [HlsService],
 })
-export class CameraComponent implements OnInit {
+export class CameraComponent implements AfterViewInit {
   @Input() private camera: Camera;
-  @Input() private cameraIndex: number;
 
   constructor(private hlsService: HlsService) {}
 
-  public ngOnInit(): void {
-    this.hlsService.registerCamera(this.cameraIndex, this.camera.ip);
+  public ngAfterViewInit(): void {
+    this.hlsService.registerCamera(this.camera.id, this.camera.ip);
   }
 }

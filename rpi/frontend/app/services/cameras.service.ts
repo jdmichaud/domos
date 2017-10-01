@@ -3,7 +3,7 @@
  */
 
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
+import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { Observer } from 'rxjs/Observer';
 import 'rxjs/add/operator/toPromise';
@@ -24,6 +24,10 @@ export class CameraService {
       });
 
     return this.observable;
+  }
+
+  public del(id: number): Promise<Response> {
+    return this.http.delete(`${this.CAMERA_URL}/${id}`).toPromise();
   }
 
   private getPromise(observer: Observer<Camera[]>, initialCall: boolean): any {
