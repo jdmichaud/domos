@@ -1,9 +1,8 @@
 all: prepare
-	echo $(NPM)
-	$(NPM) run dist
+	npm run dist
 
 prepare:
-	$(NPM) install
+	npm install
 
 clean:
 	rm -fr dist node_modules npm-debug.log

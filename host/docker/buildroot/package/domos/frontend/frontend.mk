@@ -12,8 +12,12 @@ FRONTEND_LICENSE_FILES = LICENSE
 HOST_FRONTEND_DEPENDENCIES = host-python host-nodejs
 FRONTEND_SUBDIR = rpi/frontend
 
-$(eval $(generic-package))
-
-define SET_OVERSCAN_INSTALL_TARGET_CMDS
-	$(INSTALL) -D -m 0755 $(@D)/dist/* $(TARGET_DIR)/var/www
+define FRONTEND_BUILD_CMDS
+    $(MAKE) $(TARGET_CONFIGURE_OPTS) -C $(@D)/rpi/frontend all
 endef
+
+define FRONTEND_INSTALL_TARGET_CMDS
+	cp -r $(@D)/rpi/frontend/dist/* $(TARGET_DIR)/var/www
+endef
+
+$(eval $(generic-package))
