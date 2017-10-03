@@ -1,5 +1,0 @@
-dir=/var/www/
-cgipat=**.cgi
-logfile=/var/www/logs/thttpd_log
-pidfile=/var/run/thttpd.pid
-port=8000
