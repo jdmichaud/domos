@@ -75,6 +75,7 @@ function controller() {
         source "package/domos/librfprotocol/Config.in"\
         source "package/domos/receiver/Config.in"\
         source "package/domos/kiosk/Config.in"\
+        source "package/domos/frontend/Config.in"\
 endmenu\
 \
 ' ${destination}/package/Config.in
