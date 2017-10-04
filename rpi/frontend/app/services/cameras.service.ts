@@ -37,7 +37,6 @@ export class CameraService {
       .get(this.CAMERA_URL + (initialCall ? '' : '?watch'))
       .toPromise();
 
-    console.log('getPromise returns');
     return promise.then(response => {
       observer.next(response.json() as Camera[]);
 
