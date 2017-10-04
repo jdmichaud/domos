@@ -37,14 +37,15 @@ export class CameraService {
       .get(this.CAMERA_URL + (initialCall ? '' : '?watch'))
       .toPromise();
 
-    console.error('getPromise returns');
+    console.log('getPromise returns');
     return promise.then(response => {
-      console.error('response:' + JSON.stringify(response.json()));
       observer.next(response.json() as Camera[]);
 
       return this.getPromise(observer, false);
     }).catch(error => {
-      observer.error(error);
+      if (error.status !== 0) {
+        console.error('error while waiting for camera service:', error);
+      } // Is status === 0, its probably a long-polling timeout
 
       return this.getPromise(observer, false);
     });

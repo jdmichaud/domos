@@ -22,7 +22,7 @@ export class HlsService {
       hls.loadSource(`http://${ip}:8000/playlist.m3u8`);
       hls.attachMedia(videoelt);
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        console.error('start playing video');
+        console.log('start playing video');
         videoelt.play();
       });
       hls.on(Hls.Events.ERROR, (event: string, eventData: any): void => {

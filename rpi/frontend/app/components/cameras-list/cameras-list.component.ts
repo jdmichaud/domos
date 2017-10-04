@@ -21,7 +21,6 @@ export class CamerasList implements OnInit {
         this.cameras = cameras;
       },
       (error) => {
-        console.error('ERROR:' + error);
         this.cameras = [];
       },
       () => console.log('ERROR: Connection completed unexpectedly'));
