@@ -19,18 +19,21 @@ export class HlsService {
         <HTMLVideoElement> document.getElementById(`camera-${id}`);
       const hls: Hls = new Hls();
       hls.config.liveMaxLatencyDuration = 1;
-      hls.loadSource(`http://${ip}:9000/playlist.m3u8`);
+      hls.loadSource(`http://${ip}:8000/playlist.m3u8`);
       hls.attachMedia(videoelt);
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        console.error('start playing video');
         videoelt.play();
       });
       hls.on(Hls.Events.ERROR, (event: string, eventData: any): void => {
+        console.error('event:', event, 'evenData:', eventData);
         if (eventData.type === 'networkError' && eventData.details === 'levelLoadError') {
           this.cameraService.del(id).then(() => hls.destroy());
+          console.error(`camera ${id} (${ip}) is unreachable: removed`);
         }
       });
       // Object.keys(Hls.Events).forEach((e: string): void => {
-      //   hls.on(Hls.Events[e], console.info.bind(console));
+      //   hls.on(Hls.Events[e], console.error.bind(console));
       // });
     } else {
       console.log('ERROR: Hls not supported in this browser');

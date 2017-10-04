@@ -37,10 +37,16 @@ export class CameraService {
       .get(this.CAMERA_URL + (initialCall ? '' : '?watch'))
       .toPromise();
 
+    console.error('getPromise returns');
     return promise.then(response => {
+      console.error('response:' + JSON.stringify(response.json()));
       observer.next(response.json() as Camera[]);
 
       return this.getPromise(observer, false);
-    }).catch(error => observer.error(error));
+    }).catch(error => {
+      observer.error(error);
+
+      return this.getPromise(observer, false);
+    });
   }
 }
