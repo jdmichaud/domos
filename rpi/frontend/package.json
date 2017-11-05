@@ -6,7 +6,7 @@
   "scripts": {
     "dist": "node_modules/.bin/webpack",
     "serve": "node_modules/.bin/webpack-dev-server --host 0.0.0.0 --port 8080 --content-base dist",
-    "test": "echo to do"
+    "test": "karma start --single-run --browsers ChromeHeadless karma.conf.js"
   },
   "repository": {
     "type": "git",
@@ -24,6 +24,7 @@
     "@angular/platform-browser-dynamic": "^4.4.4",
     "@types/core-js": "0.9.43",
     "@types/hls.js": "^0.7.6",
+    "@types/jasmine": "^2.6.0",
     "@types/requirejs": "^2.1.31",
     "@types/rx": "^4.1.1",
     "angular2-template-loader": "^0.6.2",
@@ -33,7 +34,15 @@
     "file-loader": "0.11.2",
     "hls.js": "^0.8.4",
     "html-loader": "^0.5.1",
+    "jasmine-core": "^2.8.0",
     "jquery": "3.2.1",
+    "karma": "^1.7.1",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-cli": "^1.0.1",
+    "karma-jasmine": "^1.1.0",
+    "karma-jasmine-html-reporter": "^0.2.2",
+    "karma-sourcemap-loader": "^0.3.7",
+    "karma-webpack": "^2.0.5",
     "raw-loader": "^0.5.1",
     "rxjs": "^5.4.3",
     "source-map-loader": "0.2.1",
