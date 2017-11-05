@@ -14,7 +14,8 @@ module.exports = {
     path: path.join(__dirname, 'dist'),
     filename: 'app.js'
   },
-  devtool: "source-map",
+  // devtool: "source-map",
+  devtool: "eval",
   resolve: {
     // Add '.ts' and '.tsx' as resolvable extensions.
     extensions: [".ts", ".js"],
