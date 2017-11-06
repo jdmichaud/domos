@@ -36,23 +36,14 @@ module.exports = {
           typeCheck: true,
         }
       },
-      // Faster alternative to ts-loader
-      { 
-        test: /\.tsx?$/, 
-        loaders: [{
-          loader: 'awesome-typescript-loader',
-          options: {
-            configFileName: 'tsconfig.json',
-          },
-        // angular2-template-loader will replace templateUrl by template: require
-        // to embed the HTML into app.js
-        // For this, @types/requirejs is necessary
-        },'angular2-template-loader'],
-        exclude: /(node_modules)/,
-      },
       {
         test: /\.html$/,
-        loader: 'raw-loader',
+        use: 'raw-loader',
+      },
+      {
+        test: /\.tsx?$/,
+        loader: 'ts-loader',
+        exclude: /(node_modules)/,
       },
       {
         test: /\.css$/,
@@ -72,7 +63,7 @@ module.exports = {
     ],
     // https://github.com/angular/angular/issues/11580
     exprContextCritical: false,
-  },  
+  },
   plugins: [
     new webpack.ProvidePlugin({ jQuery: 'jquery' }),
     new CopyWebpackPlugin([{ from: 'index.html' }]),

@@ -4,11 +4,12 @@
 import { AfterViewInit, Component, Input } from '@angular/core';
 
 import { Camera } from 'classes/camera';
+import * as template from 'components/camera/camera.component.html';
 import { HlsService } from 'services/hls.service';
 
 @Component({
   selector: 'camera',
-  templateUrl: './camera.component.html',
+  template: String(template),
   providers: [HlsService],
 })
 export class CameraComponent implements AfterViewInit {
