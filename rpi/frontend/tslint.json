@@ -9,6 +9,8 @@
     ],
     "export-name": false,
     "no-import-side-effect": false,
-    "no-parameter-properties": true
+    "no-parameter-properties": true,
+    "no-require-imports": false,
+    "no-any": false
   }
 }

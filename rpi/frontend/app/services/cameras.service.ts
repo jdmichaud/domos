@@ -4,9 +4,9 @@
 
 import { Injectable } from '@angular/core';
 import { Http, Response } from '@angular/http';
+import 'rxjs/add/operator/toPromise';
 import { Observable } from 'rxjs/Observable';
 import { Observer } from 'rxjs/Observer';
-import 'rxjs/add/operator/toPromise';
 
 import { Camera } from 'classes/camera';
 
@@ -31,7 +31,7 @@ export class CameraService {
   }
 
   private getPromise(observer: Observer<Camera[]>, initialCall: boolean): any {
-    const promise = this.http
+    const promise: Promise<Response> = this.http
       // Call with ?watch starting with the recursive call so
       // we can initialize the list
       .get(this.CAMERA_URL + (initialCall ? '' : '?watch'))

@@ -17,7 +17,7 @@ module.exports = {
   // devtool: "source-map",
   devtool: "eval",
   resolve: {
-    // Add '.ts' and '.tsx' as resolvable extensions.
+    // Add '.ts' and '.js' as resolvable extensions.
     extensions: [".ts", ".js"],
     modules: [
       "node_modules",
@@ -30,7 +30,7 @@ module.exports = {
         enforce: 'pre',
         test: /\.tsx?$/,
         loader: 'tslint-loader',
-        exclude: /(node_modules)/,
+        exclude: /(tests|node_modules)/,
         options: {
           configFile: 'tslint.json',
           typeCheck: true,
@@ -43,7 +43,7 @@ module.exports = {
       {
         test: /\.tsx?$/,
         loader: 'ts-loader',
-        exclude: /(node_modules)/,
+        exclude: /(tests|node_modules)/,
       },
       {
         test: /\.css$/,
