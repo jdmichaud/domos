@@ -12,7 +12,7 @@ import { HlsService } from 'app/services/hls.service';
   providers: [HlsService],
 })
 export class CameraComponent implements AfterViewInit {
-  @Input() private camera: Camera;
+  @Input() public camera: Camera;
 
   constructor(private hlsService: HlsService) {}
 

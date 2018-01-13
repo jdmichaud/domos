@@ -11,7 +11,7 @@ import { CameraService } from 'app/services/cameras.service';
   providers: [CameraService],
 })
 export class CamerasList implements OnInit {
-  private cameras: Camera[];
+  public cameras: Camera[];
 
   constructor(private cameraService: CameraService) {}
 
